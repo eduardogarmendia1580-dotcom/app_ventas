@@ -921,9 +921,9 @@
 
       <!-- FORMULARIO LOGIN ADMIN -->
       <form id="formLoginAdmin" class="login-form" onsubmit="handleAdminLogin(event)">
-        <div class="login-hint-box">
-          <i class="fa-solid fa-key"></i>
-          <div>Contraseña de Administrador: <strong>admin2026</strong></div>
+        <div class="login-hint-box" style="background: rgba(var(--primary-rgb, 30,64,175),0.08); border-color: var(--primary);">
+          <i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i>
+          <div style="color: var(--gray-700);">Introduce la contraseña de administrador para acceder al panel de gestión.</div>
         </div>
 
         <div class="form-group">
@@ -1058,6 +1058,8 @@
               <option value="PENDIENTE">📦 Pendientes de Envío</option>
               <option value="ENVIADA">🚚 Enviadas por Admin</option>
               <option value="DEVUELTA">🔄 Devueltas</option>
+              <option value="PENDIENTE_ACEPT">Pendientes de Aceptación</option>
+              <option value="RECHAZADA">Rechazadas</option>
             </select>
             <button class="btn btn-success" onclick="openNewSaleModal()">
               <i class="fa-solid fa-cart-plus"></i> Registrar Nueva Venta
@@ -2381,6 +2383,8 @@
       if (filter === 'PENDIENTE') sales = sales.filter(s => s.shippingStatus === 'Pendiente de Envío' && s.status !== 'Devuelta');
       else if (filter === 'ENVIADA') sales = sales.filter(s => s.shippingStatus === 'Enviada' && s.status !== 'Devuelta');
       else if (filter === 'DEVUELTA') sales = sales.filter(s => s.status === 'Devuelta' || s.returned);
+      else if (filter === 'PENDIENTE_ACEPT') sales = sales.filter(s => s.acceptanceStatus === 'PENDIENTE');
+      else if (filter === 'RECHAZADA') sales = sales.filter(s => s.acceptanceStatus === 'RECHAZADA');
 
       if (sales.length === 0) {
         tbody.innerHTML = `
@@ -2398,6 +2402,8 @@
         const tr = document.createElement('tr');
         const isShipped = s.shippingStatus === 'Enviada';
         const isReturned = s.status === 'Devuelta' || s.returned;
+        const isPendingAcceptance = s.acceptanceStatus === 'PENDIENTE' && !isAdmin;
+        const isRejected = s.acceptanceStatus === 'RECHAZADA';
 
         let shipBadge = isShipped 
           ? `<span class="status-badge badge-shipped"><i class="fa-solid fa-truck"></i> Enviada (${formatDate(s.shippingDate)})</span>`
@@ -2405,6 +2411,25 @@
 
         if (isReturned) {
           shipBadge = `<span class="status-badge badge-returned"><i class="fa-solid fa-arrow-rotate-left"></i> Devuelta</span>`;
+        }
+        if (s.acceptanceStatus === 'PENDIENTE') {
+          shipBadge = `<span class="status-badge" style="background:#fef3c7;color:#92400e;border:1px solid #f59e0b;"><i class="fa-solid fa-clock"></i> En espera de aceptación</span>`;
+        }
+        if (s.acceptanceStatus === 'RECHAZADA') {
+          shipBadge = `<span class="status-badge badge-returned"><i class="fa-solid fa-xmark"></i> Rechazada</span>`;
+        }
+
+        // ACCETTAZIONE VENDITE (venditore deve accettare proposte admin)
+        let acceptanceBtnHtml = '';
+        if (!isAdmin && s.acceptanceStatus === 'PENDIENTE') {
+          acceptanceBtnHtml = `
+            <button class="btn btn-success btn-sm" onclick="acceptSale('${s.id}')">
+              <i class="fa-solid fa-check"></i> Aceptar
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="rejectSale('${s.id}')">
+              <i class="fa-solid fa-xmark"></i> Rechazar
+            </button>
+          `;
         }
 
         // REQUISITO 4 Y 5: Reglas de borrado
@@ -2451,7 +2476,8 @@
           <td><small style="color: var(--gray-500);">${escapeHtml(s.notes || '-')}</small></td>
           <td style="text-align: right;">
             <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center;">
-              ${!isReturned ? `
+              ${acceptanceBtnHtml}
+              ${!isReturned && s.acceptanceStatus !== 'PENDIENTE' ? `
                 <button class="btn btn-warning btn-sm" title="Devolución" onclick="openReturnModal('${s.id}')">
                   <i class="fa-solid fa-arrow-rotate-left"></i> Devolución
                 </button>

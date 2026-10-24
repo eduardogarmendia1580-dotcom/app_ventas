@@ -167,9 +167,10 @@ function setupDatabaseSheets(ss) {
       "ID", "Fecha", "VendedorID", "VendedorNombre", "ProductoID", 
       "ProductoNombre", "PrecioVenta", "PrecioCompraAdmin", "GananciaVendedor", 
       "Estado", "Liquidado", "FechaLiquidación", "PeríodoLiquidado", "Notas", "Devuelta",
-      "EnvioEstado", "FechaEnvio", "TrackingEnvio", "NotasEnvio"
+      "EnvioEstado", "FechaEnvio", "TrackingEnvio", "NotasEnvio",
+      "AcceptanceStatus", "AcceptedDate"
     ]);
-    salesSheet.getRange("A1:S1").setFontWeight("bold").setBackground("#e9ecef");
+    salesSheet.getRange("A1:U1").setFontWeight("bold").setBackground("#e9ecef");
   }
 
   // 4. Hoja de Historial de Liquidaciones
@@ -422,6 +423,72 @@ function deleteSeller(sellerId) {
   }
 }
 
+/**
+ * ELIMINACIÓN FORZADA DE VENDEDOR POR ADMIN (CON DOBLE CONFIRMACIÓN EN FRONTEND)
+ * Borra físicamente al vendedor aunque tenga ventas históricas.
+ * La doble confirmación ya fue validada en el frontend antes de llamar a esta función.
+ */
+function deleteSellerForce(sellerId) {
+  try {
+    const ss = getSpreadsheet();
+    const sheet = ss.getSheetByName(SHEET_SELLERS);
+    const rows = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][0]) === String(sellerId)) {
+        const sellerName = String(rows[i][1] || sellerId);
+        sheet.deleteRow(i + 1);
+        return { 
+          success: true, 
+          message: "Vendedor \"" + sellerName + "\" eliminado permanentemente de la base de datos por el Administrador." 
+        };
+      }
+    }
+    return { success: false, error: "Vendedor no encontrado" };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
+/**
+ * El vendedor acepta o rechaza una venta propuesta por Admin
+ * acceptanceStatus: "ACEPTADA" | "RECHAZADA"
+ */
+function updateSaleAcceptance(saleId, sellerId, acceptanceStatus) {
+  try {
+    const ss = getSpreadsheet();
+    const sheet = ss.getSheetByName(SHEET_SALES);
+    const rows = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][0]) === String(saleId)) {
+        const rowSellerId = String(rows[i][2] || "");
+        if (rowSellerId !== String(sellerId)) {
+          return { success: false, error: "Esta venta no pertenece a este vendedor." };
+        }
+        const rowIdx = i + 1;
+        // Columna 20 = AcceptanceStatus (nueva)
+        sheet.getRange(rowIdx, 20).setValue(acceptanceStatus);
+        sheet.getRange(rowIdx, 21).setValue(new Date().toISOString()); // AcceptedDate
+        if (acceptanceStatus === "ACEPTADA") {
+          sheet.getRange(rowIdx, 10).setValue("Venta Confirmada");
+        } else {
+          sheet.getRange(rowIdx, 10).setValue("Rechazada por Vendedor");
+        }
+        return { 
+          success: true, 
+          message: acceptanceStatus === "ACEPTADA" 
+            ? "Venta aceptada y confirmada con éxito." 
+            : "Venta rechazada. El Administrador podrá verlo en el panel."
+        };
+      }
+    }
+    return { success: false, error: "Venta no encontrada" };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
 // ==========================================
 // VENTAS Y ENVÍOS (REQUISITOS 1, 2, 4 Y 5)
 // ==========================================
@@ -462,7 +529,9 @@ function getAllSales(ss, filterSellerId) {
       shippingStatus: String(row[15] || "Pendiente de Envío"), // "Pendiente de Envío" o "Enviada"
       shippingDate: row[16] ? new Date(row[16]).toISOString() : "",
       shippingTracking: String(row[17] || ""),
-      shippingNotes: String(row[18] || "")
+      shippingNotes: String(row[18] || ""),
+      acceptanceStatus: String(row[19] || "ACEPTADA"), // "ACEPTADA" | "PENDIENTE" | "RECHAZADA"
+      acceptedDate: row[20] ? new Date(row[20]).toISOString() : ""
     });
   }
   return list;
@@ -493,7 +562,7 @@ function recordSale(data) {
       salePrice,
       adminCost,
       sellerProfit,
-      "Venta Confirmada", // Confirmada de inmediato
+      data.proposedByAdmin ? "Pendiente de Aceptación" : "Venta Confirmada", // Estado
       false, // Liquidado
       "",    // Fecha liquidación
       "",    // Período
@@ -502,7 +571,9 @@ function recordSale(data) {
       "Pendiente de Envío", // EnvioEstado
       "", // FechaEnvio
       "", // TrackingEnvio
-      ""  // NotasEnvio
+      "", // NotasEnvio
+      data.proposedByAdmin ? "PENDIENTE" : "ACEPTADA", // AcceptanceStatus
+      data.proposedByAdmin ? "" : new Date().toISOString() // AcceptedDate
     ]);
 
     return { success: true, id: id, message: "¡Venta registrada y confirmada con éxito!" };
