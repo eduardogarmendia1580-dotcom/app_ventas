@@ -2022,10 +2022,10 @@
         }
       }
 
-      // Datos demo con contraseñas aleatorias
+      // Datos demo con contraseñas fijas conocidas (modo local sin Google Script)
       APP_STATE.sellers = [
-        { id: 'VEND-001', name: 'Mario Rossi', email: 'mario.rossi@ejemplo.com', phone: '+34 600 123 456', status: 'Activo', password: 'Vnt#' + generateRandomPassword(5), createdAt: new Date().toISOString() },
-        { id: 'VEND-002', name: 'Laura Gómez', email: 'laura.gomez@ejemplo.com', phone: '+34 600 654 321', status: 'Activo', password: 'Lau!' + generateRandomPassword(5), createdAt: new Date().toISOString() }
+        { id: 'VEND-001', name: 'Mario Rossi', email: 'mario.rossi@ejemplo.com', phone: '+34 600 123 456', status: 'Activo', password: 'Mario2026!', createdAt: new Date().toISOString() },
+        { id: 'VEND-002', name: 'Laura Gómez', email: 'laura.gomez@ejemplo.com', phone: '+34 600 654 321', status: 'Activo', password: 'Laura2026!', createdAt: new Date().toISOString() }
       ];
 
       APP_STATE.products = [
@@ -3197,37 +3197,65 @@
       const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId);
 
       if (sellerSales.length > 0) {
-        const confirmArchive = confirm(
-          `El vendedor "${seller.name}" tiene ${sellerSales.length} ventas en su historial contable.\n\n` +
-          `Para no dañar ni perder los registros de contabilidad histórica, este vendedor NO puede ser borrado físicamente, pero será ARCHIVADO.\n\n` +
-          `¿Deseas marcarlo como ARCHIVADO ahora?`
+        // Vendedor con ventas: primero ofrecer Archivar, luego Eliminar con doble conf.
+        const wantArchive = confirm(
+          `El vendedor "${seller.name}" tiene ${sellerSales.length} venta(s) registradas.\n\n` +
+          `• Pulsa ACEPTAR para ARCHIVARLO (recomendado: preserva la contabilidad histórica).\n` +
+          `• Pulsa CANCELAR si prefieres ELIMINARLO permanentemente (se pedirá doble confirmación).`
         );
-        if (!confirmArchive) return;
 
-        if (APP_STATE.isGoogleScript) {
-          google.script.run
-            .withSuccessHandler((res) => {
-              showToast(res.message, 'warning');
-              loadAllData();
-            })
-            .updateSellerStatus(sellerId, 'Archivado');
+        if (wantArchive) {
+          if (APP_STATE.isGoogleScript) {
+            google.script.run
+              .withSuccessHandler((res) => { showToast(res.message, 'warning'); loadAllData(); })
+              .updateSellerStatus(sellerId, 'Archivado');
+          } else {
+            seller.status = 'Archivado';
+            saveLocalData();
+            showToast(`El vendedor ${seller.name} ha sido archivado.`, 'warning');
+            renderAll();
+          }
         } else {
-          seller.status = 'Archivado';
-          saveLocalData();
-          showToast(`El vendedor ${seller.name} ha sido archivado.`, 'warning');
-          renderAll();
+          // Eliminación forzada — doble confirmación obligatoria
+          const conf1 = confirm(
+            `[CONFIRMACIÓN 1/2] — ELIMINACIÓN PERMANENTE\n\n` +
+            `¿Confirmas que deseas ELIMINAR definitivamente al vendedor "${seller.name}"?\n` +
+            `Sus ${sellerSales.length} ventas quedarán sin vendedor asignado.\n\n` +
+            `Esta acción es IRREVERSIBLE.`
+          );
+          if (!conf1) return;
+
+          const conf2 = confirm(
+            `[CONFIRMACIÓN 2/2] — ÚLTIMA ADVERTENCIA\n\n` +
+            `¿Estás COMPLETAMENTE SEGURO de eliminar a "${seller.name}" (${seller.email})?\n\n` +
+            `Pulsa ACEPTAR para confirmar la eliminación permanente.`
+          );
+          if (!conf2) return;
+
+          if (APP_STATE.isGoogleScript) {
+            google.script.run
+              .withSuccessHandler((res) => { showToast(res.message, 'success'); loadAllData(); })
+              .withFailureHandler((err) => showToast('Error: ' + (err.message || err), 'error'))
+              .deleteSellerForce(sellerId);
+          } else {
+            APP_STATE.sellers = APP_STATE.sellers.filter(s => s.id !== sellerId);
+            saveLocalData();
+            showToast(`Vendedor ${seller.name} eliminado permanentemente.`, 'success');
+            renderAll();
+          }
         }
       } else {
-        const confirmDelete = confirm(`¿Estás seguro de que deseas eliminar permanentemente al vendedor "${seller.name}"?`);
-        if (!confirmDelete) return;
+        // Sin ventas: eliminación directa con doble confirmación
+        const conf1 = confirm(`[1/2] ¿Deseas eliminar permanentemente al vendedor "${seller.name}"?`);
+        if (!conf1) return;
+        const conf2 = confirm(`[2/2] CONFIRMACIÓN FINAL: ¿Seguro? Esta acción NO se puede deshacer.`);
+        if (!conf2) return;
 
         if (APP_STATE.isGoogleScript) {
           google.script.run
-            .withSuccessHandler((res) => {
-              showToast(res.message, 'success');
-              loadAllData();
-            })
-            .deleteSeller(sellerId);
+            .withSuccessHandler((res) => { showToast(res.message, 'success'); loadAllData(); })
+            .withFailureHandler((err) => showToast('Error: ' + (err.message || err), 'error'))
+            .deleteSellerForce(sellerId);
         } else {
           APP_STATE.sellers = APP_STATE.sellers.filter(s => s.id !== sellerId);
           saveLocalData();

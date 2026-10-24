@@ -424,6 +424,32 @@ function deleteSeller(sellerId) {
 }
 
 /**
+ * ELIMINACIÓN FORZADA POR ADMIN (con doble confirmación ya validada en frontend)
+ * Elimina físicamente al vendedor aunque tenga ventas históricas.
+ */
+function deleteSellerForce(sellerId) {
+  try {
+    const ss = getSpreadsheet();
+    const sheet = ss.getSheetByName(SHEET_SELLERS);
+    const rows = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][0]) === String(sellerId)) {
+        const sellerName = String(rows[i][1] || sellerId);
+        sheet.deleteRow(i + 1);
+        return { 
+          success: true, 
+          message: "Vendedor \"" + sellerName + "\" eliminado permanentemente por el Administrador." 
+        };
+      }
+    }
+    return { success: false, error: "Vendedor no encontrado" };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
+/**
  * ELIMINACIÓN FORZADA DE VENDEDOR POR ADMIN (CON DOBLE CONFIRMACIÓN EN FRONTEND)
  * Borra físicamente al vendedor aunque tenga ventas históricas.
  * La doble confirmación ya fue validada en el frontend antes de llamar a esta función.
