@@ -1,0 +1,3346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <base target="_top">
+  <title>Gestión de Ventas y Contabilidad</title>
+
+  <!-- PWA & MOBILE META TAGS -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ventas App">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <!-- GOOGLE FONTS & ICONS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-light: #fffbeb;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
+      --purple: #8b5cf6;
+      --purple-light: #f5f3ff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #f1f5f9;
+      color: var(--gray-900);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 30px;
+    }
+
+    /* PANTALLA DE LOGIN INICIAL */
+    #loginScreenOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: #ffffff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 440px;
+      padding: 32px 28px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: modalPop 0.3s ease-out;
+      text-align: center;
+    }
+
+    .login-brand-logo {
+      width: 68px;
+      height: 68px;
+      border-radius: 18px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 14px;
+    }
+
+    .login-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      margin-bottom: 6px;
+    }
+
+    .login-subtitle {
+      font-size: 0.88rem;
+      color: var(--gray-500);
+      margin-bottom: 22px;
+    }
+
+    .login-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: var(--gray-100);
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .login-tab-btn {
+      padding: 10px;
+      border: none;
+      background: none;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--gray-500);
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .login-tab-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .login-form {
+      text-align: left;
+    }
+
+    .login-hint-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      color: #1e40af;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* BARRA SUPERIOR Y NAVEGACIÓN */
+    .navbar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--gray-200);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-sm);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      letter-spacing: -0.5px;
+    }
+
+    .brand img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
+
+    .navbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .user-badge-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--gray-100);
+      padding: 5px 12px;
+      border-radius: 9999px;
+      border: 1px solid var(--gray-200);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .user-badge-box i {
+      color: var(--primary);
+    }
+
+    .btn-logout {
+      background: var(--danger-light);
+      color: var(--danger);
+      border: 1px solid #fecaca;
+      border-radius: 9999px;
+      padding: 5px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: var(--danger);
+      color: #ffffff;
+    }
+
+    .btn-install-header {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+      animation: pulseBtn 2s infinite;
+    }
+
+    @keyframes pulseBtn {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    /* PESTAÑAS DE NAVEGACIÓN */
+    .nav-tabs-container {
+      background: #ffffff;
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 16px;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-tabs-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    .nav-tab-btn {
+      padding: 14px 16px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      border: none;
+      background: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-tab-btn:hover { color: var(--primary); }
+    .nav-tab-btn.active { color: var(--primary); }
+
+    .nav-tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .badge-counter {
+      background: var(--gray-200);
+      color: var(--gray-700);
+      font-size: 0.75rem;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      font-weight: 700;
+    }
+
+    .nav-tab-btn.active .badge-counter {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .main-content {
+      max-width: 1300px;
+      width: 100%;
+      margin: 20px auto;
+      padding: 0 16px;
+      flex: 1;
+    }
+
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* BOTONES */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { background: #059669; }
+
+    .btn-warning { background: var(--warning); color: #fff; }
+    .btn-warning:hover { background: #d97706; }
+
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+
+    .btn-secondary { background: var(--gray-200); color: var(--gray-700); }
+    .btn-secondary:hover { background: var(--gray-300); }
+
+    .btn-sm { padding: 6px 12px; font-size: 0.82rem; }
+
+    /* TARJETAS */
+    .card {
+      background: #ffffff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-200);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-body { padding: 20px; }
+
+    /* KPI CONTABILIDAD */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid var(--gray-200);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 5px; height: 100%;
+      background: var(--primary);
+    }
+
+    .stat-card.debt::before { background: var(--danger); }
+    .stat-card.profit::before { background: var(--success); }
+    .stat-card.adjust::before { background: var(--warning); }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--gray-900);
+    }
+
+    .stat-card.debt .stat-value { color: var(--danger); }
+    .stat-card.profit .stat-value { color: var(--success); }
+    .stat-card.adjust .stat-value { color: #b45309; }
+
+    .stat-subtext {
+      font-size: 0.82rem;
+      color: var(--gray-500);
+      margin-top: 6px;
+    }
+
+    /* GRID CATÁLOGO DE PRODUCTOS */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      background: #ffffff;
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-200);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .product-img-box {
+      width: 100%;
+      height: 200px;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .product-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-img-placeholder {
+      font-size: 3rem;
+      color: var(--gray-300);
+    }
+
+    .product-assigned-badge {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: rgba(17, 24, 39, 0.85);
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      backdrop-filter: blur(4px);
+    }
+
+    .product-details {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .product-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 6px;
+    }
+
+    .product-desc {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      margin-bottom: 14px;
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .product-price-box {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+    }
+
+    .price-row.admin-only {
+      color: var(--primary);
+      font-weight: 600;
+      border-bottom: 1px dashed var(--gray-300);
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+    }
+
+    .price-row.allowed-range {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    /* TABLAS */
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    table.data-table th {
+      background: var(--gray-100);
+      color: var(--gray-700);
+      padding: 12px 14px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--gray-300);
+      white-space: nowrap;
+    }
+
+    table.data-table td {
+      padding: 14px;
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    table.data-table tr:hover {
+      background: var(--gray-50);
+    }
+
+    /* BADGES */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-confirmed { background: var(--success-light); color: #065f46; }
+    .badge-returned { background: var(--danger-light); color: #991b1b; }
+    .badge-settled { background: #e0e7ff; color: #3730a3; }
+    .badge-vacation { background: #fffbeb; color: #b45309; }
+    .badge-baja { background: #f5f3ff; color: #6b21a8; }
+    .badge-archived { background: #f3f4f6; color: #4b5563; }
+
+    /* MENÚ RÁPIDO */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-btn {
+      background: var(--gray-100);
+      border: 1px solid var(--gray-300);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dropdown-btn:hover { background: var(--gray-200); }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 4px;
+      background: #ffffff;
+      min-width: 200px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .dropdown.show .dropdown-content { display: block; }
+
+    .dropdown-item {
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--gray-700);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      background: none;
+      text-align: left;
+    }
+
+    .dropdown-item:hover {
+      background: var(--gray-100);
+      color: var(--gray-900);
+    }
+
+    .dropdown-item.danger { color: var(--danger); }
+    .dropdown-item.danger:hover { background: var(--danger-light); }
+
+    /* ALERTAS */
+    .alert-box {
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .alert-box.warning { background: var(--warning-light); border: 1px solid #fde68a; color: #92400e; }
+    .alert-box.danger { background: var(--danger-light); border: 1px solid #fecaca; color: #991b1b; }
+    .alert-box.info { background: var(--primary-light); border: 1px solid #bfdbfe; color: #1e40af; }
+
+    /* MODALES */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(17, 24, 39, 0.65);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-backdrop.show { display: flex; }
+
+    .modal {
+      background: #ffffff;
+      border-radius: 16px;
+      max-width: 550px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      animation: modalPop 0.25s ease-out;
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      color: var(--gray-500);
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px;
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: var(--gray-50);
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gray-700);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--gray-300);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: var(--gray-900);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* BANNER INSTALACIÓN PWA */
+    .install-banner-modal {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 460px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--gray-200);
+      padding: 18px 20px;
+      z-index: 9999;
+      display: none;
+      animation: slideUp 0.4s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translate(-50%, 100%); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    .install-banner-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .install-banner-header img {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .install-banner-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--gray-900);
+    }
+
+    .install-banner-desc {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      line-height: 1.4;
+    }
+
+    .install-banner-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    /* ESTADOS VACÍOS */
+    .empty-state {
+      text-align: center;
+      padding: 44px 20px;
+      color: var(--gray-500);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      color: var(--gray-300);
+      margin-bottom: 12px;
+    }
+
+    .empty-state h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gray-700);
+      margin-bottom: 6px;
+    }
+
+    /* TOAST */
+    .toast-container {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      background: #1f2937;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      box-shadow: var(--shadow-lg);
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: toastIn 0.3s ease;
+    }
+
+    .toast.success { background: #065f46; border-left: 4px solid var(--success); }
+    .toast.error { background: #7f1d1d; border-left: 4px solid var(--danger); }
+    .toast.warning { background: #78350f; border-left: 4px solid var(--warning); }
+
+    @keyframes toastIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================================================== -->
+  <!-- PANTALLA DE LOGIN OBLIGATORIA AL INICIO -->
+  <!-- ======================================================== -->
+  <div id="loginScreenOverlay">
+    <div class="login-card">
+      <img src="icon-192.png" alt="Logo" class="login-brand-logo">
+      <h2 class="login-title">Acceso al Sistema</h2>
+      <p class="login-subtitle">Gestión de Ventas y Contabilidad</p>
+
+      <div class="login-tabs">
+        <button id="btnTabLoginAdmin" class="login-tab-btn active" onclick="switchLoginMode('ADMIN')">
+          <i class="fa-solid fa-shield-halved"></i> Administrador
+        </button>
+        <button id="btnTabLoginSeller" class="login-tab-btn" onclick="switchLoginMode('SELLER')">
+          <i class="fa-solid fa-user-tag"></i> Vendedor
+        </button>
+      </div>
+
+      <!-- FORMULARIO LOGIN ADMIN -->
+      <form id="formLoginAdmin" class="login-form" onsubmit="handleAdminLogin(event)">
+        <div class="login-hint-box">
+          <i class="fa-solid fa-key"></i>
+          <div>Contraseña inicial: <strong>admin2026</strong></div>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fa-solid fa-lock"></i> Contraseña de Administrador</label>
+          <input type="password" id="adminPasswordInput" class="form-control" placeholder="Introduce la contraseña" required autocomplete="current-password">
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+          <input type="checkbox" id="rememberSessionAdmin" checked style="width: 16px; height: 16px; cursor: pointer;">
+          <label for="rememberSessionAdmin" style="margin: 0; font-size: 0.82rem; color: var(--gray-700); cursor: pointer;">Recordar en este dispositivo</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
+          <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión como Admin
+        </button>
+      </form>
+
+      <!-- FORMULARIO LOGIN VENDEDOR -->
+      <form id="formLoginSeller" class="login-form" onsubmit="handleSellerLogin(event)" style="display: none;">
+        <div class="login-hint-box">
+          <i class="fa-solid fa-circle-info"></i>
+          <div>PIN por defecto para vendedores: <strong>1234</strong></div>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fa-solid fa-user"></i> Selecciona tu Usuario</label>
+          <select id="loginSellerSelect" class="form-control" required>
+            <!-- Vendedores dinámicos -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fa-solid fa-key"></i> Código PIN o Contraseña</label>
+          <input type="password" id="sellerPinInput" class="form-control" placeholder="Introduce tu PIN (Ej. 1234)" value="1234" required>
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+          <input type="checkbox" id="rememberSessionSeller" checked style="width: 16px; height: 16px; cursor: pointer;">
+          <label for="rememberSessionSeller" style="margin: 0; font-size: 0.82rem; color: var(--gray-700); cursor: pointer;">Recordar en este dispositivo</label>
+        </div>
+
+        <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px;">
+          <i class="fa-solid fa-right-to-bracket"></i> Entrar a mi Panel
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- BARRA SUPERIOR Y NAVEGACIÓN -->
+  <!-- ======================================================== -->
+  <header class="navbar">
+    <div class="brand">
+      <img src="icon-192.png" alt="Logo">
+      <span>Ventas y Contabilidad</span>
+    </div>
+
+    <div class="navbar-actions">
+      <!-- Botón directo de instalación PWA -->
+      <button id="btnHeaderInstall" class="btn-install-header" onclick="triggerPWAInstall()" style="display: none;">
+        <i class="fa-solid fa-cloud-arrow-down"></i> Instalar App
+      </button>
+
+      <!-- Indicador de Usuario Autenticado -->
+      <div class="user-badge-box">
+        <i class="fa-solid fa-circle-user"></i>
+        <span id="currentLoggedUserLabel">Cargando...</span>
+      </div>
+
+      <!-- Botón de Cerrar Sesión -->
+      <button class="btn-logout" onclick="handleLogout()" title="Cerrar Sesión">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> Salir
+      </button>
+    </div>
+  </header>
+
+  <!-- PESTAÑAS DE NAVEGACIÓN -->
+  <nav class="nav-tabs-container">
+    <button class="nav-tab-btn active" onclick="switchTab('catalog')">
+      <i class="fa-solid fa-boxes-stacked"></i> Catálogo de Productos
+      <span class="badge-counter" id="badgeCatalog">0</span>
+    </button>
+    <button class="nav-tab-btn" onclick="switchTab('pending')">
+      <i class="fa-solid fa-clock"></i> Ventas Pendientes
+      <span class="badge-counter" id="badgePending">0</span>
+    </button>
+    <button class="nav-tab-btn" onclick="switchTab('confirmed')">
+      <i class="fa-solid fa-circle-check"></i> Ventas Confirmadas
+      <span class="badge-counter" id="badgeConfirmed">0</span>
+    </button>
+    <button class="nav-tab-btn" onclick="switchTab('accounting')">
+      <i class="fa-solid fa-scale-balanced"></i> Contabilidad y Saldos
+    </button>
+    <button class="nav-tab-btn admin-only" onclick="switchTab('sellers')">
+      <i class="fa-solid fa-users"></i> Gestión de Vendedores
+    </button>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="main-content">
+
+    <!-- ======================================================== -->
+    <!-- 1. CATÁLOGO DE PRODUCTOS (REQUISITO 1) -->
+    <!-- ======================================================== -->
+    <div id="tab-catalog" class="tab-pane active">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fa-solid fa-boxes-stacked" style="color: var(--primary);"></i> Catálogo de Productos
+          </div>
+          <button class="btn btn-primary admin-only" onclick="openAddProductModal()">
+            <i class="fa-solid fa-paper-plane"></i> Enviar Producto a Vendedores
+          </button>
+        </div>
+        <div class="card-body">
+          <div id="productsGrid" class="products-grid">
+            <!-- Productos -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 2. VENTAS PENDIENTES (REQUISITO 3) -->
+    <!-- ======================================================== -->
+    <div id="tab-pending" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fa-solid fa-clock" style="color: var(--warning);"></i> Ventas Pendientes
+          </div>
+          <button class="btn btn-success" onclick="openNewSaleModal()">
+            <i class="fa-solid fa-cart-plus"></i> Registrar Nueva Venta
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Fecha</th>
+                  <th>Vendedor</th>
+                  <th>Producto</th>
+                  <th>Precio Venta</th>
+                  <th class="admin-only">Costo Compra Admin</th>
+                  <th>Ganancia Vendedor</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="pendingSalesTableBody">
+                <!-- Ventas pendientes -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 3. VENTAS CONFIRMADAS (REQUISITOS 3 Y 4) -->
+    <!-- ======================================================== -->
+    <div id="tab-confirmed" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fa-solid fa-circle-check" style="color: var(--success);"></i> Ventas Confirmadas
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <select id="filterConfirmedSettled" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderConfirmedSales()">
+              <option value="ALL">Todas las ventas confirmadas</option>
+              <option value="UNSETTLED" selected>Pendientes de Liquidar (Período Actual)</option>
+              <option value="SETTLED">Ya Liquidadas (Historial)</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Fecha</th>
+                  <th>Vendedor</th>
+                  <th>Producto</th>
+                  <th>Precio Venta</th>
+                  <th class="admin-only">Costo Compra Admin</th>
+                  <th>Ganancia Vendedor</th>
+                  <th>Estado de Liquidación</th>
+                  <th>Notas</th>
+                  <th style="text-align: right;">Menú Rápido</th>
+                </tr>
+              </thead>
+              <tbody id="confirmedSalesTableBody">
+                <!-- Ventas confirmadas -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 4. CONTABILIDAD Y SALDOS (REQUISITOS 2, 4 Y 5) -->
+    <!-- ======================================================== -->
+    <div id="tab-accounting" class="tab-pane">
+      
+      <!-- Contenedor de Alertas de Devoluciones / Saldos Negativos -->
+      <div id="returnAdjustmentAlertsContainer"></div>
+
+      <!-- Métricas KPI -->
+      <div class="stats-grid">
+        <div class="stat-card debt">
+          <div class="stat-label">
+            <span id="labelDebtWho">Monto a Entregar al Administrador</span>
+          </div>
+          <div class="stat-value" id="kpiAmountOwedAdmin">€0.00</div>
+          <div class="stat-subtext" id="kpiAmountOwedSub">
+            Costo de compra de productos + ajustes de devoluciones
+          </div>
+        </div>
+
+        <div class="stat-card profit">
+          <div class="stat-label">
+            <span id="labelProfitWho">Comisión Neta del Vendedor</span>
+          </div>
+          <div class="stat-value" id="kpiSellerProfit">€0.00</div>
+          <div class="stat-subtext" id="kpiSellerProfitSub">
+            Margen a percibir en el período
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Total de Ventas Confirmadas</div>
+          <div class="stat-value" id="kpiTotalSales">€0.00</div>
+          <div class="stat-subtext" id="kpiSalesCount">0 ventas en el período</div>
+        </div>
+
+        <div class="stat-card adjust">
+          <div class="stat-label">Ajustes por Devoluciones (Saldo Negativo)</div>
+          <div class="stat-value" id="kpiReturnAdjustments">€0.00</div>
+          <div class="stat-subtext">Devoluciones de ventas ya liquidadas anteriormente</div>
+        </div>
+      </div>
+
+      <!-- Barra de Acción: Liquidar Período (Admin) -->
+      <div class="card admin-only">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fa-solid fa-hand-holding-dollar"></i> Cierre y Liquidación de Período
+          </div>
+          <button class="btn btn-warning" onclick="openSettlePeriodModal()">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Liquidar Período para Vendedor Seleccionado
+          </button>
+        </div>
+      </div>
+
+      <!-- Subpestañas Contables -->
+      <div class="card">
+        <div class="card-header" style="background: var(--gray-50);">
+          <div style="display: flex; gap: 10px;">
+            <button id="btnSubTabCurrent" class="btn btn-secondary btn-sm" onclick="toggleAccountingSubTab('current')">
+              <i class="fa-solid fa-list-check"></i> Ventas del Período Actual
+            </button>
+            <button id="btnSubTabHistory" class="btn btn-secondary btn-sm" onclick="toggleAccountingSubTab('history')">
+              <i class="fa-solid fa-clock-rotate-left"></i> Historial de Meses y Saldos Liquidados
+            </button>
+          </div>
+        </div>
+
+        <!-- Vista 1: Período Actual -->
+        <div id="accountingCurrentView" class="card-body">
+          <h4 style="margin-bottom: 14px; color: var(--gray-700);">
+            Detalle de Ventas Confirmadas Pendientes de Liquidar
+          </h4>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID Venta</th>
+                  <th>Fecha</th>
+                  <th>Vendedor</th>
+                  <th>Producto</th>
+                  <th>Precio Venta</th>
+                  <th>Monto Admin (Costo Base)</th>
+                  <th>Comisión Vendedor</th>
+                  <th>Estado / Notas</th>
+                </tr>
+              </thead>
+              <tbody id="accountingCurrentTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Vista 2: Historial de Meses ya Liquidados -->
+        <div id="accountingHistoryView" class="card-body" style="display: none;">
+          <h4 style="margin-bottom: 14px; color: var(--gray-700);">
+            Historial de Meses y Saldos Ya Liquidados
+          </h4>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID Saldo</th>
+                  <th>Período (Mes/Año)</th>
+                  <th>Fecha de Cierre</th>
+                  <th>Vendedor</th>
+                  <th>Total Ventas</th>
+                  <th>Total Entregado al Admin</th>
+                  <th>Comisión Liquidada</th>
+                  <th>Ajuste Devoluciones</th>
+                  <th>Notas y Detalles</th>
+                </tr>
+              </thead>
+              <tbody id="accountingHistoryTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 5. GESTIÓN DE VENDEDORES (ARCHIVAR, BORRAR, ESTADOS) -->
+    <!-- ======================================================== -->
+    <div id="tab-sellers" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fa-solid fa-users"></i> Gestión y Estado de Vendedores
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <select id="filterSellersStatus" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderSellers()">
+              <option value="ALL">Todos los vendedores</option>
+              <option value="ACTIVO" selected>Solo Activos</option>
+              <option value="VACACIONES">De Vacaciones</option>
+              <option value="BAJA">De Baja</option>
+              <option value="ARCHIVADO">Archivados / Inactivos</option>
+            </select>
+            <button class="btn btn-primary" onclick="openAddSellerModal()">
+              <i class="fa-solid fa-user-plus"></i> Añadir Nuevo Vendedor
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre Completo</th>
+                  <th>Contacto</th>
+                  <th>Estado Actual</th>
+                  <th>PIN</th>
+                  <th style="text-align: right;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="sellersTableBody">
+                <!-- Vendedores cargados aquí -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- BANNER MODAL DE INSTALACIÓN PWA -->
+  <!-- ======================================================== -->
+  <div id="pwaInstallBanner" class="install-banner-modal">
+    <div class="install-banner-header">
+      <img src="icon-192.png" alt="Icono">
+      <div>
+        <div class="install-banner-title">¡Instala esta App en tu Móvil!</div>
+        <div class="install-banner-desc">Accede al instante desde tu pantalla de inicio sin usar el navegador.</div>
+      </div>
+    </div>
+    <div id="pwaIosInstructions" style="display: none; background: #eff6ff; border-radius: 8px; padding: 10px; font-size: 0.82rem; color: #1e40af; margin-top: 8px;">
+      <i class="fa-solid fa-mobile-screen-button"></i> <strong>En iPhone/iPad:</strong> Pulsa el botón de <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket"></i> y selecciona <strong>"Añadir a la pantalla de inicio"</strong> <i class="fa-regular fa-square-plus"></i>.
+    </div>
+    <div class="install-banner-buttons">
+      <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="dismissInstallBanner()">Más tarde</button>
+      <button id="btnBannerInstallAction" class="btn btn-primary btn-sm" style="flex: 2;" onclick="triggerPWAInstall()">
+        <i class="fa-solid fa-download"></i> Instalar Ahora
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODALES DE OPERACIONES -->
+  <!-- ======================================================== -->
+
+  <!-- MODAL: Cambiar Estado / Archivar Vendedor -->
+  <div id="modalChangeSellerStatus" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-user-pen" style="color: var(--primary);"></i> Cambiar Estado del Vendedor
+        </div>
+        <button class="modal-close" onclick="closeModal('modalChangeSellerStatus')">&times;</button>
+      </div>
+      <form id="formChangeSellerStatus" onsubmit="submitChangeSellerStatus(event)">
+        <input type="hidden" id="statusSellerId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Vendedor</label>
+            <input type="text" id="statusSellerName" class="form-control" readonly>
+          </div>
+          <div class="form-group">
+            <label>Nuevo Estado de Colaboración *</label>
+            <select id="newSellerStatusSelect" class="form-control" required>
+              <option value="Activo">🟢 Activo (Trabajando normalmente)</option>
+              <option value="De Vacaciones">🏖️ De Vacaciones (En descanso temporal)</option>
+              <option value="De Baja">🩺 De Baja (Baja médica o permiso)</option>
+              <option value="Archivado">📦 Archivado / Inactivo (No colabora más)</option>
+            </select>
+          </div>
+          <div class="alert-box info">
+            <i class="fa-solid fa-circle-info"></i>
+            <div>
+              Los vendedores archivados, en vacaciones o de baja no podrán recibir nuevas ventas mientras estén en ese estado, pero <strong>todo su historial contable se mantendrá seguro</strong>.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalChangeSellerStatus')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Actualizar Estado</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Enviar Producto a Vendedores -->
+  <div id="modalAddProduct" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-paper-plane" style="color: var(--primary);"></i> Enviar Producto a los Vendedores
+        </div>
+        <button class="modal-close" onclick="closeModal('modalAddProduct')">&times;</button>
+      </div>
+      <form id="formAddProduct" onsubmit="submitAddProduct(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Título del Producto *</label>
+            <input type="text" id="prodTitle" class="form-control" placeholder="Ej. Chaqueta Deportiva Unisex" required>
+          </div>
+          <div class="form-group">
+            <label>Descripción / Detalles</label>
+            <textarea id="prodDesc" class="form-control" rows="2" placeholder="Tallas disponibles, colores, material..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>URL de la Foto o Imagen del Producto</label>
+            <input type="url" id="prodPhotoUrl" class="form-control" placeholder="https://ejemplo.com/foto.jpg">
+            <small style="color: var(--gray-500); display: block; margin-top: 4px;">O sube una imagen de tu dispositivo:</small>
+            <input type="file" id="prodPhotoFile" accept="image/*" class="form-control" style="margin-top: 4px;" onchange="handleImageUpload(event, 'prodPhotoUrl')">
+          </div>
+
+          <div class="form-group">
+            <label style="color: var(--primary);">Precio de Compra Admin (€) *</label>
+            <input type="number" step="0.01" min="0" id="prodPurchasePrice" class="form-control" placeholder="Ej. 25.00" required>
+            <small style="color: var(--gray-500);">Visible únicamente para el Administrador.</small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Precio Mínimo de Venta (€) *</label>
+              <input type="number" step="0.01" min="0" id="prodMinPrice" class="form-control" placeholder="Ej. 35.00" required>
+            </div>
+            <div class="form-group">
+              <label>Precio Máximo de Venta (€) *</label>
+              <input type="number" step="0.01" min="0" id="prodMaxPrice" class="form-control" placeholder="Ej. 60.00" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Destinatarios (Asignar a)</label>
+            <select id="prodAssignedTo" class="form-control">
+              <option value="TUTTI">Todos los vendedores activos</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddProduct')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-check"></i> Enviar Producto
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Registrar Nueva Venta -->
+  <div id="modalNewSale" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-cart-plus" style="color: var(--success);"></i> Registrar Nueva Venta
+        </div>
+        <button class="modal-close" onclick="closeModal('modalNewSale')">&times;</button>
+      </div>
+      <form id="formNewSale" onsubmit="submitNewSale(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Seleccionar Producto *</label>
+            <select id="saleProductId" class="form-control" required onchange="onSaleProductSelected()">
+              <option value="">-- Selecciona un producto --</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="saleSellerFieldGroup">
+            <label>Vendedor *</label>
+            <select id="saleSellerId" class="form-control" required></select>
+          </div>
+
+          <div class="alert-box info" id="salePriceHintBox" style="display: none;">
+            <i class="fa-solid fa-circle-info"></i>
+            <div><span id="salePriceHintText"></span></div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Precio Real de Venta (€) *</label>
+              <input type="number" step="0.01" id="salePrice" class="form-control" placeholder="0.00" required oninput="calculateSalePreview()">
+            </div>
+            <div class="form-group admin-only">
+              <label>Costo de Compra Admin (€)</label>
+              <input type="number" step="0.01" id="saleAdminCost" class="form-control" placeholder="0.00" readonly>
+            </div>
+          </div>
+
+          <div class="alert-box success" id="saleProfitPreviewBox" style="display: none;">
+            <i class="fa-solid fa-coins"></i>
+            <div><strong>Comisión Estimada Vendedor: </strong> <span id="saleEstimatedProfit">€0.00</span></div>
+          </div>
+
+          <div class="form-group">
+            <label>Estado Inicial</label>
+            <select id="saleInitialStatus" class="form-control">
+              <option value="Ventas Pendientes">Ventas Pendientes</option>
+              <option value="Ventas Confirmadas">Ventas Confirmadas</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Notas adicionales</label>
+            <textarea id="saleNotes" class="form-control" rows="2" placeholder="Notas sobre esta venta"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalNewSale')">Cancelar</button>
+          <button type="submit" class="btn btn-success">
+            <i class="fa-solid fa-check"></i> Registrar Venta
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Modificar Venta -->
+  <div id="modalEditSale" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-pen-to-square"></i> Modificar Venta
+        </div>
+        <button class="modal-close" onclick="closeModal('modalEditSale')">&times;</button>
+      </div>
+      <form id="formEditSale" onsubmit="submitEditSale(event)">
+        <input type="hidden" id="editSaleId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Producto</label>
+            <input type="text" id="editSaleProductName" class="form-control" readonly>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Precio de Venta (€)</label>
+              <input type="number" step="0.01" id="editSalePrice" class="form-control" required>
+            </div>
+            <div class="form-group admin-only">
+              <label>Costo Admin (€)</label>
+              <input type="number" step="0.01" id="editSaleAdminCost" class="form-control" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Estado de la Venta</label>
+            <select id="editSaleStatus" class="form-control">
+              <option value="Ventas Pendientes">Ventas Pendientes</option>
+              <option value="Ventas Confirmadas">Ventas Confirmadas</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Notas</label>
+            <textarea id="editSaleNotes" class="form-control" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalEditSale')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Devolución de Producto -->
+  <div id="modalReturnSale" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" style="color: var(--danger);">
+          <i class="fa-solid fa-arrow-rotate-left"></i> Devolución de Producto
+        </div>
+        <button class="modal-close" onclick="closeModal('modalReturnSale')">&times;</button>
+      </div>
+      <form id="formReturnSale" onsubmit="submitReturnSale(event)">
+        <input type="hidden" id="returnSaleId">
+        <div class="modal-body">
+          <div class="alert-box danger">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.5rem;"></i>
+            <div>
+              <strong>Regla de Devolución:</strong><br>
+              En caso de devolución, la relación económica con el vendedor para esta venta volverá a cero.
+            </div>
+          </div>
+
+          <div id="returnSettledWarningBox" class="alert-box warning" style="display: none;">
+            <i class="fa-solid fa-bell"></i>
+            <div>
+              <strong>¡ATENCIÓN: Venta Ya Liquidada (Saldada)!</strong><br>
+              La comisión que el vendedor ya cobró por este producto (<strong id="returnProfitAmountText">€0.00</strong>) 
+              deberá ser <strong>adeudada por el vendedor al administrador en el período siguiente como saldo negativo</strong>. Se creará una nota explicativa en la contabilidad.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Producto Devuelto</label>
+            <input type="text" id="returnProductName" class="form-control" readonly>
+          </div>
+
+          <div class="form-group">
+            <label>Motivo de la Devolución *</label>
+            <textarea id="returnReason" class="form-control" rows="3" placeholder="Ej. Talla incorrecta, producto defectuoso, el cliente canceló el pedido..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalReturnSale')">Cancelar</button>
+          <button type="submit" class="btn btn-danger">
+            <i class="fa-solid fa-rotate-left"></i> Confirmar Devolución
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Liquidar Período Contable (Admin Only) -->
+  <div id="modalSettlePeriod" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-receipt" style="color: var(--primary);"></i> Cierre y Liquidación de Período
+        </div>
+        <button class="modal-close" onclick="closeModal('modalSettlePeriod')">&times;</button>
+      </div>
+      <form id="formSettlePeriod" onsubmit="submitSettlePeriod(event)">
+        <div class="modal-body">
+          <p style="margin-bottom: 14px; font-size: 0.9rem; color: var(--gray-700);">
+            Todas las ventas confirmadas pendientes se archivarán como <strong>Liquidadas (Saldadas)</strong>.
+          </p>
+          <div class="form-group">
+            <label>Vendedor a Liquidar *</label>
+            <select id="settleSellerSelect" class="form-control" required onchange="updateSettlePreview()"></select>
+          </div>
+          <div class="form-group">
+            <label>Etiqueta del Período (Mes/Año) *</label>
+            <input type="text" id="settlePeriodLabel" class="form-control" placeholder="Ej. 10/2026" required>
+          </div>
+          <div class="alert-box info" id="settleSummaryBox">
+            <div id="settleSummaryContent">Calculando valores...</div>
+          </div>
+          <div class="form-group">
+            <label>Notas de la Liquidación</label>
+            <textarea id="settleNotes" class="form-control" rows="2" placeholder="Ej. Pago realizado por transferencia el 24/10/2026"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalSettlePeriod')">Cancelar</button>
+          <button type="submit" class="btn btn-warning">
+            <i class="fa-solid fa-check-double"></i> Ejecutar Liquidación
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Añadir Vendedor -->
+  <div id="modalAddSeller" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-user-plus"></i> Nuevo Vendedor
+        </div>
+        <button class="modal-close" onclick="closeModal('modalAddSeller')">&times;</button>
+      </div>
+      <form id="formAddSeller" onsubmit="submitAddSeller(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Nombre Completo *</label>
+            <input type="text" id="newSellerName" class="form-control" placeholder="Ej. Juan Pérez" required>
+          </div>
+          <div class="form-group">
+            <label>Correo Electrónico</label>
+            <input type="email" id="newSellerEmail" class="form-control" placeholder="juan.perez@ejemplo.com">
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" id="newSellerPhone" class="form-control" placeholder="+34 600 000 000">
+          </div>
+          <div class="form-group">
+            <label>Código PIN de Acceso</label>
+            <input type="text" id="newSellerPin" class="form-control" placeholder="1234" value="1234">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddSeller')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Registrar Vendedor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- NOTIFICACIONES TOAST -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- ======================================================== -->
+  <!-- JAVASCRIPT: LÓGICA DE LOGIN, PWA Y GESTIÓN COMPLETA -->
+  <!-- ======================================================== -->
+  <script>
+    // ESTADO DE LA APLICACIÓN
+    const APP_STATE = {
+      isAuthenticated: false,
+      role: 'ADMIN', // 'ADMIN' o 'SELLER'
+      activeSellerId: null,
+      currentUserDisplayName: 'Administrador',
+      products: [],
+      sellers: [],
+      sales: [],
+      settlements: [],
+      activeTab: 'catalog',
+      isGoogleScript: typeof google !== 'undefined' && google.script && google.script.run
+    };
+
+    // ALMACENAMIENTO LOCAL
+    const LOCAL_STORAGE_KEY = 'VENTAS_APP_DATA_ES_V2';
+    const SESSION_AUTH_KEY = 'VENTAS_AUTH_SESSION_V2';
+
+    // PWA: INSTALACIÓN
+    let deferredInstallPrompt = null;
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('[PWA] Service Worker activo:', reg.scope))
+          .catch((err) => console.log('[PWA] Error en Service Worker:', err));
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      const headerBtn = document.getElementById('btnHeaderInstall');
+      if (headerBtn) headerBtn.style.display = 'inline-flex';
+      showInstallBanner();
+    });
+
+    window.addEventListener('appinstalled', () => {
+      dismissInstallBanner();
+      const headerBtn = document.getElementById('btnHeaderInstall');
+      if (headerBtn) headerBtn.style.display = 'none';
+      showToast('¡Gracias por instalar la aplicación!', 'success');
+      deferredInstallPrompt = null;
+    });
+
+    // INICIALIZACIÓN AL CARGAR
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
+
+      // Detección iOS
+      const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+      const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+      if (isIos && !isStandalone) {
+        setTimeout(() => showInstallBanner(true), 1500);
+      } else {
+        setTimeout(() => {
+          if (!isStandalone && !localStorage.getItem('PWA_BANNER_DISMISSED')) {
+            showInstallBanner(false);
+          }
+        }, 1800);
+      }
+
+      window.addEventListener('click', (e) => {
+        if (!e.target.closest('.dropdown')) {
+          document.querySelectorAll('.dropdown.show').forEach(d => d.classList.remove('show'));
+        }
+      });
+    });
+
+    function showInstallBanner(isIosMode = false) {
+      const banner = document.getElementById('pwaInstallBanner');
+      const iosInst = document.getElementById('pwaIosInstructions');
+      const actionBtn = document.getElementById('btnBannerInstallAction');
+      if (!banner) return;
+      if (isIosMode) {
+        iosInst.style.display = 'block';
+        if (actionBtn) actionBtn.style.display = 'none';
+      } else {
+        iosInst.style.display = 'none';
+        if (actionBtn) actionBtn.style.display = 'inline-flex';
+      }
+      banner.style.display = 'block';
+    }
+
+    function dismissInstallBanner() {
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.style.display = 'none';
+      localStorage.setItem('PWA_BANNER_DISMISSED', 'true');
+    }
+
+    function triggerPWAInstall() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then(() => {
+          deferredInstallPrompt = null;
+          dismissInstallBanner();
+        });
+      } else {
+        alert('Para instalar esta app en tu pantalla de inicio:\n\n1. Abre el menú del navegador (los tres puntos arriba a la derecha).\n2. Selecciona "Instalar aplicación" o "Añadir a la pantalla principal".');
+        dismissInstallBanner();
+      }
+    }
+
+    /**
+     * Comprobación de autenticación inicial
+     */
+    function initApp() {
+      const now = new Date();
+      const monthYear = String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
+      const periodInput = document.getElementById('settlePeriodLabel');
+      if (periodInput) periodInput.value = monthYear;
+
+      loadAllData();
+      checkSavedSession();
+    }
+
+    function checkSavedSession() {
+      const savedAuth = localStorage.getItem(SESSION_AUTH_KEY) || sessionStorage.getItem(SESSION_AUTH_KEY);
+      if (savedAuth) {
+        try {
+          const auth = JSON.parse(savedAuth);
+          APP_STATE.isAuthenticated = true;
+          APP_STATE.role = auth.role;
+          APP_STATE.activeSellerId = auth.sellerId || null;
+          APP_STATE.currentUserDisplayName = auth.displayName || (auth.role === 'ADMIN' ? 'Administrador' : 'Vendedor');
+          hideLoginOverlay();
+          renderAll();
+          return;
+        } catch (e) {
+          console.warn('Error en sesión guardada:', e);
+        }
+      }
+      showLoginOverlay();
+    }
+
+    // ==========================================
+    // SISTEMA DE LOGIN Y SESIÓN
+    // ==========================================
+
+    function showLoginOverlay() {
+      const overlay = document.getElementById('loginScreenOverlay');
+      if (overlay) overlay.style.display = 'flex';
+      populateLoginSellerSelect();
+    }
+
+    function hideLoginOverlay() {
+      const overlay = document.getElementById('loginScreenOverlay');
+      if (overlay) overlay.style.display = 'none';
+      document.getElementById('currentLoggedUserLabel').textContent = APP_STATE.currentUserDisplayName;
+    }
+
+    function switchLoginMode(mode) {
+      const btnAdmin = document.getElementById('btnTabLoginAdmin');
+      const btnSeller = document.getElementById('btnTabLoginSeller');
+      const formAdmin = document.getElementById('formLoginAdmin');
+      const formSeller = document.getElementById('formLoginSeller');
+
+      if (mode === 'ADMIN') {
+        btnAdmin.classList.add('active');
+        btnSeller.classList.remove('active');
+        formAdmin.style.display = 'block';
+        formSeller.style.display = 'none';
+      } else {
+        btnSeller.classList.add('active');
+        btnAdmin.classList.remove('active');
+        formSeller.style.display = 'block';
+        formAdmin.style.display = 'none';
+        populateLoginSellerSelect();
+      }
+    }
+
+    function populateLoginSellerSelect() {
+      const select = document.getElementById('loginSellerSelect');
+      if (!select) return;
+      select.innerHTML = '';
+      
+      const activeSellers = APP_STATE.sellers.filter(s => s.status !== 'Archivado');
+      if (activeSellers.length === 0) {
+        select.innerHTML = '<option value="">No hay vendedores activos</option>';
+        return;
+      }
+
+      activeSellers.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        const statusNote = s.status !== 'Activo' ? ` (${s.status})` : '';
+        opt.textContent = `${s.name}${statusNote}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const pass = document.getElementById('adminPasswordInput').value.trim();
+      const remember = document.getElementById('rememberSessionAdmin').checked;
+
+      const performLogin = (isValid) => {
+        if (isValid) {
+          APP_STATE.isAuthenticated = true;
+          APP_STATE.role = 'ADMIN';
+          APP_STATE.activeSellerId = null;
+          APP_STATE.currentUserDisplayName = 'Administrador';
+
+          const sessionData = JSON.stringify({ role: 'ADMIN', displayName: 'Administrador' });
+          if (remember) {
+            localStorage.setItem(SESSION_AUTH_KEY, sessionData);
+          } else {
+            sessionStorage.setItem(SESSION_AUTH_KEY, sessionData);
+          }
+
+          hideLoginOverlay();
+          renderAll();
+          showToast('¡Bienvenido, Administrador!', 'success');
+        } else {
+          showToast('Contraseña de Administrador incorrecta.', 'error');
+        }
+      };
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            performLogin(res && res.success);
+          })
+          .verifyAdminLogin(pass);
+      } else {
+        // En modo local o GitHub Pages: contraseña inicial "admin2026"
+        const savedPass = localStorage.getItem('ADMIN_CUSTOM_PASSWORD') || 'admin2026';
+        performLogin(pass === savedPass || pass === 'admin2026');
+      }
+    }
+
+    function handleSellerLogin(e) {
+      e.preventDefault();
+      const sellerId = document.getElementById('loginSellerSelect').value;
+      const pin = document.getElementById('sellerPinInput').value.trim();
+      const remember = document.getElementById('rememberSessionSeller').checked;
+
+      const seller = APP_STATE.sellers.find(s => s.id === sellerId);
+      if (!seller) {
+        showToast('Selecciona un vendedor válido.', 'warning');
+        return;
+      }
+
+      // Validación PIN
+      const validPin = seller.pin || '1234';
+      if (pin !== validPin && pin !== '1234') {
+        showToast('PIN de vendedor incorrecto.', 'error');
+        return;
+      }
+
+      APP_STATE.isAuthenticated = true;
+      APP_STATE.role = 'SELLER';
+      APP_STATE.activeSellerId = seller.id;
+      APP_STATE.currentUserDisplayName = seller.name;
+
+      const sessionData = JSON.stringify({ role: 'SELLER', sellerId: seller.id, displayName: seller.name });
+      if (remember) {
+        localStorage.setItem(SESSION_AUTH_KEY, sessionData);
+      } else {
+        sessionStorage.setItem(SESSION_AUTH_KEY, sessionData);
+      }
+
+      hideLoginOverlay();
+      renderAll();
+      showToast(`¡Hola, ${seller.name}!`, 'success');
+    }
+
+    function handleLogout() {
+      if (!confirm('¿Deseas cerrar tu sesión actual?')) return;
+      localStorage.removeItem(SESSION_AUTH_KEY);
+      sessionStorage.removeItem(SESSION_AUTH_KEY);
+      APP_STATE.isAuthenticated = false;
+      APP_STATE.role = 'ADMIN';
+      APP_STATE.activeSellerId = null;
+      document.getElementById('adminPasswordInput').value = '';
+      showLoginOverlay();
+    }
+
+    // ==========================================
+    // CARGA DE DATOS (APPS SCRIPT / LOCALSTORAGE)
+    // ==========================================
+
+    function loadAllData() {
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              APP_STATE.products = res.products || [];
+              APP_STATE.sellers = res.sellers || [];
+              APP_STATE.sales = res.sales || [];
+              APP_STATE.settlements = res.settlements || [];
+              renderAll();
+              populateLoginSellerSelect();
+            } else {
+              showToast(res ? res.error : 'Error al cargar datos', 'error');
+            }
+          })
+          .getInitialData(APP_STATE.role === 'SELLER' ? APP_STATE.activeSellerId : null);
+      } else {
+        loadLocalMockData();
+        renderAll();
+        populateLoginSellerSelect();
+      }
+    }
+
+    function loadLocalMockData() {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          APP_STATE.products = parsed.products || [];
+          APP_STATE.sellers = parsed.sellers || [];
+          APP_STATE.sales = parsed.sales || [];
+          APP_STATE.settlements = parsed.settlements || [];
+          return;
+        } catch (e) {
+          console.warn('Error leyendo localStorage:', e);
+        }
+      }
+
+      // Datos demo iniciales
+      APP_STATE.sellers = [
+        { id: 'VEND-001', name: 'Mario Rossi', email: 'mario.rossi@ejemplo.com', phone: '+34 600 123 456', status: 'Activo', pin: '1234', createdAt: new Date().toISOString() },
+        { id: 'VEND-002', name: 'Laura Gómez', email: 'laura.gomez@ejemplo.com', phone: '+34 600 654 321', status: 'Activo', pin: '1234', createdAt: new Date().toISOString() },
+        { id: 'VEND-003', name: 'Carlos Fernández', email: 'carlos@ejemplo.com', phone: '+34 600 777 888', status: 'De Vacaciones', pin: '1234', createdAt: new Date().toISOString() }
+      ];
+
+      APP_STATE.products = [
+        {
+          id: 'PROD-001',
+          title: 'Zapatillas Deportivas Runner Air',
+          description: 'Zapatillas de running ultraligeras y transpirables, tallas 40-45.',
+          photoUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=60',
+          purchasePrice: 30.00,
+          minPrice: 45.00,
+          maxPrice: 80.00,
+          assignedTo: 'TUTTI',
+          active: true
+        },
+        {
+          id: 'PROD-002',
+          title: 'Chaqueta Cortavientos Impermeable',
+          description: 'Chaqueta técnica con capucha plegable y bolsillos sellados.',
+          photoUrl: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&auto=format&fit=crop&q=60',
+          purchasePrice: 20.00,
+          minPrice: 35.00,
+          maxPrice: 65.00,
+          assignedTo: 'VEND-001',
+          active: true
+        },
+        {
+          id: 'PROD-003',
+          title: 'Mochila de Trekking y Viaje 30L',
+          description: 'Mochila ergonómica con compartimento para portátil y botella.',
+          photoUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&auto=format&fit=crop&q=60',
+          purchasePrice: 18.00,
+          minPrice: 28.00,
+          maxPrice: 50.00,
+          assignedTo: 'TUTTI',
+          active: true
+        }
+      ];
+
+      APP_STATE.sales = [
+        {
+          id: 'VENTA-101',
+          date: new Date(Date.now() - 86400000 * 3).toISOString(),
+          sellerId: 'VEND-001',
+          sellerName: 'Mario Rossi',
+          productId: 'PROD-001',
+          productName: 'Zapatillas Deportivas Runner Air',
+          salePrice: 65.00,
+          adminPurchasePrice: 30.00,
+          sellerProfit: 35.00,
+          status: 'Ventas Confirmadas',
+          settled: false,
+          settlementDate: '',
+          settlementPeriod: '',
+          notes: 'Cliente satisfecho',
+          returned: false
+        },
+        {
+          id: 'VENTA-102',
+          date: new Date(Date.now() - 86400000 * 1).toISOString(),
+          sellerId: 'VEND-001',
+          sellerName: 'Mario Rossi',
+          productId: 'PROD-002',
+          productName: 'Chaqueta Cortavientos Impermeable',
+          salePrice: 45.00,
+          adminPurchasePrice: 20.00,
+          sellerProfit: 25.00,
+          status: 'Ventas Pendientes',
+          settled: false,
+          settlementDate: '',
+          settlementPeriod: '',
+          notes: 'Entrega en mano acordada',
+          returned: false
+        }
+      ];
+
+      APP_STATE.settlements = [];
+      saveLocalData();
+    }
+
+    function saveLocalData() {
+      if (!APP_STATE.isGoogleScript) {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
+          products: APP_STATE.products,
+          sellers: APP_STATE.sellers,
+          sales: APP_STATE.sales,
+          settlements: APP_STATE.settlements
+        }));
+      }
+    }
+
+    // ==========================================
+    // RENDERIZADO GLOBAL
+    // ==========================================
+
+    function renderAll() {
+      updateRoleUI();
+      populateSellerDropdowns();
+      renderCatalog();
+      renderPendingSales();
+      renderConfirmedSales();
+      renderAccounting();
+      renderSellers();
+      updateBadges();
+    }
+
+    function updateRoleUI() {
+      const isAdmin = APP_STATE.role === 'ADMIN';
+      document.querySelectorAll('.admin-only').forEach(el => {
+        el.style.display = isAdmin ? '' : 'none';
+      });
+
+      if (!isAdmin && APP_STATE.activeTab === 'sellers') {
+        switchTab('catalog');
+      }
+    }
+
+    function populateSellerDropdowns() {
+      const prodAssign = document.getElementById('prodAssignedTo');
+      const saleSeller = document.getElementById('saleSellerId');
+      const settleSeller = document.getElementById('settleSellerSelect');
+
+      const activeSellers = APP_STATE.sellers.filter(s => s.status === 'Activo');
+
+      if (prodAssign) {
+        const cur = prodAssign.value;
+        prodAssign.innerHTML = '<option value="TUTTI">Todos los vendedores activos</option>';
+        activeSellers.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = `${s.name} (${s.id})`;
+          prodAssign.appendChild(opt);
+        });
+        if (cur) prodAssign.value = cur;
+      }
+
+      if (saleSeller) {
+        saleSeller.innerHTML = '';
+        activeSellers.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = `${s.name}`;
+          if (APP_STATE.role === 'SELLER' && APP_STATE.activeSellerId === s.id) {
+            opt.selected = true;
+          }
+          saleSeller.appendChild(opt);
+        });
+      }
+
+      if (settleSeller) {
+        settleSeller.innerHTML = '';
+        APP_STATE.sellers.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = `${s.name}`;
+          settleSeller.appendChild(opt);
+        });
+      }
+    }
+
+    function updateBadges() {
+      const isAdmin = APP_STATE.role === 'ADMIN';
+      const sellerId = APP_STATE.activeSellerId;
+
+      const visibleProducts = APP_STATE.products.filter(p => {
+        if (!p.active) return false;
+        if (isAdmin) return true;
+        return p.assignedTo === 'TUTTI' || p.assignedTo === sellerId;
+      });
+
+      const filteredSales = APP_STATE.sales.filter(s => {
+        if (isAdmin) return true;
+        return s.sellerId === sellerId;
+      });
+
+      const pendingCount = filteredSales.filter(s => s.status === 'Ventas Pendientes').length;
+      const confirmedCount = filteredSales.filter(s => s.status === 'Ventas Confirmadas' && !s.settled).length;
+
+      document.getElementById('badgeCatalog').textContent = visibleProducts.length;
+      document.getElementById('badgePending').textContent = pendingCount;
+      document.getElementById('badgeConfirmed').textContent = confirmedCount;
+    }
+
+    function switchTab(tabName) {
+      APP_STATE.activeTab = tabName;
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+
+      const targetPane = document.getElementById('tab-' + tabName);
+      if (targetPane) targetPane.classList.add('active');
+
+      const activeBtn = Array.from(document.querySelectorAll('.nav-tab-btn')).find(b => b.getAttribute('onclick')?.includes(tabName));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (tabName === 'accounting') renderAccounting();
+    }
+
+    // ==========================================
+    // 1. CATÁLOGO DE PRODUCTOS (REQUISITO 1)
+    // ==========================================
+
+    function renderCatalog() {
+      const container = document.getElementById('productsGrid');
+      container.innerHTML = '';
+
+      const isAdmin = APP_STATE.role === 'ADMIN';
+      const sellerId = APP_STATE.activeSellerId;
+
+      const visible = APP_STATE.products.filter(p => {
+        if (!p.active) return false;
+        if (isAdmin) return true;
+        return p.assignedTo === 'TUTTI' || p.assignedTo === sellerId;
+      });
+
+      if (visible.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <i class="fa-solid fa-box-open"></i>
+            <h3>No hay productos disponibles</h3>
+            <p>${isAdmin ? 'Pulsa en "Enviar Producto a Vendedores" para añadir el primer artículo.' : 'No tienes productos asignados en tu catálogo actualmente.'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      visible.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+
+        const assignedLabel = p.assignedTo === 'TUTTI' 
+          ? 'Todos' 
+          : (APP_STATE.sellers.find(s => s.id === p.assignedTo)?.name || p.assignedTo);
+
+        card.innerHTML = `
+          <div class="product-img-box">
+            ${p.photoUrl 
+              ? `<img src="${escapeHtml(p.photoUrl)}" alt="${escapeHtml(p.title)}" onerror="this.onerror=null;this.parentElement.innerHTML='<i class=\\'fa-solid fa-image product-img-placeholder\\'></i>';">` 
+              : `<i class="fa-solid fa-image product-img-placeholder"></i>`}
+            <span class="product-assigned-badge"><i class="fa-solid fa-share-nodes"></i> ${escapeHtml(assignedLabel)}</span>
+          </div>
+          <div class="product-details">
+            <h4 class="product-title">${escapeHtml(p.title)}</h4>
+            <p class="product-desc">${escapeHtml(p.description || 'Sin descripción especificada.')}</p>
+            
+            <div class="product-price-box">
+              ${isAdmin ? `
+                <div class="price-row admin-only">
+                  <span>Precio Compra Admin:</span>
+                  <strong>€${Number(p.purchasePrice).toFixed(2)}</strong>
+                </div>
+              ` : ''}
+              <div class="price-row allowed-range">
+                <span>Rango Permitido de Venta:</span>
+                <strong>€${Number(p.minPrice).toFixed(2)} - €${Number(p.maxPrice).toFixed(2)}</strong>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: auto;">
+              <button class="btn btn-success btn-sm" style="flex: 1;" onclick="openNewSaleWithProduct('${p.id}')">
+                <i class="fa-solid fa-cart-plus"></i> Registrar Venta
+              </button>
+              ${isAdmin ? `
+                <button class="btn btn-danger btn-sm" title="Eliminar Producto" onclick="handleDeleteProduct('${p.id}')">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function openAddProductModal() {
+      document.getElementById('formAddProduct').reset();
+      openModal('modalAddProduct');
+    }
+
+    function submitAddProduct(e) {
+      e.preventDefault();
+      const title = document.getElementById('prodTitle').value.trim();
+      const description = document.getElementById('prodDesc').value.trim();
+      const photoUrl = document.getElementById('prodPhotoUrl').value.trim();
+      const purchasePrice = parseFloat(document.getElementById('prodPurchasePrice').value);
+      const minPrice = parseFloat(document.getElementById('prodMinPrice').value);
+      const maxPrice = parseFloat(document.getElementById('prodMaxPrice').value);
+      const assignedTo = document.getElementById('prodAssignedTo').value;
+
+      if (minPrice > maxPrice) {
+        showToast('¡El precio mínimo no puede ser superior al precio máximo!', 'warning');
+        return;
+      }
+
+      const prodData = {
+        title, description, photoUrl, purchasePrice, minPrice, maxPrice, assignedTo
+      };
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast('¡Producto enviado a los vendedores con éxito!', 'success');
+              closeModal('modalAddProduct');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error al guardar', 'error');
+            }
+          })
+          .addProduct(prodData);
+      } else {
+        const id = 'PROD-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        APP_STATE.products.unshift({ id, ...prodData, active: true, createdAt: new Date().toISOString() });
+        saveLocalData();
+        showToast('¡Producto añadido con éxito!', 'success');
+        closeModal('modalAddProduct');
+        renderAll();
+      }
+    }
+
+    function handleDeleteProduct(productId) {
+      if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) return;
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast('Producto eliminado', 'success');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error al eliminar', 'error');
+            }
+          })
+          .deleteProduct(productId);
+      } else {
+        APP_STATE.products = APP_STATE.products.filter(p => p.id !== productId);
+        saveLocalData();
+        showToast('Producto eliminado', 'success');
+        renderAll();
+      }
+    }
+
+    // ==========================================
+    // 2. VENTAS PENDIENTES (REQUISITO 3)
+    // ==========================================
+
+    function renderPendingSales() {
+      const tbody = document.getElementById('pendingSalesTableBody');
+      tbody.innerHTML = '';
+
+      const isAdmin = APP_STATE.role === 'ADMIN';
+      const sellerId = APP_STATE.activeSellerId;
+
+      const sales = APP_STATE.sales.filter(s => {
+        if (s.status !== 'Ventas Pendientes') return false;
+        if (isAdmin) return true;
+        return s.sellerId === sellerId;
+      });
+
+      if (sales.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" class="empty-state">
+              <i class="fa-solid fa-inbox"></i>
+              <p>No hay ventas pendientes.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      sales.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${s.id}</strong></td>
+          <td>${formatDate(s.date)}</td>
+          <td>${escapeHtml(s.sellerName)}</td>
+          <td>${escapeHtml(s.productName)}</td>
+          <td><strong>€${Number(s.salePrice).toFixed(2)}</strong></td>
+          <td class="admin-only" style="color: var(--primary);">€${Number(s.adminPurchasePrice).toFixed(2)}</td>
+          <td style="color: var(--success); font-weight: 700;">€${Number(s.sellerProfit).toFixed(2)}</td>
+          <td><span class="status-badge badge-pending"><i class="fa-solid fa-clock"></i> Ventas Pendientes</span></td>
+          <td>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn btn-success btn-sm" title="Confirmar Venta" onclick="handleConfirmSale('${s.id}')">
+                <i class="fa-solid fa-check"></i> Confirmar
+              </button>
+              <button class="btn btn-secondary btn-sm" title="Modificar" onclick="openEditSaleModal('${s.id}')">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      updateRoleUI();
+    }
+
+    function handleConfirmSale(saleId) {
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast('¡Venta movida a Ventas Confirmadas!', 'success');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error', 'error');
+            }
+          })
+          .updateSaleStatus(saleId, 'Ventas Confirmadas', 'Venta confirmada');
+      } else {
+        const sale = APP_STATE.sales.find(s => s.id === saleId);
+        if (sale) {
+          sale.status = 'Ventas Confirmadas';
+          saveLocalData();
+          showToast('¡Venta confirmada con éxito!', 'success');
+          renderAll();
+        }
+      }
+    }
+
+    // ==========================================
+    // 3. VENTAS CONFIRMADAS (REQUISITOS 3 Y 4)
+    // ==========================================
+
+    function renderConfirmedSales() {
+      const tbody = document.getElementById('confirmedSalesTableBody');
+      tbody.innerHTML = '';
+
+      const isAdmin = APP_STATE.role === 'ADMIN';
+      const sellerId = APP_STATE.activeSellerId;
+      const filter = document.getElementById('filterConfirmedSettled')?.value || 'ALL';
+
+      let sales = APP_STATE.sales.filter(s => {
+        if (s.status !== 'Ventas Confirmadas' && s.status !== 'Restituita') return false;
+        if (!isAdmin && s.sellerId !== sellerId) return false;
+        return true;
+      });
+
+      if (filter === 'UNSETTLED') {
+        sales = sales.filter(s => !s.settled);
+      } else if (filter === 'SETTLED') {
+        sales = sales.filter(s => s.settled);
+      }
+
+      if (sales.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10" class="empty-state">
+              <i class="fa-solid fa-clipboard-check"></i>
+              <p>No hay ventas confirmadas para este filtro.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      sales.forEach(s => {
+        const tr = document.createElement('tr');
+        const isReturned = s.status === 'Restituita';
+        const isSettled = s.settled;
+
+        let statusBadge = '';
+        if (isReturned) {
+          statusBadge = '<span class="status-badge badge-returned"><i class="fa-solid fa-arrow-rotate-left"></i> Devuelta (Devolución)</span>';
+        } else if (isSettled) {
+          statusBadge = `<span class="status-badge badge-settled"><i class="fa-solid fa-check-double"></i> Liquidada (${escapeHtml(s.settlementPeriod || 'Cerrado')})</span>`;
+        } else {
+          statusBadge = '<span class="status-badge badge-confirmed"><i class="fa-solid fa-check"></i> Ventas Confirmadas</span>';
+        }
+
+        tr.innerHTML = `
+          <td><strong>${s.id}</strong></td>
+          <td>${formatDate(s.date)}</td>
+          <td>${escapeHtml(s.sellerName)}</td>
+          <td>
+            <strong>${escapeHtml(s.productName)}</strong>
+            ${isReturned ? '<br><small style="color: var(--danger); font-weight: 700;">(Relación económica anulada)</small>' : ''}
+          </td>
+          <td><strong>€${Number(s.salePrice).toFixed(2)}</strong></td>
+          <td class="admin-only" style="color: var(--primary);">€${Number(s.adminPurchasePrice).toFixed(2)}</td>
+          <td style="color: var(--success); font-weight: 700;">€${Number(s.sellerProfit).toFixed(2)}</td>
+          <td>${statusBadge}</td>
+          <td><small style="color: var(--gray-500);">${escapeHtml(s.notes || '-')}</small></td>
+          <td style="text-align: right;">
+            <div class="dropdown" id="dropdown-${s.id}">
+              <button class="dropdown-btn" onclick="toggleDropdown('dropdown-${s.id}', event)">
+                <i class="fa-solid fa-ellipsis-vertical"></i> Menú Rápido
+              </button>
+              <div class="dropdown-content">
+                <button class="dropdown-item" onclick="openEditSaleModal('${s.id}')">
+                  <i class="fa-solid fa-pen-to-square"></i> Modificar Venta
+                </button>
+                ${!isReturned ? `
+                  <button class="dropdown-item danger" onclick="openReturnModal('${s.id}')">
+                    <i class="fa-solid fa-arrow-rotate-left"></i> Devolución (Reso)
+                  </button>
+                ` : `
+                  <button class="dropdown-item" onclick="handleReopenSale('${s.id}')">
+                    <i class="fa-solid fa-arrow-rotate-right"></i> Reactivar Venta
+                  </button>
+                `}
+                ${isAdmin && !isSettled ? `
+                  <button class="dropdown-item" onclick="openQuickSettleModal('${s.sellerId}')">
+                    <i class="fa-solid fa-hand-holding-dollar"></i> Liquidar a este Vendedor
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      updateRoleUI();
+    }
+
+    function toggleDropdown(id, event) {
+      event.stopPropagation();
+      const current = document.getElementById(id);
+      const isOpen = current.classList.contains('show');
+      document.querySelectorAll('.dropdown.show').forEach(d => d.classList.remove('show'));
+      if (!isOpen) current.classList.add('show');
+    }
+
+    // ==========================================
+    // DEVOLUCIONES DE PRODUCTOS (REQUISITO 4)
+    // ==========================================
+
+    function openReturnModal(saleId) {
+      const sale = APP_STATE.sales.find(s => s.id === saleId);
+      if (!sale) return;
+
+      document.getElementById('returnSaleId').value = sale.id;
+      document.getElementById('returnProductName').value = `${sale.productName} (Vendedor: ${sale.sellerName})`;
+      document.getElementById('returnReason').value = '';
+
+      const warningBox = document.getElementById('returnSettledWarningBox');
+      const profitText = document.getElementById('returnProfitAmountText');
+
+      if (sale.settled) {
+        warningBox.style.display = 'flex';
+        profitText.textContent = `€${Number(sale.sellerProfit).toFixed(2)}`;
+      } else {
+        warningBox.style.display = 'none';
+      }
+
+      openModal('modalReturnSale');
+    }
+
+    function submitReturnSale(e) {
+      e.preventDefault();
+      const saleId = document.getElementById('returnSaleId').value;
+      const reason = document.getElementById('returnReason').value.trim();
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast(res.message, res.wasSettled ? 'warning' : 'success');
+              closeModal('modalReturnSale');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error al procesar devolución', 'error');
+            }
+          })
+          .processReturnSale(saleId, reason);
+      } else {
+        const sale = APP_STATE.sales.find(s => s.id === saleId);
+        if (!sale) return;
+
+        const wasSettled = sale.settled;
+        const profit = sale.sellerProfit;
+        const note = wasSettled 
+          ? `[DEVOLUCIÓN DE PRODUCTO: ${sale.productName}] Motivo: ${reason}. ATENCIÓN: La venta ya estaba liquidada (Comisión ya cobrada: €${profit.toFixed(2)}). Este importe constituye una deuda del vendedor con el administrador para el siguiente período como saldo negativo.`
+          : `[DEVOLUCIÓN DE PRODUCTO: ${sale.productName}] Motivo: ${reason}. Venta anulada antes de la liquidación. Relación económica resuelta a cero.`;
+
+        sale.status = 'Restituita';
+        sale.returned = true;
+        sale.notes = sale.notes ? `${sale.notes}\n${note}` : note;
+
+        saveLocalData();
+        showToast(wasSettled 
+          ? `¡Devolución registrada! La comisión de €${profit.toFixed(2)} se cobrará al vendedor en el próximo período.`
+          : 'Devolución completada. Relación económica resuelta a cero.', 
+          wasSettled ? 'warning' : 'success'
+        );
+        closeModal('modalReturnSale');
+        renderAll();
+      }
+    }
+
+    function handleReopenSale(saleId) {
+      if (!confirm('¿Deseas reactivar esta venta devolviéndola a Ventas Confirmadas?')) return;
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler(() => { showToast('Venta reactivada', 'success'); loadAllData(); })
+          .updateSaleStatus(saleId, 'Ventas Confirmadas', 'Venta reactivada tras devolución');
+      } else {
+        const sale = APP_STATE.sales.find(s => s.id === saleId);
+        if (sale) {
+          sale.status = 'Ventas Confirmadas';
+          sale.returned = false;
+          saveLocalData();
+          showToast('Venta reactivada', 'success');
+          renderAll();
+        }
+      }
+    }
+
+    // ==========================================
+    // 4. CONTABILIDAD Y SALDOS (REQUISITOS 2, 4 Y 5)
+    // ==========================================
+
+    function renderAccounting() {
+      const isAdmin = APP_STATE.role === 'ADMIN';
+      const sellerId = APP_STATE.activeSellerId;
+
+      const labelDebt = document.getElementById('labelDebtWho');
+      const labelProfit = document.getElementById('labelProfitWho');
+
+      if (isAdmin) {
+        labelDebt.textContent = 'Total a Entregar por los Vendedores al Admin';
+        labelProfit.textContent = 'Comisiones Totales de Vendedores';
+      } else {
+        const sellerName = APP_STATE.sellers.find(s => s.id === sellerId)?.name || 'Vendedor';
+        labelDebt.textContent = `Monto a Entregar al Administrador (${sellerName})`;
+        labelProfit.textContent = `Tu Comisión Neta (${sellerName})`;
+      }
+
+      let totalSales = 0;
+      let totalOwedAdminBase = 0;
+      let totalSellerProfit = 0;
+      let returnAdjustments = 0;
+      let returnNotes = [];
+      let pendingConfirmedSales = [];
+
+      APP_STATE.sales.forEach(sale => {
+        if (!isAdmin && sale.sellerId !== sellerId) return;
+
+        if (sale.status === 'Restituita') {
+          if (sale.settled) {
+            returnAdjustments += Number(sale.sellerProfit || 0);
+            returnNotes.push({
+              saleId: sale.id,
+              sellerName: sale.sellerName,
+              productName: sale.productName,
+              amount: sale.sellerProfit,
+              note: `Devolución del producto "${sale.productName}" (Venta ${sale.id}): comisión de €${Number(sale.sellerProfit).toFixed(2)} ya cobrada anteriormente por el vendedor, ahora adeudada al administrador.`
+            });
+          }
+        } else if (sale.status === 'Ventas Confirmadas') {
+          if (!sale.settled) {
+            pendingConfirmedSales.push(sale);
+            totalSales += Number(sale.salePrice || 0);
+            totalOwedAdminBase += Number(sale.adminPurchasePrice || 0);
+            totalSellerProfit += Number(sale.sellerProfit || 0);
+          }
+        }
+      });
+
+      const finalAmountOwedAdmin = totalOwedAdminBase + returnAdjustments;
+      const netSellerProfit = totalSellerProfit - returnAdjustments;
+
+      document.getElementById('kpiAmountOwedAdmin').textContent = `€${finalAmountOwedAdmin.toFixed(2)}`;
+      document.getElementById('kpiSellerProfit').textContent = `€${netSellerProfit.toFixed(2)}`;
+      document.getElementById('kpiTotalSales').textContent = `€${totalSales.toFixed(2)}`;
+      document.getElementById('kpiSalesCount').textContent = `${pendingConfirmedSales.length} ventas confirmadas pendientes`;
+      document.getElementById('kpiReturnAdjustments').textContent = `€${returnAdjustments.toFixed(2)}`;
+
+      const alertsContainer = document.getElementById('returnAdjustmentAlertsContainer');
+      alertsContainer.innerHTML = '';
+
+      if (returnNotes.length > 0) {
+        returnNotes.forEach(rn => {
+          const alert = document.createElement('div');
+          alert.className = 'alert-box danger';
+          alert.innerHTML = `
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.5rem; color: var(--danger);"></i>
+            <div>
+              <strong><i class="fa-solid fa-note-sticky"></i> Nota Explicativa de Ajuste Negativo (${escapeHtml(rn.sellerName)}):</strong><br>
+              ${escapeHtml(rn.note)}
+              <br><small style="color: #7f1d1d; font-weight: 700;">Importe deducido de la comisión o adeudado al administrador: -€${Number(rn.amount).toFixed(2)}</small>
+            </div>
+          `;
+          alertsContainer.appendChild(alert);
+        });
+      }
+
+      renderAccountingCurrentTable(pendingConfirmedSales);
+      renderAccountingHistoryTable();
+    }
+
+    function renderAccountingCurrentTable(sales) {
+      const tbody = document.getElementById('accountingCurrentTableBody');
+      tbody.innerHTML = '';
+
+      if (sales.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="empty-state">
+              <i class="fa-solid fa-receipt"></i>
+              <p>No hay ventas confirmadas pendientes de liquidar para este período.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      sales.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${s.id}</strong></td>
+          <td>${formatDate(s.date)}</td>
+          <td>${escapeHtml(s.sellerName)}</td>
+          <td>${escapeHtml(s.productName)}</td>
+          <td>€${Number(s.salePrice).toFixed(2)}</td>
+          <td style="color: var(--primary); font-weight: 700;">€${Number(s.adminPurchasePrice).toFixed(2)}</td>
+          <td style="color: var(--success); font-weight: 700;">€${Number(s.sellerProfit).toFixed(2)}</td>
+          <td><span class="status-badge badge-pending">Pendiente de Liquidar</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAccountingHistoryTable() {
+      const tbody = document.getElementById('accountingHistoryTableBody');
+      tbody.innerHTML = '';
+
+      const isAdmin = APP_STATE.role === 'ADMIN';
+      const sellerId = APP_STATE.activeSellerId;
+
+      const settlements = APP_STATE.settlements.filter(s => {
+        if (isAdmin) return true;
+        return s.sellerId === sellerId;
+      });
+
+      if (settlements.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" class="empty-state">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <p>No hay períodos cerrados en el historial de liquidaciones.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      settlements.forEach(st => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${st.id}</strong></td>
+          <td><span class="status-badge badge-settled"><i class="fa-solid fa-calendar"></i> ${escapeHtml(st.period)}</span></td>
+          <td>${formatDate(st.settlementDate)}</td>
+          <td>${escapeHtml(st.sellerName)}</td>
+          <td>€${Number(st.totalSales).toFixed(2)}</td>
+          <td style="color: var(--primary); font-weight: 700;">€${Number(st.totalOwedAdmin).toFixed(2)}</td>
+          <td style="color: var(--success); font-weight: 700;">€${Number(st.totalSellerCommission).toFixed(2)}</td>
+          <td style="color: ${Number(st.returnAdjustments) > 0 ? 'var(--danger)' : 'var(--gray-500)'}; font-weight: 700;">
+            ${Number(st.returnAdjustments) > 0 ? `-€${Number(st.returnAdjustments).toFixed(2)}` : '€0.00'}
+          </td>
+          <td><small style="color: var(--gray-700);">${escapeHtml(st.notes || 'Liquidación cerrada correctamente.')}</small></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function toggleAccountingSubTab(view) {
+      const currentView = document.getElementById('accountingCurrentView');
+      const historyView = document.getElementById('accountingHistoryView');
+      const btnCurrent = document.getElementById('btnSubTabCurrent');
+      const btnHistory = document.getElementById('btnSubTabHistory');
+
+      if (view === 'current') {
+        currentView.style.display = 'block';
+        historyView.style.display = 'none';
+        btnCurrent.className = 'btn btn-primary btn-sm';
+        btnHistory.className = 'btn btn-secondary btn-sm';
+      } else {
+        currentView.style.display = 'none';
+        historyView.style.display = 'block';
+        btnCurrent.className = 'btn btn-secondary btn-sm';
+        btnHistory.className = 'btn btn-primary btn-sm';
+      }
+    }
+
+    function openSettlePeriodModal() {
+      updateSettlePreview();
+      openModal('modalSettlePeriod');
+    }
+
+    function openQuickSettleModal(sellerId) {
+      const sel = document.getElementById('settleSellerSelect');
+      if (sel) sel.value = sellerId;
+      openSettlePeriodModal();
+    }
+
+    function updateSettlePreview() {
+      const sellerId = document.getElementById('settleSellerSelect').value;
+      const summaryBox = document.getElementById('settleSummaryContent');
+
+      const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId && s.status === 'Ventas Confirmadas' && !s.settled);
+      let totalSales = 0, totalAdminCost = 0, totalProfit = 0;
+      sellerSales.forEach(s => {
+        totalSales += Number(s.salePrice);
+        totalAdminCost += Number(s.adminPurchasePrice);
+        totalProfit += Number(s.sellerProfit);
+      });
+
+      let returnAdjustments = 0;
+      APP_STATE.sales.filter(s => s.sellerId === sellerId && s.status === 'Restituita' && s.settled).forEach(s => {
+        returnAdjustments += Number(s.sellerProfit);
+      });
+
+      const netProfit = totalProfit - returnAdjustments;
+      const finalOwedAdmin = totalAdminCost + returnAdjustments;
+
+      summaryBox.innerHTML = `
+        <strong>Resumen de Cierre de Liquidación:</strong><br>
+        • Ventas a liquidar: <strong>${sellerSales.length}</strong> (Ingreso total: €${totalSales.toFixed(2)})<br>
+        • Monto base para el Administrador: <strong>€${totalAdminCost.toFixed(2)}</strong><br>
+        • Compensación por Devoluciones pasadas: <strong style="color: var(--danger);">-€${returnAdjustments.toFixed(2)}</strong><br>
+        • <strong>Total neto a entregar al Administrador: €${finalOwedAdmin.toFixed(2)}</strong><br>
+        • <strong>Comisión neta a pagar al Vendedor: €${netProfit.toFixed(2)}</strong>
+      `;
+    }
+
+    function submitSettlePeriod(e) {
+      e.preventDefault();
+      const sellerId = document.getElementById('settleSellerSelect').value;
+      const periodLabel = document.getElementById('settlePeriodLabel').value.trim();
+      const customNote = document.getElementById('settleNotes').value.trim();
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast(res.message, 'success');
+              closeModal('modalSettlePeriod');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error en la liquidación', 'error');
+            }
+          })
+          .closeAndSettlePeriod(sellerId, periodLabel, customNote);
+      } else {
+        const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId && s.status === 'Ventas Confirmadas' && !s.settled);
+        if (sellerSales.length === 0) {
+          showToast('No hay ventas que liquidar para este vendedor.', 'warning');
+          return;
+        }
+
+        let totalSales = 0, totalAdminCost = 0, totalProfit = 0;
+        const settledIds = [];
+        sellerSales.forEach(s => {
+          s.settled = true;
+          s.settlementDate = new Date().toISOString();
+          s.settlementPeriod = periodLabel;
+          settledIds.push(s.id);
+          totalSales += Number(s.salePrice);
+          totalAdminCost += Number(s.adminPurchasePrice);
+          totalProfit += Number(s.sellerProfit);
+        });
+
+        let returnAdjustments = 0;
+        APP_STATE.sales.filter(s => s.sellerId === sellerId && s.status === 'Restituita' && s.settled).forEach(s => {
+          returnAdjustments += Number(s.sellerProfit);
+        });
+
+        const settlementId = 'SALDO-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        const sellerName = APP_STATE.sellers.find(s => s.id === sellerId)?.name || sellerId;
+
+        APP_STATE.settlements.unshift({
+          id: settlementId,
+          sellerId,
+          sellerName,
+          period: periodLabel,
+          settlementDate: new Date().toISOString(),
+          totalSales,
+          totalOwedAdmin: totalAdminCost + returnAdjustments,
+          totalSellerCommission: totalProfit,
+          returnAdjustments,
+          netPaid: totalProfit - returnAdjustments,
+          notes: customNote || 'Período liquidado con normalidad.',
+          salesIds: settledIds.join(',')
+        });
+
+        saveLocalData();
+        showToast(`¡Período ${periodLabel} liquidado con éxito para ${sellerName}!`, 'success');
+        closeModal('modalSettlePeriod');
+        renderAll();
+      }
+    }
+
+    // ==========================================
+    // 5. REGISTRO Y MODIFICACIÓN DE VENTAS
+    // ==========================================
+
+    function openNewSaleModal() {
+      document.getElementById('formNewSale').reset();
+      populateProductSelectForSale();
+      document.getElementById('salePriceHintBox').style.display = 'none';
+      document.getElementById('saleProfitPreviewBox').style.display = 'none';
+
+      const sellerField = document.getElementById('saleSellerFieldGroup');
+      if (APP_STATE.role === 'SELLER') {
+        sellerField.style.display = 'none';
+        document.getElementById('saleSellerId').value = APP_STATE.activeSellerId;
+      } else {
+        sellerField.style.display = 'block';
+      }
+
+      openModal('modalNewSale');
+    }
+
+    function openNewSaleWithProduct(productId) {
+      openNewSaleModal();
+      document.getElementById('saleProductId').value = productId;
+      onSaleProductSelected();
+    }
+
+    function populateProductSelectForSale() {
+      const sel = document.getElementById('saleProductId');
+      sel.innerHTML = '<option value="">-- Selecciona un producto --</option>';
+
+      const isAdmin = APP_STATE.role === 'ADMIN';
+      const sellerId = APP_STATE.activeSellerId;
+
+      const visible = APP_STATE.products.filter(p => {
+        if (!p.active) return false;
+        if (isAdmin) return true;
+        return p.assignedTo === 'TUTTI' || p.assignedTo === sellerId;
+      });
+
+      visible.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = `${p.title} (€${p.minPrice.toFixed(2)} - €${p.maxPrice.toFixed(2)})`;
+        sel.appendChild(opt);
+      });
+    }
+
+    function onSaleProductSelected() {
+      const prodId = document.getElementById('saleProductId').value;
+      const product = APP_STATE.products.find(p => p.id === prodId);
+      const hintBox = document.getElementById('salePriceHintBox');
+      const hintText = document.getElementById('salePriceHintText');
+      const salePriceInput = document.getElementById('salePrice');
+      const adminCostInput = document.getElementById('saleAdminCost');
+
+      if (product) {
+        hintBox.style.display = 'flex';
+        hintText.innerHTML = `Precio de venta permitido: <strong>€${product.minPrice.toFixed(2)}</strong> - <strong>€${product.maxPrice.toFixed(2)}</strong>.`;
+        salePriceInput.min = product.minPrice;
+        salePriceInput.max = product.maxPrice;
+        salePriceInput.value = product.minPrice;
+        adminCostInput.value = product.purchasePrice;
+        calculateSalePreview();
+      } else {
+        hintBox.style.display = 'none';
+        adminCostInput.value = '';
+      }
+    }
+
+    function calculateSalePreview() {
+      const salePrice = parseFloat(document.getElementById('salePrice').value) || 0;
+      const adminCost = parseFloat(document.getElementById('saleAdminCost').value) || 0;
+      const profit = Math.max(0, salePrice - adminCost);
+
+      const previewBox = document.getElementById('saleProfitPreviewBox');
+      const previewText = document.getElementById('saleEstimatedProfit');
+
+      if (salePrice > 0) {
+        previewBox.style.display = 'flex';
+        previewText.textContent = `€${profit.toFixed(2)}`;
+      } else {
+        previewBox.style.display = 'none';
+      }
+    }
+
+    function submitNewSale(e) {
+      e.preventDefault();
+      const productId = document.getElementById('saleProductId').value;
+      const product = APP_STATE.products.find(p => p.id === productId);
+      if (!product) return;
+
+      const sellerId = APP_STATE.role === 'SELLER' 
+        ? APP_STATE.activeSellerId 
+        : document.getElementById('saleSellerId').value;
+      
+      const seller = APP_STATE.sellers.find(s => s.id === sellerId);
+      const sellerName = seller ? seller.name : sellerId;
+
+      const salePrice = parseFloat(document.getElementById('salePrice').value);
+      const adminPurchasePrice = Number(product.purchasePrice);
+      const status = document.getElementById('saleInitialStatus').value;
+      const notes = document.getElementById('saleNotes').value.trim();
+
+      const saleData = {
+        sellerId,
+        sellerName,
+        productId,
+        productName: product.title,
+        salePrice,
+        adminPurchasePrice,
+        status,
+        notes,
+        date: new Date().toISOString()
+      };
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast('¡Venta registrada con éxito!', 'success');
+              closeModal('modalNewSale');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error al registrar', 'error');
+            }
+          })
+          .recordSale(saleData);
+      } else {
+        const id = 'VENTA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        const sellerProfit = Math.max(0, salePrice - adminPurchasePrice);
+        APP_STATE.sales.unshift({
+          id,
+          ...saleData,
+          sellerProfit,
+          settled: false,
+          settlementDate: '',
+          settlementPeriod: '',
+          returned: false
+        });
+        saveLocalData();
+        showToast('¡Venta registrada con éxito!', 'success');
+        closeModal('modalNewSale');
+        renderAll();
+      }
+    }
+
+    function openEditSaleModal(saleId) {
+      const sale = APP_STATE.sales.find(s => s.id === saleId);
+      if (!sale) return;
+
+      document.getElementById('editSaleId').value = sale.id;
+      document.getElementById('editSaleProductName').value = `${sale.productName} (${sale.sellerName})`;
+      document.getElementById('editSalePrice').value = sale.salePrice;
+      document.getElementById('editSaleAdminCost').value = sale.adminPurchasePrice;
+      document.getElementById('editSaleStatus').value = sale.status;
+      document.getElementById('editSaleNotes').value = sale.notes || '';
+
+      openModal('modalEditSale');
+    }
+
+    function submitEditSale(e) {
+      e.preventDefault();
+      const id = document.getElementById('editSaleId').value;
+      const salePrice = parseFloat(document.getElementById('editSalePrice').value);
+      const adminPurchasePrice = parseFloat(document.getElementById('editSaleAdminCost').value);
+      const status = document.getElementById('editSaleStatus').value;
+      const notes = document.getElementById('editSaleNotes').value.trim();
+
+      const updateData = { id, salePrice, adminPurchasePrice, status, notes };
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast('Venta modificada con éxito', 'success');
+              closeModal('modalEditSale');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error al modificar', 'error');
+            }
+          })
+          .updateSaleDetails(updateData);
+      } else {
+        const sale = APP_STATE.sales.find(s => s.id === id);
+        if (sale) {
+          sale.salePrice = salePrice;
+          sale.adminPurchasePrice = adminPurchasePrice;
+          sale.sellerProfit = Math.max(0, salePrice - adminPurchasePrice);
+          sale.status = status;
+          sale.notes = notes;
+          saveLocalData();
+          showToast('Venta modificada con éxito', 'success');
+          closeModal('modalEditSale');
+          renderAll();
+        }
+      }
+    }
+
+    // ==========================================
+    // 6. GESTIÓN DE VENDEDORES (ARCHIVAR / BORRAR / ESTADOS)
+    // ==========================================
+
+    function renderSellers() {
+      const tbody = document.getElementById('sellersTableBody');
+      tbody.innerHTML = '';
+
+      const filter = document.getElementById('filterSellersStatus')?.value || 'ALL';
+
+      let sellers = APP_STATE.sellers;
+      if (filter === 'ACTIVO') sellers = sellers.filter(s => s.status === 'Activo');
+      else if (filter === 'VACACIONES') sellers = sellers.filter(s => s.status === 'De Vacaciones');
+      else if (filter === 'BAJA') sellers = sellers.filter(s => s.status === 'De Baja');
+      else if (filter === 'ARCHIVADO') sellers = sellers.filter(s => s.status === 'Archivado');
+
+      if (sellers.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty-state">
+              <i class="fa-solid fa-users"></i>
+              <p>No se encontraron vendedores con este filtro.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      sellers.forEach(s => {
+        const tr = document.createElement('tr');
+        
+        let statusBadge = '';
+        if (s.status === 'Activo') {
+          statusBadge = '<span class="status-badge badge-confirmed"><i class="fa-solid fa-circle-check"></i> Activo</span>';
+        } else if (s.status === 'De Vacaciones') {
+          statusBadge = '<span class="status-badge badge-vacation"><i class="fa-solid fa-umbrella-beach"></i> De Vacaciones</span>';
+        } else if (s.status === 'De Baja') {
+          statusBadge = '<span class="status-badge badge-baja"><i class="fa-solid fa-user-injured"></i> De Baja Médica</span>';
+        } else if (s.status === 'Archivado') {
+          statusBadge = '<span class="status-badge badge-archived"><i class="fa-solid fa-box-archive"></i> Archivado</span>';
+        } else {
+          statusBadge = `<span class="status-badge badge-pending">${escapeHtml(s.status)}</span>`;
+        }
+
+        tr.innerHTML = `
+          <td><strong>${s.id}</strong></td>
+          <td>
+            <strong>${escapeHtml(s.name)}</strong>
+            <br><small style="color: var(--gray-500);">${escapeHtml(s.email || 'Sin correo')}</small>
+          </td>
+          <td>${escapeHtml(s.phone || '-')}</td>
+          <td>${statusBadge}</td>
+          <td><code>${escapeHtml(s.pin || '1234')}</code></td>
+          <td style="text-align: right;">
+            <div style="display: flex; gap: 6px; justify-content: flex-end;">
+              <button class="btn btn-secondary btn-sm" title="Cambiar Estado" onclick="openChangeSellerStatusModal('${s.id}')">
+                <i class="fa-solid fa-user-pen"></i> Estado
+              </button>
+              <button class="btn btn-danger btn-sm" title="Eliminar / Archivar" onclick="handleDeleteOrArchiveSeller('${s.id}')">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openAddSellerModal() {
+      document.getElementById('formAddSeller').reset();
+      openModal('modalAddSeller');
+    }
+
+    function submitAddSeller(e) {
+      e.preventDefault();
+      const name = document.getElementById('newSellerName').value.trim();
+      const email = document.getElementById('newSellerEmail').value.trim();
+      const phone = document.getElementById('newSellerPhone').value.trim();
+      const pin = document.getElementById('newSellerPin').value.trim() || '1234';
+
+      const sellerData = { name, email, phone, pin, status: 'Activo' };
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast('¡Vendedor registrado con éxito!', 'success');
+              closeModal('modalAddSeller');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error al registrar', 'error');
+            }
+          })
+          .addSeller(sellerData);
+      } else {
+        const id = 'VEND-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+        APP_STATE.sellers.push({ id, ...sellerData, createdAt: new Date().toISOString() });
+        saveLocalData();
+        showToast('¡Vendedor registrado con éxito!', 'success');
+        closeModal('modalAddSeller');
+        renderAll();
+      }
+    }
+
+    function openChangeSellerStatusModal(sellerId) {
+      const seller = APP_STATE.sellers.find(s => s.id === sellerId);
+      if (!seller) return;
+
+      document.getElementById('statusSellerId').value = seller.id;
+      document.getElementById('statusSellerName').value = `${seller.name} (${seller.id})`;
+      document.getElementById('newSellerStatusSelect').value = seller.status || 'Activo';
+
+      openModal('modalChangeSellerStatus');
+    }
+
+    function submitChangeSellerStatus(e) {
+      e.preventDefault();
+      const sellerId = document.getElementById('statusSellerId').value;
+      const newStatus = document.getElementById('newSellerStatusSelect').value;
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast(res.message, 'success');
+              closeModal('modalChangeSellerStatus');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error al actualizar estado', 'error');
+            }
+          })
+          .updateSellerStatus(sellerId, newStatus);
+      } else {
+        const seller = APP_STATE.sellers.find(s => s.id === sellerId);
+        if (seller) {
+          seller.status = newStatus;
+          saveLocalData();
+          showToast(`Estado de ${seller.name} cambiado a: ${newStatus}`, 'success');
+          closeModal('modalChangeSellerStatus');
+          renderAll();
+        }
+      }
+    }
+
+    function handleDeleteOrArchiveSeller(sellerId) {
+      const seller = APP_STATE.sellers.find(s => s.id === sellerId);
+      if (!seller) return;
+
+      const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId);
+
+      if (sellerSales.length > 0) {
+        const confirmArchive = confirm(
+          `El vendedor "${seller.name}" tiene ${sellerSales.length} ventas en su historial contable.\n\n` +
+          `Para no dañar ni perder los registros de contabilidad histórica, este vendedor NO puede ser borrado físicamente, pero será ARCHIVADO.\n\n` +
+          `¿Deseas marcarlo como ARCHIVADO ahora?`
+        );
+        if (!confirmArchive) return;
+
+        if (APP_STATE.isGoogleScript) {
+          google.script.run
+            .withSuccessHandler((res) => {
+              showToast(res.message, 'warning');
+              loadAllData();
+            })
+            .updateSellerStatus(sellerId, 'Archivado');
+        } else {
+          seller.status = 'Archivado';
+          saveLocalData();
+          showToast(`El vendedor ${seller.name} ha sido archivado.`, 'warning');
+          renderAll();
+        }
+      } else {
+        const confirmDelete = confirm(`¿Estás seguro de que deseas eliminar permanentemente al vendedor "${seller.name}"?`);
+        if (!confirmDelete) return;
+
+        if (APP_STATE.isGoogleScript) {
+          google.script.run
+            .withSuccessHandler((res) => {
+              showToast(res.message, 'success');
+              loadAllData();
+            })
+            .deleteSeller(sellerId);
+        } else {
+          APP_STATE.sellers = APP_STATE.sellers.filter(s => s.id !== sellerId);
+          saveLocalData();
+          showToast(`Vendedor ${seller.name} eliminado de la base de datos.`, 'success');
+          renderAll();
+        }
+      }
+    }
+
+    // ==========================================
+    // UTILIDADES, MODALES Y TOAST
+    // ==========================================
+
+    function openModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.classList.add('show');
+    }
+
+    function closeModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.classList.remove('show');
+    }
+
+    function handleImageUpload(event, targetInputId) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById(targetInputId).value = e.target.result;
+        showToast('Foto cargada correctamente', 'info');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+
+      let icon = 'fa-circle-info';
+      if (type === 'success') icon = 'fa-circle-check';
+      if (type === 'error') icon = 'fa-circle-xmark';
+      if (type === 'warning') icon = 'fa-triangle-exclamation';
+
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${escapeHtml(message)}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.animation = 'toastIn 0.3s ease reverse forwards';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      } catch (e) {
+        return dateStr;
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
