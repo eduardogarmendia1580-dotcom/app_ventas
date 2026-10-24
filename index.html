@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <base target="_top">
-  <title>Gestión de Ventas y Contabilidad</title>
+  <title>Gestión de Ventas y Envíos</title>
 
   <!-- PWA & MOBILE META TAGS -->
   <link rel="manifest" href="manifest.json">
@@ -65,7 +65,7 @@
       padding-bottom: 30px;
     }
 
-    /* PANTALLA DE LOGIN INICIAL */
+    /* PANTALLA DE LOGIN CON EMAIL Y PASSWORD (SIN DESPLEGABLES PÚBLICOS) */
     #loginScreenOverlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -137,9 +137,7 @@
       box-shadow: var(--shadow-sm);
     }
 
-    .login-form {
-      text-align: left;
-    }
+    .login-form { text-align: left; }
 
     .login-hint-box {
       background: #eff6ff;
@@ -154,7 +152,7 @@
       gap: 8px;
     }
 
-    /* BARRA SUPERIOR Y NAVEGACIÓN */
+    /* BARRA SUPERIOR */
     .navbar {
       background: #ffffff;
       border-bottom: 1px solid var(--gray-200);
@@ -196,25 +194,23 @@
     .user-badge-box {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       background: var(--gray-100);
-      padding: 5px 12px;
+      padding: 6px 14px;
       border-radius: 9999px;
       border: 1px solid var(--gray-200);
       font-size: 0.85rem;
       font-weight: 700;
     }
 
-    .user-badge-box i {
-      color: var(--primary);
-    }
+    .user-badge-box i { color: var(--primary); }
 
     .btn-logout {
       background: var(--danger-light);
       color: var(--danger);
       border: 1px solid #fecaca;
       border-radius: 9999px;
-      padding: 5px 12px;
+      padding: 6px 14px;
       font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
@@ -251,7 +247,7 @@
       100% { transform: scale(1); }
     }
 
-    /* PESTAÑAS DE NAVEGACIÓN */
+    /* PESTAÑAS DE NAVEGACIÓN UNIFICADAS */
     .nav-tabs-container {
       background: #ffffff;
       border-bottom: 1px solid var(--gray-200);
@@ -262,9 +258,7 @@
       scrollbar-width: none;
     }
 
-    .nav-tabs-container::-webkit-scrollbar {
-      display: none;
-    }
+    .nav-tabs-container::-webkit-scrollbar { display: none; }
 
     .nav-tab-btn {
       padding: 14px 16px;
@@ -322,9 +316,7 @@
       animation: fadeIn 0.2s ease-in-out;
     }
 
-    .tab-pane.active {
-      display: block;
-    }
+    .tab-pane.active { display: block; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(5px); }
@@ -361,6 +353,9 @@
 
     .btn-secondary { background: var(--gray-200); color: var(--gray-700); }
     .btn-secondary:hover { background: var(--gray-300); }
+
+    .btn-purple { background: var(--purple); color: #fff; }
+    .btn-purple:hover { background: #7c3aed; }
 
     .btn-sm { padding: 6px 12px; font-size: 0.82rem; }
 
@@ -425,6 +420,7 @@
     .stat-card.debt::before { background: var(--danger); }
     .stat-card.profit::before { background: var(--success); }
     .stat-card.adjust::before { background: var(--warning); }
+    .stat-card.pending-ship::before { background: var(--purple); }
 
     .stat-label {
       font-size: 0.85rem;
@@ -444,6 +440,7 @@
     .stat-card.debt .stat-value { color: var(--danger); }
     .stat-card.profit .stat-value { color: var(--success); }
     .stat-card.adjust .stat-value { color: #b45309; }
+    .stat-card.pending-ship .stat-value { color: var(--purple); }
 
     .stat-subtext {
       font-size: 0.82rem;
@@ -589,9 +586,7 @@
       white-space: nowrap;
     }
 
-    table.data-table tr:hover {
-      background: var(--gray-50);
-    }
+    table.data-table tr:hover { background: var(--gray-50); }
 
     /* BADGES */
     .status-badge {
@@ -606,10 +601,11 @@
       letter-spacing: 0.5px;
     }
 
-    .badge-pending { background: #fef3c7; color: #92400e; }
     .badge-confirmed { background: var(--success-light); color: #065f46; }
     .badge-returned { background: var(--danger-light); color: #991b1b; }
     .badge-settled { background: #e0e7ff; color: #3730a3; }
+    .badge-shipped { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .badge-not-shipped { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
     .badge-vacation { background: #fffbeb; color: #b45309; }
     .badge-baja { background: #f5f3ff; color: #6b21a8; }
     .badge-archived { background: #f3f4f6; color: #4b5563; }
@@ -642,7 +638,7 @@
       top: 100%;
       margin-top: 4px;
       background: #ffffff;
-      min-width: 200px;
+      min-width: 210px;
       box-shadow: var(--shadow-lg);
       border: 1px solid var(--gray-200);
       border-radius: 10px;
@@ -691,6 +687,7 @@
     .alert-box.warning { background: var(--warning-light); border: 1px solid #fde68a; color: #92400e; }
     .alert-box.danger { background: var(--danger-light); border: 1px solid #fecaca; color: #991b1b; }
     .alert-box.info { background: var(--primary-light); border: 1px solid #bfdbfe; color: #1e40af; }
+    .alert-box.purple { background: var(--purple-light); border: 1px solid #ddd6fe; color: #5b21b6; }
 
     /* MODALES */
     .modal-backdrop {
@@ -905,13 +902,13 @@
 <body>
 
   <!-- ======================================================== -->
-  <!-- PANTALLA DE LOGIN OBLIGATORIA AL INICIO -->
+  <!-- PANTALLA DE LOGIN PRIVADA (REQUISITOS 6 Y 7: SIN DESPLEGABLES) -->
   <!-- ======================================================== -->
   <div id="loginScreenOverlay">
     <div class="login-card">
       <img src="icon-192.png" alt="Logo" class="login-brand-logo">
       <h2 class="login-title">Acceso al Sistema</h2>
-      <p class="login-subtitle">Gestión de Ventas y Contabilidad</p>
+      <p class="login-subtitle">Gestión de Ventas y Envíos</p>
 
       <div class="login-tabs">
         <button id="btnTabLoginAdmin" class="login-tab-btn active" onclick="switchLoginMode('ADMIN')">
@@ -926,17 +923,17 @@
       <form id="formLoginAdmin" class="login-form" onsubmit="handleAdminLogin(event)">
         <div class="login-hint-box">
           <i class="fa-solid fa-key"></i>
-          <div>Contraseña inicial: <strong>admin2026</strong></div>
+          <div>Contraseña de Administrador: <strong>admin2026</strong></div>
         </div>
 
         <div class="form-group">
           <label><i class="fa-solid fa-lock"></i> Contraseña de Administrador</label>
-          <input type="password" id="adminPasswordInput" class="form-control" placeholder="Introduce la contraseña" required autocomplete="current-password">
+          <input type="password" id="adminPasswordInput" class="form-control" placeholder="Introduce la contraseña de Admin" required autocomplete="current-password">
         </div>
 
         <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
           <input type="checkbox" id="rememberSessionAdmin" checked style="width: 16px; height: 16px; cursor: pointer;">
-          <label for="rememberSessionAdmin" style="margin: 0; font-size: 0.82rem; color: var(--gray-700); cursor: pointer;">Recordar en este dispositivo</label>
+          <label for="rememberSessionAdmin" style="margin: 0; font-size: 0.82rem; color: var(--gray-700); cursor: pointer;">Recordar sesión en este dispositivo</label>
         </div>
 
         <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
@@ -944,32 +941,30 @@
         </button>
       </form>
 
-      <!-- FORMULARIO LOGIN VENDEDOR -->
+      <!-- FORMULARIO LOGIN VENDEDOR (EMAIL + PASSWORD MANUAL - REQUISITO 6) -->
       <form id="formLoginSeller" class="login-form" onsubmit="handleSellerLogin(event)" style="display: none;">
         <div class="login-hint-box">
-          <i class="fa-solid fa-circle-info"></i>
-          <div>PIN por defecto para vendedores: <strong>1234</strong></div>
+          <i class="fa-solid fa-user-lock"></i>
+          <div>Acceso privado: introduce tu correo y la contraseña que te asignó el Administrador.</div>
         </div>
 
         <div class="form-group">
-          <label><i class="fa-solid fa-user"></i> Selecciona tu Usuario</label>
-          <select id="loginSellerSelect" class="form-control" required>
-            <!-- Vendedores dinámicos -->
-          </select>
+          <label><i class="fa-solid fa-envelope"></i> Tu Correo Electrónico</label>
+          <input type="email" id="loginSellerEmail" class="form-control" placeholder="ejemplo@correo.com" required autocomplete="username">
         </div>
 
         <div class="form-group">
-          <label><i class="fa-solid fa-key"></i> Código PIN o Contraseña</label>
-          <input type="password" id="sellerPinInput" class="form-control" placeholder="Introduce tu PIN (Ej. 1234)" value="1234" required>
+          <label><i class="fa-solid fa-key"></i> Contraseña Asignada</label>
+          <input type="password" id="loginSellerPassword" class="form-control" placeholder="Introduce tu contraseña" required autocomplete="current-password">
         </div>
 
         <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
           <input type="checkbox" id="rememberSessionSeller" checked style="width: 16px; height: 16px; cursor: pointer;">
-          <label for="rememberSessionSeller" style="margin: 0; font-size: 0.82rem; color: var(--gray-700); cursor: pointer;">Recordar en este dispositivo</label>
+          <label for="rememberSessionSeller" style="margin: 0; font-size: 0.82rem; color: var(--gray-700); cursor: pointer;">Recordar sesión en este dispositivo</label>
         </div>
 
         <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px;">
-          <i class="fa-solid fa-right-to-bracket"></i> Entrar a mi Panel
+          <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión como Vendedor
         </button>
       </form>
     </div>
@@ -981,7 +976,7 @@
   <header class="navbar">
     <div class="brand">
       <img src="icon-192.png" alt="Logo">
-      <span>Ventas y Contabilidad</span>
+      <span>Ventas y Envíos</span>
     </div>
 
     <div class="navbar-actions">
@@ -990,32 +985,33 @@
         <i class="fa-solid fa-cloud-arrow-down"></i> Instalar App
       </button>
 
-      <!-- Indicador de Usuario Autenticado -->
+      <!-- Usuario Autenticado -->
       <div class="user-badge-box">
         <i class="fa-solid fa-circle-user"></i>
         <span id="currentLoggedUserLabel">Cargando...</span>
       </div>
 
-      <!-- Botón de Cerrar Sesión -->
+      <!-- Cerrar Sesión -->
       <button class="btn-logout" onclick="handleLogout()" title="Cerrar Sesión">
         <i class="fa-solid fa-arrow-right-from-bracket"></i> Salir
       </button>
     </div>
   </header>
 
-  <!-- PESTAÑAS DE NAVEGACIÓN -->
+  <!-- PESTAÑAS DE NAVEGACIÓN (REQUISITOS 1 Y 2: SIN PENDIENTES, NUEVA PESTAÑA ENVÍOS) -->
   <nav class="nav-tabs-container">
     <button class="nav-tab-btn active" onclick="switchTab('catalog')">
-      <i class="fa-solid fa-boxes-stacked"></i> Catálogo de Productos
+      <i class="fa-solid fa-boxes-stacked"></i> Catálogo
       <span class="badge-counter" id="badgeCatalog">0</span>
     </button>
-    <button class="nav-tab-btn" onclick="switchTab('pending')">
-      <i class="fa-solid fa-clock"></i> Ventas Pendientes
-      <span class="badge-counter" id="badgePending">0</span>
+    <button class="nav-tab-btn" onclick="switchTab('sales')">
+      <i class="fa-solid fa-receipt"></i> Ventas
+      <span class="badge-counter" id="badgeSales">0</span>
     </button>
-    <button class="nav-tab-btn" onclick="switchTab('confirmed')">
-      <i class="fa-solid fa-circle-check"></i> Ventas Confirmadas
-      <span class="badge-counter" id="badgeConfirmed">0</span>
+    <!-- REQUISITO 1: Pestaña Envíos para Admin y seguimiento en tiempo real para Vendedor -->
+    <button class="nav-tab-btn" onclick="switchTab('shipping')">
+      <i class="fa-solid fa-truck-fast"></i> Envíos
+      <span class="badge-counter" id="badgeShipping">0</span>
     </button>
     <button class="nav-tab-btn" onclick="switchTab('accounting')">
       <i class="fa-solid fa-scale-balanced"></i> Contabilidad y Saldos
@@ -1029,7 +1025,7 @@
   <main class="main-content">
 
     <!-- ======================================================== -->
-    <!-- 1. CATÁLOGO DE PRODUCTOS (REQUISITO 1) -->
+    <!-- 1. CATÁLOGO DE PRODUCTOS -->
     <!-- ======================================================== -->
     <div id="tab-catalog" class="tab-pane active">
       <div class="card">
@@ -1042,25 +1038,31 @@
           </button>
         </div>
         <div class="card-body">
-          <div id="productsGrid" class="products-grid">
-            <!-- Productos -->
-          </div>
+          <div id="productsGrid" class="products-grid"></div>
         </div>
       </div>
     </div>
 
     <!-- ======================================================== -->
-    <!-- 2. VENTAS PENDIENTES (REQUISITO 3) -->
+    <!-- 2. VENTAS CONFIRMADAS (REQUISITO 2: TODAS SON CONFIRMADAS) -->
     <!-- ======================================================== -->
-    <div id="tab-pending" class="tab-pane">
+    <div id="tab-sales" class="tab-pane">
       <div class="card">
         <div class="card-header">
           <div class="card-title">
-            <i class="fa-solid fa-clock" style="color: var(--warning);"></i> Ventas Pendientes
+            <i class="fa-solid fa-circle-check" style="color: var(--success);"></i> Registro de Ventas Confirmadas
           </div>
-          <button class="btn btn-success" onclick="openNewSaleModal()">
-            <i class="fa-solid fa-cart-plus"></i> Registrar Nueva Venta
-          </button>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <select id="filterSalesShipping" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderSalesTable()">
+              <option value="ALL">Todas las ventas</option>
+              <option value="PENDIENTE">📦 Pendientes de Envío</option>
+              <option value="ENVIADA">🚚 Enviadas por Admin</option>
+              <option value="DEVUELTA">🔄 Devueltas</option>
+            </select>
+            <button class="btn btn-success" onclick="openNewSaleModal()">
+              <i class="fa-solid fa-cart-plus"></i> Registrar Nueva Venta
+            </button>
+          </div>
         </div>
         <div class="card-body">
           <div class="table-responsive">
@@ -1072,15 +1074,15 @@
                   <th>Vendedor</th>
                   <th>Producto</th>
                   <th>Precio Venta</th>
-                  <th class="admin-only">Costo Compra Admin</th>
+                  <th class="admin-only">Costo Admin</th>
                   <th>Ganancia Vendedor</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
+                  <th>Estado Envío</th>
+                  <th>Liquidación</th>
+                  <th>Notas</th>
+                  <th style="text-align: right;">Acciones</th>
                 </tr>
               </thead>
-              <tbody id="pendingSalesTableBody">
-                <!-- Ventas pendientes -->
-              </tbody>
+              <tbody id="salesTableBody"></tbody>
             </table>
           </div>
         </div>
@@ -1088,42 +1090,47 @@
     </div>
 
     <!-- ======================================================== -->
-    <!-- 3. VENTAS CONFIRMADAS (REQUISITOS 3 Y 4) -->
+    <!-- 3. GESTIÓN Y SEGUIMIENTO DE ENVÍOS (REQUISITO 1) -->
     <!-- ======================================================== -->
-    <div id="tab-confirmed" class="tab-pane">
+    <div id="tab-shipping" class="tab-pane">
       <div class="card">
         <div class="card-header">
           <div class="card-title">
-            <i class="fa-solid fa-circle-check" style="color: var(--success);"></i> Ventas Confirmadas
+            <i class="fa-solid fa-truck-ramp-box" style="color: var(--purple);"></i> Registro y Seguimiento de Envíos en Tiempo Real
           </div>
           <div style="display: flex; gap: 8px;">
-            <select id="filterConfirmedSettled" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderConfirmedSales()">
-              <option value="ALL">Todas las ventas confirmadas</option>
-              <option value="UNSETTLED" selected>Pendientes de Liquidar (Período Actual)</option>
-              <option value="SETTLED">Ya Liquidadas (Historial)</option>
+            <select id="filterShippingTab" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderShippingTable()">
+              <option value="PENDIENTE" selected>📦 Pendientes de Envío por Admin</option>
+              <option value="ENVIADA">🚚 Envíos Realizados / En Tránsito</option>
+              <option value="ALL">Todos los envíos</option>
             </select>
           </div>
         </div>
         <div class="card-body">
+          <div class="alert-box purple">
+            <i class="fa-solid fa-satellite-dish" style="font-size: 1.4rem;"></i>
+            <div>
+              <span id="shippingNoticeText">
+                <strong>Seguimiento en Vivo:</strong> El Administrador registra aquí el despacho físico del producto. El vendedor ve al instante cuándo se envió y su número de seguimiento.
+              </span>
+            </div>
+          </div>
           <div class="table-responsive">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Fecha</th>
+                  <th>ID Venta</th>
+                  <th>Fecha Venta</th>
                   <th>Vendedor</th>
                   <th>Producto</th>
-                  <th>Precio Venta</th>
-                  <th class="admin-only">Costo Compra Admin</th>
-                  <th>Ganancia Vendedor</th>
-                  <th>Estado de Liquidación</th>
-                  <th>Notas</th>
-                  <th style="text-align: right;">Menú Rápido</th>
+                  <th>Estado del Envío</th>
+                  <th>Fecha Envío</th>
+                  <th>Nº Seguimiento / Transporte</th>
+                  <th>Notas de Entrega</th>
+                  <th style="text-align: right;">Acción</th>
                 </tr>
               </thead>
-              <tbody id="confirmedSalesTableBody">
-                <!-- Ventas confirmadas -->
-              </tbody>
+              <tbody id="shippingTableBody"></tbody>
             </table>
           </div>
         </div>
@@ -1131,7 +1138,7 @@
     </div>
 
     <!-- ======================================================== -->
-    <!-- 4. CONTABILIDAD Y SALDOS (REQUISITOS 2, 4 Y 5) -->
+    <!-- 4. CONTABILIDAD Y SALDOS (REQUISITO 3: DISTINGUE ENVIADAS) -->
     <!-- ======================================================== -->
     <div id="tab-accounting" class="tab-pane">
       
@@ -1140,32 +1147,38 @@
 
       <!-- Métricas KPI -->
       <div class="stats-grid">
+        <!-- Requisito 3: Monto a entregar por ventas efectivamente enviadas -->
         <div class="stat-card debt">
           <div class="stat-label">
-            <span id="labelDebtWho">Monto a Entregar al Administrador</span>
+            <span id="labelDebtWho">Monto a Entregar al Administrador (Enviadas)</span>
           </div>
           <div class="stat-value" id="kpiAmountOwedAdmin">€0.00</div>
           <div class="stat-subtext" id="kpiAmountOwedSub">
-            Costo de compra de productos + ajustes de devoluciones
+            Costo de ventas enviadas + compensación de devoluciones
           </div>
         </div>
 
+        <!-- Ganancia neta del vendedor por ventas enviadas -->
         <div class="stat-card profit">
           <div class="stat-label">
-            <span id="labelProfitWho">Comisión Neta del Vendedor</span>
+            <span id="labelProfitWho">Comisión Neta Vendedor (Enviadas)</span>
           </div>
           <div class="stat-value" id="kpiSellerProfit">€0.00</div>
           <div class="stat-subtext" id="kpiSellerProfitSub">
-            Margen a percibir en el período
+            Comisión neta ya despachada y liquidable
           </div>
         </div>
 
-        <div class="stat-card">
-          <div class="stat-label">Total de Ventas Confirmadas</div>
-          <div class="stat-value" id="kpiTotalSales">€0.00</div>
-          <div class="stat-subtext" id="kpiSalesCount">0 ventas en el período</div>
+        <!-- Envíos pendientes (en trámite de despacho) -->
+        <div class="stat-card pending-ship">
+          <div class="stat-label">En Trámite (Pendiente de Envío)</div>
+          <div class="stat-value" id="kpiPendingShipmentAmount">€0.00</div>
+          <div class="stat-subtext" id="kpiPendingShipmentCount">
+            0 ventas confirmadas aún no enviadas
+          </div>
         </div>
 
+        <!-- Ajustes por Devoluciones pasadas -->
         <div class="stat-card adjust">
           <div class="stat-label">Ajustes por Devoluciones (Saldo Negativo)</div>
           <div class="stat-value" id="kpiReturnAdjustments">€0.00</div>
@@ -1177,7 +1190,7 @@
       <div class="card admin-only">
         <div class="card-header">
           <div class="card-title">
-            <i class="fa-solid fa-hand-holding-dollar"></i> Cierre y Liquidación de Período
+            <i class="fa-solid fa-hand-holding-dollar"></i> Cierre y Liquidación de Período (Solo Ventas Enviadas)
           </div>
           <button class="btn btn-warning" onclick="openSettlePeriodModal()">
             <i class="fa-solid fa-file-invoice-dollar"></i> Liquidar Período para Vendedor Seleccionado
@@ -1190,7 +1203,7 @@
         <div class="card-header" style="background: var(--gray-50);">
           <div style="display: flex; gap: 10px;">
             <button id="btnSubTabCurrent" class="btn btn-secondary btn-sm" onclick="toggleAccountingSubTab('current')">
-              <i class="fa-solid fa-list-check"></i> Ventas del Período Actual
+              <i class="fa-solid fa-list-check"></i> Ventas Enviadas a Liquidar
             </button>
             <button id="btnSubTabHistory" class="btn btn-secondary btn-sm" onclick="toggleAccountingSubTab('history')">
               <i class="fa-solid fa-clock-rotate-left"></i> Historial de Meses y Saldos Liquidados
@@ -1198,23 +1211,24 @@
           </div>
         </div>
 
-        <!-- Vista 1: Período Actual -->
+        <!-- Vista 1: Ventas Enviadas del Período Actual -->
         <div id="accountingCurrentView" class="card-body">
           <h4 style="margin-bottom: 14px; color: var(--gray-700);">
-            Detalle de Ventas Confirmadas Pendientes de Liquidar
+            Detalle de Ventas Confirmadas y Enviadas (Listas para Liquidación)
           </h4>
           <div class="table-responsive">
             <table class="data-table">
               <thead>
                 <tr>
                   <th>ID Venta</th>
-                  <th>Fecha</th>
+                  <th>Fecha Venta</th>
+                  <th>Fecha Envío</th>
                   <th>Vendedor</th>
                   <th>Producto</th>
                   <th>Precio Venta</th>
-                  <th>Monto Admin (Costo Base)</th>
+                  <th>Costo Admin (Base)</th>
                   <th>Comisión Vendedor</th>
-                  <th>Estado / Notas</th>
+                  <th>Estado</th>
                 </tr>
               </thead>
               <tbody id="accountingCurrentTableBody"></tbody>
@@ -1225,7 +1239,7 @@
         <!-- Vista 2: Historial de Meses ya Liquidados -->
         <div id="accountingHistoryView" class="card-body" style="display: none;">
           <h4 style="margin-bottom: 14px; color: var(--gray-700);">
-            Historial de Meses y Saldos Ya Liquidados
+            Historial de Períodos y Meses Ya Liquidados
           </h4>
           <div class="table-responsive">
             <table class="data-table">
@@ -1235,10 +1249,10 @@
                   <th>Período (Mes/Año)</th>
                   <th>Fecha de Cierre</th>
                   <th>Vendedor</th>
-                  <th>Total Ventas</th>
+                  <th>Total Ventas Enviadas</th>
                   <th>Total Entregado al Admin</th>
                   <th>Comisión Liquidada</th>
-                  <th>Ajuste Devoluciones</th>
+                  <th>Ajustes Devoluciones</th>
                   <th>Notas y Detalles</th>
                 </tr>
               </thead>
@@ -1251,7 +1265,7 @@
     </div>
 
     <!-- ======================================================== -->
-    <!-- 5. GESTIÓN DE VENDEDORES (ARCHIVAR, BORRAR, ESTADOS) -->
+    <!-- 5. GESTIÓN DE VENDEDORES (REQUISITOS 6 Y 7: CONTRASEÑAS RANDOM) -->
     <!-- ======================================================== -->
     <div id="tab-sellers" class="tab-pane">
       <div class="card">
@@ -1279,15 +1293,14 @@
                 <tr>
                   <th>ID</th>
                   <th>Nombre Completo</th>
-                  <th>Contacto</th>
-                  <th>Estado Actual</th>
-                  <th>PIN</th>
+                  <th>Correo (Login)</th>
+                  <th>Teléfono</th>
+                  <th>Estado</th>
+                  <th>Contraseña Asignada</th>
                   <th style="text-align: right;">Acciones</th>
                 </tr>
               </thead>
-              <tbody id="sellersTableBody">
-                <!-- Vendedores cargados aquí -->
-              </tbody>
+              <tbody id="sellersTableBody"></tbody>
             </table>
           </div>
         </div>
@@ -1297,32 +1310,169 @@
   </main>
 
   <!-- ======================================================== -->
-  <!-- BANNER MODAL DE INSTALACIÓN PWA -->
-  <!-- ======================================================== -->
-  <div id="pwaInstallBanner" class="install-banner-modal">
-    <div class="install-banner-header">
-      <img src="icon-192.png" alt="Icono">
-      <div>
-        <div class="install-banner-title">¡Instala esta App en tu Móvil!</div>
-        <div class="install-banner-desc">Accede al instante desde tu pantalla de inicio sin usar el navegador.</div>
-      </div>
-    </div>
-    <div id="pwaIosInstructions" style="display: none; background: #eff6ff; border-radius: 8px; padding: 10px; font-size: 0.82rem; color: #1e40af; margin-top: 8px;">
-      <i class="fa-solid fa-mobile-screen-button"></i> <strong>En iPhone/iPad:</strong> Pulsa el botón de <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket"></i> y selecciona <strong>"Añadir a la pantalla de inicio"</strong> <i class="fa-regular fa-square-plus"></i>.
-    </div>
-    <div class="install-banner-buttons">
-      <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="dismissInstallBanner()">Más tarde</button>
-      <button id="btnBannerInstallAction" class="btn btn-primary btn-sm" style="flex: 2;" onclick="triggerPWAInstall()">
-        <i class="fa-solid fa-download"></i> Instalar Ahora
-      </button>
-    </div>
-  </div>
-
-  <!-- ======================================================== -->
   <!-- MODALES DE OPERACIONES -->
   <!-- ======================================================== -->
 
-  <!-- MODAL: Cambiar Estado / Archivar Vendedor -->
+  <!-- MODAL: REGISTRAR ENVÍO (REQUISITO 1 - SOLO ADMIN) -->
+  <div id="modalRegisterShipping" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" style="color: var(--purple);">
+          <i class="fa-solid fa-truck-fast"></i> Registrar Envío de Producto
+        </div>
+        <button class="modal-close" onclick="closeModal('modalRegisterShipping')">&times;</button>
+      </div>
+      <form id="formRegisterShipping" onsubmit="submitRegisterShipping(event)">
+        <input type="hidden" id="shipSaleId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Venta y Producto</label>
+            <input type="text" id="shipSaleDetails" class="form-control" readonly>
+          </div>
+          <div class="form-group">
+            <label>Fecha de Envío *</label>
+            <input type="date" id="shipDate" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>Empresa de Transporte / Courier</label>
+            <input type="text" id="shipCarrier" class="form-control" placeholder="Ej. Correos Express, SEUR, GLS, MRW, DHL...">
+          </div>
+          <div class="form-group">
+            <label>Número de Seguimiento (Tracking)</label>
+            <input type="text" id="shipTracking" class="form-control" placeholder="Ej. ES1234567890">
+          </div>
+          <div class="form-group">
+            <label>Notas de Envío / Entrega</label>
+            <textarea id="shipNotes" class="form-control" rows="2" placeholder="Ej. Paquete asegurado, entrega en domicilio"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalRegisterShipping')">Cancelar</button>
+          <button type="submit" class="btn btn-purple">
+            <i class="fa-solid fa-check"></i> Confirmar Envío Realizado
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DOBLE CONFIRMACIÓN DE BORRADO DE VENTA (REQUISITO 4) -->
+  <div id="modalDoubleConfirmDeleteSale" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" style="color: var(--danger);">
+          <i class="fa-solid fa-triangle-exclamation"></i> Segunda Confirmación de Seguridad
+        </div>
+        <button class="modal-close" onclick="closeModal('modalDoubleConfirmDeleteSale')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="alert-box danger">
+          <i class="fa-solid fa-circle-exclamation" style="font-size: 1.6rem;"></i>
+          <div>
+            <strong>¡ADVERTENCIA IRREVERSIBLE!</strong><br>
+            Estás a punto de eliminar definitivamente del sistema la venta:
+            <br><strong id="deleteSaleInfoText" style="color: #000;"></strong>
+            <br><br>Esta acción borrará la venta de la base de datos y afectará los cálculos contables.
+          </div>
+        </div>
+        <p style="font-size: 0.9rem; color: var(--gray-700);">
+          Por favor, pulsa <strong>"Eliminar Definitivamente"</strong> solo si estás completamente seguro.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalDoubleConfirmDeleteSale')">Cancelar</button>
+        <button type="button" class="btn btn-danger" onclick="executeDeleteSaleConfirmed()">
+          <i class="fa-solid fa-trash"></i> Eliminar Definitivamente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CAMBIAR / RESETEAR CONTRASEÑA RANDOM DE VENDEDOR (REQUISITO 7) -->
+  <div id="modalResetSellerPassword" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-key" style="color: var(--primary);"></i> Contraseña de Vendedor
+        </div>
+        <button class="modal-close" onclick="closeModal('modalResetSellerPassword')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="resetPassSellerId">
+        <div class="form-group">
+          <label>Vendedor</label>
+          <input type="text" id="resetPassSellerName" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+          <label>Contraseña Actual Asignada</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="resetPassCurrentValue" class="form-control" readonly style="font-weight: 700; letter-spacing: 1px;">
+            <button class="btn btn-secondary" type="button" onclick="copyPasswordToClipboard('resetPassCurrentValue')">
+              <i class="fa-regular fa-copy"></i> Copiar
+            </button>
+          </div>
+        </div>
+        <div class="alert-box info">
+          <i class="fa-solid fa-dice"></i>
+          <div>
+            Puedes generar una nueva contraseña aleatoria en cualquier momento sin necesidad de conocer la anterior.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalResetSellerPassword')">Cerrar</button>
+        <button type="button" class="btn btn-warning" onclick="executeGenerateRandomPasswordForSeller()">
+          <i class="fa-solid fa-arrows-rotate"></i> Generar Nueva Contraseña Aleatoria
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AÑADIR VENDEDOR (CON CONTRASEÑA ALEATORIA AUTOMÁTICA) -->
+  <div id="modalAddSeller" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-user-plus"></i> Añadir Nuevo Vendedor
+        </div>
+        <button class="modal-close" onclick="closeModal('modalAddSeller')">&times;</button>
+      </div>
+      <form id="formAddSeller" onsubmit="submitAddSeller(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Nombre Completo *</label>
+            <input type="text" id="newSellerName" class="form-control" placeholder="Ej. Juan Pérez" required>
+          </div>
+          <div class="form-group">
+            <label>Correo Electrónico (Para iniciar sesión) *</label>
+            <input type="email" id="newSellerEmail" class="form-control" placeholder="juan.perez@ejemplo.com" required>
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" id="newSellerPhone" class="form-control" placeholder="+34 600 000 000">
+          </div>
+          <div class="form-group">
+            <label>Contraseña Generada Aleatoriamente *</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="newSellerPassword" class="form-control" required style="font-weight: 700; letter-spacing: 1px;">
+              <button class="btn btn-secondary" type="button" onclick="regenerateNewSellerPassword()">
+                <i class="fa-solid fa-dice"></i> Nueva
+              </button>
+            </div>
+            <small style="color: var(--gray-500); display: block; margin-top: 4px;">
+              Se ha generado automáticamente una contraseña aleatoria y segura.
+            </small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddSeller')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Registrar Vendedor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CAMBIAR ESTADO DE VENDEDOR -->
   <div id="modalChangeSellerStatus" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -1341,17 +1491,11 @@
           <div class="form-group">
             <label>Nuevo Estado de Colaboración *</label>
             <select id="newSellerStatusSelect" class="form-control" required>
-              <option value="Activo">🟢 Activo (Trabajando normalmente)</option>
-              <option value="De Vacaciones">🏖️ De Vacaciones (En descanso temporal)</option>
-              <option value="De Baja">🩺 De Baja (Baja médica o permiso)</option>
-              <option value="Archivado">📦 Archivado / Inactivo (No colabora más)</option>
+              <option value="Activo">🟢 Activo</option>
+              <option value="De Vacaciones">🏖️ De Vacaciones</option>
+              <option value="De Baja">🩺 De Baja Médica</option>
+              <option value="Archivado">📦 Archivado / Inactivo</option>
             </select>
-          </div>
-          <div class="alert-box info">
-            <i class="fa-solid fa-circle-info"></i>
-            <div>
-              Los vendedores archivados, en vacaciones o de baja no podrán recibir nuevas ventas mientras estén en ese estado, pero <strong>todo su historial contable se mantendrá seguro</strong>.
-            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -1362,7 +1506,7 @@
     </div>
   </div>
 
-  <!-- MODAL: Enviar Producto a Vendedores -->
+  <!-- MODAL: ENVIAR PRODUCTO -->
   <div id="modalAddProduct" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -1375,11 +1519,11 @@
         <div class="modal-body">
           <div class="form-group">
             <label>Título del Producto *</label>
-            <input type="text" id="prodTitle" class="form-control" placeholder="Ej. Chaqueta Deportiva Unisex" required>
+            <input type="text" id="prodTitle" class="form-control" placeholder="Ej. Zapatillas Running Air" required>
           </div>
           <div class="form-group">
             <label>Descripción / Detalles</label>
-            <textarea id="prodDesc" class="form-control" rows="2" placeholder="Tallas disponibles, colores, material..."></textarea>
+            <textarea id="prodDesc" class="form-control" rows="2" placeholder="Tallas, colores, material..."></textarea>
           </div>
           <div class="form-group">
             <label>URL de la Foto o Imagen del Producto</label>
@@ -1387,13 +1531,11 @@
             <small style="color: var(--gray-500); display: block; margin-top: 4px;">O sube una imagen de tu dispositivo:</small>
             <input type="file" id="prodPhotoFile" accept="image/*" class="form-control" style="margin-top: 4px;" onchange="handleImageUpload(event, 'prodPhotoUrl')">
           </div>
-
           <div class="form-group">
             <label style="color: var(--primary);">Precio de Compra Admin (€) *</label>
             <input type="number" step="0.01" min="0" id="prodPurchasePrice" class="form-control" placeholder="Ej. 25.00" required>
             <small style="color: var(--gray-500);">Visible únicamente para el Administrador.</small>
           </div>
-
           <div class="form-row">
             <div class="form-group">
               <label>Precio Mínimo de Venta (€) *</label>
@@ -1404,7 +1546,6 @@
               <input type="number" step="0.01" min="0" id="prodMaxPrice" class="form-control" placeholder="Ej. 60.00" required>
             </div>
           </div>
-
           <div class="form-group">
             <label>Destinatarios (Asignar a)</label>
             <select id="prodAssignedTo" class="form-control">
@@ -1414,15 +1555,13 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddProduct')">Cancelar</button>
-          <button type="submit" class="btn btn-primary">
-            <i class="fa-solid fa-check"></i> Enviar Producto
-          </button>
+          <button type="submit" class="btn btn-primary">Enviar Producto</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: Registrar Nueva Venta -->
+  <!-- MODAL: REGISTRAR VENTA -->
   <div id="modalNewSale" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -1439,17 +1578,14 @@
               <option value="">-- Selecciona un producto --</option>
             </select>
           </div>
-
           <div class="form-group" id="saleSellerFieldGroup">
             <label>Vendedor *</label>
             <select id="saleSellerId" class="form-control" required></select>
           </div>
-
           <div class="alert-box info" id="salePriceHintBox" style="display: none;">
             <i class="fa-solid fa-circle-info"></i>
             <div><span id="salePriceHintText"></span></div>
           </div>
-
           <div class="form-row">
             <div class="form-group">
               <label>Precio Real de Venta (€) *</label>
@@ -1460,20 +1596,10 @@
               <input type="number" step="0.01" id="saleAdminCost" class="form-control" placeholder="0.00" readonly>
             </div>
           </div>
-
           <div class="alert-box success" id="saleProfitPreviewBox" style="display: none;">
             <i class="fa-solid fa-coins"></i>
             <div><strong>Comisión Estimada Vendedor: </strong> <span id="saleEstimatedProfit">€0.00</span></div>
           </div>
-
-          <div class="form-group">
-            <label>Estado Inicial</label>
-            <select id="saleInitialStatus" class="form-control">
-              <option value="Ventas Pendientes">Ventas Pendientes</option>
-              <option value="Ventas Confirmadas">Ventas Confirmadas</option>
-            </select>
-          </div>
-
           <div class="form-group">
             <label>Notas adicionales</label>
             <textarea id="saleNotes" class="form-control" rows="2" placeholder="Notas sobre esta venta"></textarea>
@@ -1481,61 +1607,13 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modalNewSale')">Cancelar</button>
-          <button type="submit" class="btn btn-success">
-            <i class="fa-solid fa-check"></i> Registrar Venta
-          </button>
+          <button type="submit" class="btn btn-success">Registrar Venta Confirmada</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: Modificar Venta -->
-  <div id="modalEditSale" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">
-          <i class="fa-solid fa-pen-to-square"></i> Modificar Venta
-        </div>
-        <button class="modal-close" onclick="closeModal('modalEditSale')">&times;</button>
-      </div>
-      <form id="formEditSale" onsubmit="submitEditSale(event)">
-        <input type="hidden" id="editSaleId">
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Producto</label>
-            <input type="text" id="editSaleProductName" class="form-control" readonly>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Precio de Venta (€)</label>
-              <input type="number" step="0.01" id="editSalePrice" class="form-control" required>
-            </div>
-            <div class="form-group admin-only">
-              <label>Costo Admin (€)</label>
-              <input type="number" step="0.01" id="editSaleAdminCost" class="form-control" required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Estado de la Venta</label>
-            <select id="editSaleStatus" class="form-control">
-              <option value="Ventas Pendientes">Ventas Pendientes</option>
-              <option value="Ventas Confirmadas">Ventas Confirmadas</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Notas</label>
-            <textarea id="editSaleNotes" class="form-control" rows="2"></textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalEditSale')">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL: Devolución de Producto -->
+  <!-- MODAL: DEVOLUCIÓN DE PRODUCTO (REQUISITO 3) -->
   <div id="modalReturnSale" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -1559,8 +1637,8 @@
             <i class="fa-solid fa-bell"></i>
             <div>
               <strong>¡ATENCIÓN: Venta Ya Liquidada (Saldada)!</strong><br>
-              La comisión que el vendedor ya cobró por este producto (<strong id="returnProfitAmountText">€0.00</strong>) 
-              deberá ser <strong>adeudada por el vendedor al administrador en el período siguiente como saldo negativo</strong>. Se creará una nota explicativa en la contabilidad.
+              La comisión que el vendedor ya cobró (<strong id="returnProfitAmountText">€0.00</strong>) 
+              deberá ser <strong>adeudada por el vendedor al administrador en el período siguiente como saldo negativo</strong>.
             </div>
           </div>
 
@@ -1576,15 +1654,13 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modalReturnSale')">Cancelar</button>
-          <button type="submit" class="btn btn-danger">
-            <i class="fa-solid fa-rotate-left"></i> Confirmar Devolución
-          </button>
+          <button type="submit" class="btn btn-danger">Confirmar Devolución</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: Liquidar Período Contable (Admin Only) -->
+  <!-- MODAL: LIQUIDAR PERÍODO CONTABLE -->
   <div id="modalSettlePeriod" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -1596,7 +1672,7 @@
       <form id="formSettlePeriod" onsubmit="submitSettlePeriod(event)">
         <div class="modal-body">
           <p style="margin-bottom: 14px; font-size: 0.9rem; color: var(--gray-700);">
-            Todas las ventas confirmadas pendientes se archivarán como <strong>Liquidadas (Saldadas)</strong>.
+            Solo las ventas <strong>enviadas</strong> pendientes se archivarán como <strong>Liquidadas (Saldadas)</strong>.
           </p>
           <div class="form-group">
             <label>Vendedor a Liquidar *</label>
@@ -1616,61 +1692,23 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modalSettlePeriod')">Cancelar</button>
-          <button type="submit" class="btn btn-warning">
-            <i class="fa-solid fa-check-double"></i> Ejecutar Liquidación
-          </button>
+          <button type="submit" class="btn btn-warning">Ejecutar Liquidación</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: Añadir Vendedor -->
-  <div id="modalAddSeller" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">
-          <i class="fa-solid fa-user-plus"></i> Nuevo Vendedor
-        </div>
-        <button class="modal-close" onclick="closeModal('modalAddSeller')">&times;</button>
-      </div>
-      <form id="formAddSeller" onsubmit="submitAddSeller(event)">
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Nombre Completo *</label>
-            <input type="text" id="newSellerName" class="form-control" placeholder="Ej. Juan Pérez" required>
-          </div>
-          <div class="form-group">
-            <label>Correo Electrónico</label>
-            <input type="email" id="newSellerEmail" class="form-control" placeholder="juan.perez@ejemplo.com">
-          </div>
-          <div class="form-group">
-            <label>Teléfono</label>
-            <input type="tel" id="newSellerPhone" class="form-control" placeholder="+34 600 000 000">
-          </div>
-          <div class="form-group">
-            <label>Código PIN de Acceso</label>
-            <input type="text" id="newSellerPin" class="form-control" placeholder="1234" value="1234">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddSeller')">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Registrar Vendedor</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- NOTIFICACIONES TOAST -->
+  <!-- TOAST -->
   <div id="toastContainer" class="toast-container"></div>
 
   <!-- ======================================================== -->
-  <!-- JAVASCRIPT: LÓGICA DE LOGIN, PWA Y GESTIÓN COMPLETA -->
+  <!-- JAVASCRIPT: LÓGICA COMPLETA DE NEGOCIO -->
   <!-- ======================================================== -->
   <script>
-    // ESTADO DE LA APLICACIÓN
+    // ESTADO
     const APP_STATE = {
       isAuthenticated: false,
-      role: 'ADMIN', // 'ADMIN' o 'SELLER'
+      role: 'ADMIN',
       activeSellerId: null,
       currentUserDisplayName: 'Administrador',
       products: [],
@@ -1678,16 +1716,15 @@
       sales: [],
       settlements: [],
       activeTab: 'catalog',
+      pendingSaleToDeleteId: null, // Para doble confirmación
       isGoogleScript: typeof google !== 'undefined' && google.script && google.script.run
     };
 
-    // ALMACENAMIENTO LOCAL
-    const LOCAL_STORAGE_KEY = 'VENTAS_APP_DATA_ES_V2';
-    const SESSION_AUTH_KEY = 'VENTAS_AUTH_SESSION_V2';
+    const LOCAL_STORAGE_KEY = 'VENTAS_APP_DATA_ES_V3';
+    const SESSION_AUTH_KEY = 'VENTAS_AUTH_SESSION_V3';
 
-    // PWA: INSTALACIÓN
+    // PWA
     let deferredInstallPrompt = null;
-
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
@@ -1710,30 +1747,6 @@
       if (headerBtn) headerBtn.style.display = 'none';
       showToast('¡Gracias por instalar la aplicación!', 'success');
       deferredInstallPrompt = null;
-    });
-
-    // INICIALIZACIÓN AL CARGAR
-    document.addEventListener('DOMContentLoaded', () => {
-      initApp();
-
-      // Detección iOS
-      const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-      const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-      if (isIos && !isStandalone) {
-        setTimeout(() => showInstallBanner(true), 1500);
-      } else {
-        setTimeout(() => {
-          if (!isStandalone && !localStorage.getItem('PWA_BANNER_DISMISSED')) {
-            showInstallBanner(false);
-          }
-        }, 1800);
-      }
-
-      window.addEventListener('click', (e) => {
-        if (!e.target.closest('.dropdown')) {
-          document.querySelectorAll('.dropdown.show').forEach(d => d.classList.remove('show'));
-        }
-      });
     });
 
     function showInstallBanner(isIosMode = false) {
@@ -1765,19 +1778,52 @@
           dismissInstallBanner();
         });
       } else {
-        alert('Para instalar esta app en tu pantalla de inicio:\n\n1. Abre el menú del navegador (los tres puntos arriba a la derecha).\n2. Selecciona "Instalar aplicación" o "Añadir a la pantalla principal".');
+        alert('Para instalar esta app:\n\n1. Abre el menú del navegador.\n2. Pulsa "Instalar aplicación" o "Añadir a la pantalla de inicio".');
         dismissInstallBanner();
       }
     }
 
-    /**
-     * Comprobación de autenticación inicial
-     */
+    // GENERADOR DE CONTRASEÑAS ALEATORIAS (REQUISITO 7)
+    function generateRandomPassword(length = 8) {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
+      let result = "";
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    // INICIALIZACIÓN
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
+
+      const isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+      const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+      if (isIos && !isStandalone) {
+        setTimeout(() => showInstallBanner(true), 1500);
+      } else {
+        setTimeout(() => {
+          if (!isStandalone && !localStorage.getItem('PWA_BANNER_DISMISSED')) {
+            showInstallBanner(false);
+          }
+        }, 1800);
+      }
+
+      window.addEventListener('click', (e) => {
+        if (!e.target.closest('.dropdown')) {
+          document.querySelectorAll('.dropdown.show').forEach(d => d.classList.remove('show'));
+        }
+      });
+    });
+
     function initApp() {
       const now = new Date();
       const monthYear = String(now.getMonth() + 1).padStart(2, '0') + '/' + now.getFullYear();
       const periodInput = document.getElementById('settlePeriodLabel');
       if (periodInput) periodInput.value = monthYear;
+
+      const dateInput = document.getElementById('shipDate');
+      if (dateInput) dateInput.value = now.toISOString().split('T')[0];
 
       loadAllData();
       checkSavedSession();
@@ -1803,13 +1849,12 @@
     }
 
     // ==========================================
-    // SISTEMA DE LOGIN Y SESIÓN
+    // LOGIN PRIVADO (EMAIL + PASSWORD MANUAL - REQUISITOS 6 Y 7)
     // ==========================================
 
     function showLoginOverlay() {
       const overlay = document.getElementById('loginScreenOverlay');
       if (overlay) overlay.style.display = 'flex';
-      populateLoginSellerSelect();
     }
 
     function hideLoginOverlay() {
@@ -1834,28 +1879,7 @@
         btnAdmin.classList.remove('active');
         formSeller.style.display = 'block';
         formAdmin.style.display = 'none';
-        populateLoginSellerSelect();
       }
-    }
-
-    function populateLoginSellerSelect() {
-      const select = document.getElementById('loginSellerSelect');
-      if (!select) return;
-      select.innerHTML = '';
-      
-      const activeSellers = APP_STATE.sellers.filter(s => s.status !== 'Archivado');
-      if (activeSellers.length === 0) {
-        select.innerHTML = '<option value="">No hay vendedores activos</option>';
-        return;
-      }
-
-      activeSellers.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.id;
-        const statusNote = s.status !== 'Activo' ? ` (${s.status})` : '';
-        opt.textContent = `${s.name}${statusNote}`;
-        select.appendChild(opt);
-      });
     }
 
     function handleAdminLogin(e) {
@@ -1871,11 +1895,8 @@
           APP_STATE.currentUserDisplayName = 'Administrador';
 
           const sessionData = JSON.stringify({ role: 'ADMIN', displayName: 'Administrador' });
-          if (remember) {
-            localStorage.setItem(SESSION_AUTH_KEY, sessionData);
-          } else {
-            sessionStorage.setItem(SESSION_AUTH_KEY, sessionData);
-          }
+          if (remember) localStorage.setItem(SESSION_AUTH_KEY, sessionData);
+          else sessionStorage.setItem(SESSION_AUTH_KEY, sessionData);
 
           hideLoginOverlay();
           renderAll();
@@ -1887,51 +1908,64 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
-            performLogin(res && res.success);
-          })
+          .withSuccessHandler((res) => performLogin(res && res.success))
           .verifyAdminLogin(pass);
       } else {
-        // En modo local o GitHub Pages: contraseña inicial "admin2026"
-        const savedPass = localStorage.getItem('ADMIN_CUSTOM_PASSWORD') || 'admin2026';
-        performLogin(pass === savedPass || pass === 'admin2026');
+        performLogin(pass === 'admin2026');
       }
     }
 
+    // REQUISITO 6 Y 7: Vendedor entra con email y contraseña manual
     function handleSellerLogin(e) {
       e.preventDefault();
-      const sellerId = document.getElementById('loginSellerSelect').value;
-      const pin = document.getElementById('sellerPinInput').value.trim();
+      const email = document.getElementById('loginSellerEmail').value.trim().toLowerCase();
+      const password = document.getElementById('loginSellerPassword').value.trim();
       const remember = document.getElementById('rememberSessionSeller').checked;
 
-      const seller = APP_STATE.sellers.find(s => s.id === sellerId);
-      if (!seller) {
-        showToast('Selecciona un vendedor válido.', 'warning');
-        return;
-      }
+      const performSellerLogin = (res) => {
+        if (res.success && res.seller) {
+          APP_STATE.isAuthenticated = true;
+          APP_STATE.role = 'SELLER';
+          APP_STATE.activeSellerId = res.seller.id;
+          APP_STATE.currentUserDisplayName = res.seller.name;
 
-      // Validación PIN
-      const validPin = seller.pin || '1234';
-      if (pin !== validPin && pin !== '1234') {
-        showToast('PIN de vendedor incorrecto.', 'error');
-        return;
-      }
+          const sessionData = JSON.stringify({ 
+            role: 'SELLER', 
+            sellerId: res.seller.id, 
+            displayName: res.seller.name 
+          });
+          if (remember) localStorage.setItem(SESSION_AUTH_KEY, sessionData);
+          else sessionStorage.setItem(SESSION_AUTH_KEY, sessionData);
 
-      APP_STATE.isAuthenticated = true;
-      APP_STATE.role = 'SELLER';
-      APP_STATE.activeSellerId = seller.id;
-      APP_STATE.currentUserDisplayName = seller.name;
+          hideLoginOverlay();
+          renderAll();
+          showToast(`¡Bienvenido, ${res.seller.name}!`, 'success');
+        } else {
+          showToast(res.error || 'Credenciales de vendedor incorrectas.', 'error');
+        }
+      };
 
-      const sessionData = JSON.stringify({ role: 'SELLER', sellerId: seller.id, displayName: seller.name });
-      if (remember) {
-        localStorage.setItem(SESSION_AUTH_KEY, sessionData);
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler(performSellerLogin)
+          .verifySellerLogin(email, password);
       } else {
-        sessionStorage.setItem(SESSION_AUTH_KEY, sessionData);
+        // Fallback local
+        const seller = APP_STATE.sellers.find(s => s.email.toLowerCase() === email);
+        if (!seller) {
+          showToast('No existe ningún vendedor registrado con ese correo.', 'error');
+          return;
+        }
+        if (seller.status === 'Archivado') {
+          showToast('Tu cuenta de vendedor está archivada. Contacta al Administrador.', 'warning');
+          return;
+        }
+        if (seller.password !== password) {
+          showToast('Contraseña incorrecta para este vendedor.', 'error');
+          return;
+        }
+        performSellerLogin({ success: true, seller });
       }
-
-      hideLoginOverlay();
-      renderAll();
-      showToast(`¡Hola, ${seller.name}!`, 'success');
     }
 
     function handleLogout() {
@@ -1942,11 +1976,12 @@
       APP_STATE.role = 'ADMIN';
       APP_STATE.activeSellerId = null;
       document.getElementById('adminPasswordInput').value = '';
+      document.getElementById('loginSellerPassword').value = '';
       showLoginOverlay();
     }
 
     // ==========================================
-    // CARGA DE DATOS (APPS SCRIPT / LOCALSTORAGE)
+    // CARGA DE DATOS
     // ==========================================
 
     function loadAllData() {
@@ -1959,7 +1994,6 @@
               APP_STATE.sales = res.sales || [];
               APP_STATE.settlements = res.settlements || [];
               renderAll();
-              populateLoginSellerSelect();
             } else {
               showToast(res ? res.error : 'Error al cargar datos', 'error');
             }
@@ -1968,7 +2002,6 @@
       } else {
         loadLocalMockData();
         renderAll();
-        populateLoginSellerSelect();
       }
     }
 
@@ -1987,11 +2020,10 @@
         }
       }
 
-      // Datos demo iniciales
+      // Datos demo con contraseñas aleatorias
       APP_STATE.sellers = [
-        { id: 'VEND-001', name: 'Mario Rossi', email: 'mario.rossi@ejemplo.com', phone: '+34 600 123 456', status: 'Activo', pin: '1234', createdAt: new Date().toISOString() },
-        { id: 'VEND-002', name: 'Laura Gómez', email: 'laura.gomez@ejemplo.com', phone: '+34 600 654 321', status: 'Activo', pin: '1234', createdAt: new Date().toISOString() },
-        { id: 'VEND-003', name: 'Carlos Fernández', email: 'carlos@ejemplo.com', phone: '+34 600 777 888', status: 'De Vacaciones', pin: '1234', createdAt: new Date().toISOString() }
+        { id: 'VEND-001', name: 'Mario Rossi', email: 'mario.rossi@ejemplo.com', phone: '+34 600 123 456', status: 'Activo', password: 'Vnt#' + generateRandomPassword(5), createdAt: new Date().toISOString() },
+        { id: 'VEND-002', name: 'Laura Gómez', email: 'laura.gomez@ejemplo.com', phone: '+34 600 654 321', status: 'Activo', password: 'Lau!' + generateRandomPassword(5), createdAt: new Date().toISOString() }
       ];
 
       APP_STATE.products = [
@@ -2016,24 +2048,13 @@
           maxPrice: 65.00,
           assignedTo: 'VEND-001',
           active: true
-        },
-        {
-          id: 'PROD-003',
-          title: 'Mochila de Trekking y Viaje 30L',
-          description: 'Mochila ergonómica con compartimento para portátil y botella.',
-          photoUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&auto=format&fit=crop&q=60',
-          purchasePrice: 18.00,
-          minPrice: 28.00,
-          maxPrice: 50.00,
-          assignedTo: 'TUTTI',
-          active: true
         }
       ];
 
       APP_STATE.sales = [
         {
           id: 'VENTA-101',
-          date: new Date(Date.now() - 86400000 * 3).toISOString(),
+          date: new Date(Date.now() - 86400000 * 2).toISOString(),
           sellerId: 'VEND-001',
           sellerName: 'Mario Rossi',
           productId: 'PROD-001',
@@ -2041,16 +2062,20 @@
           salePrice: 65.00,
           adminPurchasePrice: 30.00,
           sellerProfit: 35.00,
-          status: 'Ventas Confirmadas',
+          status: 'Venta Confirmada',
           settled: false,
           settlementDate: '',
           settlementPeriod: '',
-          notes: 'Cliente satisfecho',
-          returned: false
+          notes: 'Cliente muy satisfecho',
+          returned: false,
+          shippingStatus: 'Enviada',
+          shippingDate: new Date(Date.now() - 86400000 * 1).toISOString(),
+          shippingTracking: 'CORREOS-ES987654321',
+          shippingNotes: 'Entregado en agencia local'
         },
         {
           id: 'VENTA-102',
-          date: new Date(Date.now() - 86400000 * 1).toISOString(),
+          date: new Date().toISOString(),
           sellerId: 'VEND-001',
           sellerName: 'Mario Rossi',
           productId: 'PROD-002',
@@ -2058,12 +2083,16 @@
           salePrice: 45.00,
           adminPurchasePrice: 20.00,
           sellerProfit: 25.00,
-          status: 'Ventas Pendientes',
+          status: 'Venta Confirmada',
           settled: false,
           settlementDate: '',
           settlementPeriod: '',
-          notes: 'Entrega en mano acordada',
-          returned: false
+          notes: 'Esperando que Admin envíe la chaqueta',
+          returned: false,
+          shippingStatus: 'Pendiente de Envío',
+          shippingDate: '',
+          shippingTracking: '',
+          shippingNotes: ''
         }
       ];
 
@@ -2090,8 +2119,8 @@
       updateRoleUI();
       populateSellerDropdowns();
       renderCatalog();
-      renderPendingSales();
-      renderConfirmedSales();
+      renderSalesTable();
+      renderShippingTable();
       renderAccounting();
       renderSellers();
       updateBadges();
@@ -2105,6 +2134,13 @@
 
       if (!isAdmin && APP_STATE.activeTab === 'sellers') {
         switchTab('catalog');
+      }
+
+      const shipNotice = document.getElementById('shippingNoticeText');
+      if (shipNotice) {
+        shipNotice.innerHTML = isAdmin 
+          ? '<strong>Panel de Envíos del Administrador:</strong> Registra el envío de los productos para cada venta confirmada. El vendedor lo verá al instante.'
+          : '<strong>Seguimiento de Envíos en Tiempo Real:</strong> Aquí puedes ver exactamente qué ventas han sido enviadas por el Administrador y su código de seguimiento.';
       }
     }
 
@@ -2166,12 +2202,11 @@
         return s.sellerId === sellerId;
       });
 
-      const pendingCount = filteredSales.filter(s => s.status === 'Ventas Pendientes').length;
-      const confirmedCount = filteredSales.filter(s => s.status === 'Ventas Confirmadas' && !s.settled).length;
+      const pendingShipping = filteredSales.filter(s => s.shippingStatus === 'Pendiente de Envío' && s.status !== 'Devuelta').length;
 
       document.getElementById('badgeCatalog').textContent = visibleProducts.length;
-      document.getElementById('badgePending').textContent = pendingCount;
-      document.getElementById('badgeConfirmed').textContent = confirmedCount;
+      document.getElementById('badgeSales').textContent = filteredSales.length;
+      document.getElementById('badgeShipping').textContent = pendingShipping;
     }
 
     function switchTab(tabName) {
@@ -2186,10 +2221,11 @@
       if (activeBtn) activeBtn.classList.add('active');
 
       if (tabName === 'accounting') renderAccounting();
+      if (tabName === 'shipping') renderShippingTable();
     }
 
     // ==========================================
-    // 1. CATÁLOGO DE PRODUCTOS (REQUISITO 1)
+    // 1. CATÁLOGO DE PRODUCTOS
     // ==========================================
 
     function renderCatalog() {
@@ -2284,9 +2320,7 @@
         return;
       }
 
-      const prodData = {
-        title, description, photoUrl, purchasePrice, minPrice, maxPrice, assignedTo
-      };
+      const prodData = { title, description, photoUrl, purchasePrice, minPrice, maxPrice, assignedTo };
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
@@ -2312,16 +2346,11 @@
 
     function handleDeleteProduct(productId) {
       if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) return;
-
       if (APP_STATE.isGoogleScript) {
         google.script.run
           .withSuccessHandler((res) => {
-            if (res && res.success) {
-              showToast('Producto eliminado', 'success');
-              loadAllData();
-            } else {
-              showToast(res ? res.error : 'Error al eliminar', 'error');
-            }
+            if (res && res.success) { showToast('Producto eliminado', 'success'); loadAllData(); }
+            else { showToast(res ? res.error : 'Error al eliminar', 'error'); }
           })
           .deleteProduct(productId);
       } else {
@@ -2333,115 +2362,32 @@
     }
 
     // ==========================================
-    // 2. VENTAS PENDIENTES (REQUISITO 3)
+    // 2. VENTAS CONFIRMADAS (REQUISITO 2, 4 Y 5)
     // ==========================================
 
-    function renderPendingSales() {
-      const tbody = document.getElementById('pendingSalesTableBody');
+    function renderSalesTable() {
+      const tbody = document.getElementById('salesTableBody');
       tbody.innerHTML = '';
 
       const isAdmin = APP_STATE.role === 'ADMIN';
       const sellerId = APP_STATE.activeSellerId;
-
-      const sales = APP_STATE.sales.filter(s => {
-        if (s.status !== 'Ventas Pendientes') return false;
-        if (isAdmin) return true;
-        return s.sellerId === sellerId;
-      });
-
-      if (sales.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="9" class="empty-state">
-              <i class="fa-solid fa-inbox"></i>
-              <p>No hay ventas pendientes.</p>
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      sales.forEach(s => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${s.id}</strong></td>
-          <td>${formatDate(s.date)}</td>
-          <td>${escapeHtml(s.sellerName)}</td>
-          <td>${escapeHtml(s.productName)}</td>
-          <td><strong>€${Number(s.salePrice).toFixed(2)}</strong></td>
-          <td class="admin-only" style="color: var(--primary);">€${Number(s.adminPurchasePrice).toFixed(2)}</td>
-          <td style="color: var(--success); font-weight: 700;">€${Number(s.sellerProfit).toFixed(2)}</td>
-          <td><span class="status-badge badge-pending"><i class="fa-solid fa-clock"></i> Ventas Pendientes</span></td>
-          <td>
-            <div style="display: flex; gap: 6px;">
-              <button class="btn btn-success btn-sm" title="Confirmar Venta" onclick="handleConfirmSale('${s.id}')">
-                <i class="fa-solid fa-check"></i> Confirmar
-              </button>
-              <button class="btn btn-secondary btn-sm" title="Modificar" onclick="openEditSaleModal('${s.id}')">
-                <i class="fa-solid fa-pen"></i>
-              </button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      updateRoleUI();
-    }
-
-    function handleConfirmSale(saleId) {
-      if (APP_STATE.isGoogleScript) {
-        google.script.run
-          .withSuccessHandler((res) => {
-            if (res && res.success) {
-              showToast('¡Venta movida a Ventas Confirmadas!', 'success');
-              loadAllData();
-            } else {
-              showToast(res ? res.error : 'Error', 'error');
-            }
-          })
-          .updateSaleStatus(saleId, 'Ventas Confirmadas', 'Venta confirmada');
-      } else {
-        const sale = APP_STATE.sales.find(s => s.id === saleId);
-        if (sale) {
-          sale.status = 'Ventas Confirmadas';
-          saveLocalData();
-          showToast('¡Venta confirmada con éxito!', 'success');
-          renderAll();
-        }
-      }
-    }
-
-    // ==========================================
-    // 3. VENTAS CONFIRMADAS (REQUISITOS 3 Y 4)
-    // ==========================================
-
-    function renderConfirmedSales() {
-      const tbody = document.getElementById('confirmedSalesTableBody');
-      tbody.innerHTML = '';
-
-      const isAdmin = APP_STATE.role === 'ADMIN';
-      const sellerId = APP_STATE.activeSellerId;
-      const filter = document.getElementById('filterConfirmedSettled')?.value || 'ALL';
+      const filter = document.getElementById('filterSalesShipping')?.value || 'ALL';
 
       let sales = APP_STATE.sales.filter(s => {
-        if (s.status !== 'Ventas Confirmadas' && s.status !== 'Restituita') return false;
         if (!isAdmin && s.sellerId !== sellerId) return false;
         return true;
       });
 
-      if (filter === 'UNSETTLED') {
-        sales = sales.filter(s => !s.settled);
-      } else if (filter === 'SETTLED') {
-        sales = sales.filter(s => s.settled);
-      }
+      if (filter === 'PENDIENTE') sales = sales.filter(s => s.shippingStatus === 'Pendiente de Envío' && s.status !== 'Devuelta');
+      else if (filter === 'ENVIADA') sales = sales.filter(s => s.shippingStatus === 'Enviada' && s.status !== 'Devuelta');
+      else if (filter === 'DEVUELTA') sales = sales.filter(s => s.status === 'Devuelta' || s.returned);
 
       if (sales.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="10" class="empty-state">
-              <i class="fa-solid fa-clipboard-check"></i>
-              <p>No hay ventas confirmadas para este filtro.</p>
+            <td colspan="11" class="empty-state">
+              <i class="fa-solid fa-receipt"></i>
+              <p>No se encontraron ventas para este filtro.</p>
             </td>
           </tr>
         `;
@@ -2450,16 +2396,41 @@
 
       sales.forEach(s => {
         const tr = document.createElement('tr');
-        const isReturned = s.status === 'Restituita';
-        const isSettled = s.settled;
+        const isShipped = s.shippingStatus === 'Enviada';
+        const isReturned = s.status === 'Devuelta' || s.returned;
 
-        let statusBadge = '';
+        let shipBadge = isShipped 
+          ? `<span class="status-badge badge-shipped"><i class="fa-solid fa-truck"></i> Enviada (${formatDate(s.shippingDate)})</span>`
+          : `<span class="status-badge badge-not-shipped"><i class="fa-solid fa-box"></i> Pendiente de Envío</span>`;
+
         if (isReturned) {
-          statusBadge = '<span class="status-badge badge-returned"><i class="fa-solid fa-arrow-rotate-left"></i> Devuelta (Devolución)</span>';
-        } else if (isSettled) {
-          statusBadge = `<span class="status-badge badge-settled"><i class="fa-solid fa-check-double"></i> Liquidada (${escapeHtml(s.settlementPeriod || 'Cerrado')})</span>`;
+          shipBadge = `<span class="status-badge badge-returned"><i class="fa-solid fa-arrow-rotate-left"></i> Devuelta</span>`;
+        }
+
+        // REQUISITO 4 Y 5: Reglas de borrado
+        let deleteBtnHtml = '';
+        if (isAdmin) {
+          // Admin puede borrar cualquier venta con doble confirmación
+          deleteBtnHtml = `
+            <button class="btn btn-danger btn-sm" title="Eliminar Venta (Admin)" onclick="requestDeleteSale('${s.id}')">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          `;
         } else {
-          statusBadge = '<span class="status-badge badge-confirmed"><i class="fa-solid fa-check"></i> Ventas Confirmadas</span>';
+          // Vendedor SOLO si aún no ha sido enviada por Admin
+          if (!isShipped && !isReturned) {
+            deleteBtnHtml = `
+              <button class="btn btn-danger btn-sm" title="Cancelar Venta" onclick="requestDeleteSale('${s.id}')">
+                <i class="fa-solid fa-trash"></i> Cancelar
+              </button>
+            `;
+          } else {
+            deleteBtnHtml = `
+              <span title="No se puede eliminar porque ya ha sido enviada por el Administrador" style="color: var(--gray-500); font-size: 0.8rem; cursor: not-allowed;">
+                <i class="fa-solid fa-lock"></i> Enviada
+              </span>
+            `;
+          }
         }
 
         tr.innerHTML = `
@@ -2473,32 +2444,19 @@
           <td><strong>€${Number(s.salePrice).toFixed(2)}</strong></td>
           <td class="admin-only" style="color: var(--primary);">€${Number(s.adminPurchasePrice).toFixed(2)}</td>
           <td style="color: var(--success); font-weight: 700;">€${Number(s.sellerProfit).toFixed(2)}</td>
-          <td>${statusBadge}</td>
+          <td>${shipBadge}</td>
+          <td>
+            ${s.settled ? `<span class="status-badge badge-settled"><i class="fa-solid fa-check-double"></i> Saldada</span>` : `<span class="status-badge badge-pending">Sin Saldar</span>`}
+          </td>
           <td><small style="color: var(--gray-500);">${escapeHtml(s.notes || '-')}</small></td>
           <td style="text-align: right;">
-            <div class="dropdown" id="dropdown-${s.id}">
-              <button class="dropdown-btn" onclick="toggleDropdown('dropdown-${s.id}', event)">
-                <i class="fa-solid fa-ellipsis-vertical"></i> Menú Rápido
-              </button>
-              <div class="dropdown-content">
-                <button class="dropdown-item" onclick="openEditSaleModal('${s.id}')">
-                  <i class="fa-solid fa-pen-to-square"></i> Modificar Venta
+            <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center;">
+              ${!isReturned ? `
+                <button class="btn btn-warning btn-sm" title="Devolución" onclick="openReturnModal('${s.id}')">
+                  <i class="fa-solid fa-arrow-rotate-left"></i> Devolución
                 </button>
-                ${!isReturned ? `
-                  <button class="dropdown-item danger" onclick="openReturnModal('${s.id}')">
-                    <i class="fa-solid fa-arrow-rotate-left"></i> Devolución (Reso)
-                  </button>
-                ` : `
-                  <button class="dropdown-item" onclick="handleReopenSale('${s.id}')">
-                    <i class="fa-solid fa-arrow-rotate-right"></i> Reactivar Venta
-                  </button>
-                `}
-                ${isAdmin && !isSettled ? `
-                  <button class="dropdown-item" onclick="openQuickSettleModal('${s.sellerId}')">
-                    <i class="fa-solid fa-hand-holding-dollar"></i> Liquidar a este Vendedor
-                  </button>
-                ` : ''}
-              </div>
+              ` : ''}
+              ${deleteBtnHtml}
             </div>
           </td>
         `;
@@ -2508,101 +2466,221 @@
       updateRoleUI();
     }
 
-    function toggleDropdown(id, event) {
-      event.stopPropagation();
-      const current = document.getElementById(id);
-      const isOpen = current.classList.contains('show');
-      document.querySelectorAll('.dropdown.show').forEach(d => d.classList.remove('show'));
-      if (!isOpen) current.classList.add('show');
-    }
-
     // ==========================================
-    // DEVOLUCIONES DE PRODUCTOS (REQUISITO 4)
+    // REQUISITOS 4 Y 5: BORRADO DE VENTAS CON DOBLE CONFIRMACIÓN
     // ==========================================
 
-    function openReturnModal(saleId) {
+    function requestDeleteSale(saleId) {
       const sale = APP_STATE.sales.find(s => s.id === saleId);
       if (!sale) return;
 
-      document.getElementById('returnSaleId').value = sale.id;
-      document.getElementById('returnProductName').value = `${sale.productName} (Vendedor: ${sale.sellerName})`;
-      document.getElementById('returnReason').value = '';
+      const isAdmin = APP_STATE.role === 'ADMIN';
 
-      const warningBox = document.getElementById('returnSettledWarningBox');
-      const profitText = document.getElementById('returnProfitAmountText');
-
-      if (sale.settled) {
-        warningBox.style.display = 'flex';
-        profitText.textContent = `€${Number(sale.sellerProfit).toFixed(2)}`;
-      } else {
-        warningBox.style.display = 'none';
+      // REQUISITO 5: Validación estricta para vendedor
+      if (!isAdmin) {
+        if (sale.shippingStatus === 'Enviada') {
+          alert('¡ACCESO DENEGADO! Esta venta ya ha sido enviada por el Administrador y no puede ser eliminada. Solicita una Devolución.');
+          return;
+        }
+        if (!confirm(`¿Estás seguro de que deseas cancelar la venta "${sale.productName}" (ID: ${sale.id})?`)) {
+          return;
+        }
+        // Ejecución para vendedor
+        executeDeleteSaleDirect(sale.id);
+        return;
       }
 
-      openModal('modalReturnSale');
+      // REQUISITO 4: Admin pide confirmación 2 VECES
+      // Primera confirmación
+      const firstConfirm = confirm(`[1/2] PRIMERA CONFIRMACIÓN: ¿Deseas eliminar la venta "${sale.productName}" (ID: ${sale.id}) del vendedor ${sale.sellerName}?`);
+      if (!firstConfirm) return;
+
+      // Segunda confirmación modal explícita
+      APP_STATE.pendingSaleToDeleteId = sale.id;
+      document.getElementById('deleteSaleInfoText').textContent = `${sale.productName} (€${Number(sale.salePrice).toFixed(2)}) - Vendedor: ${sale.sellerName} (ID: ${sale.id})`;
+      openModal('modalDoubleConfirmDeleteSale');
     }
 
-    function submitReturnSale(e) {
-      e.preventDefault();
-      const saleId = document.getElementById('returnSaleId').value;
-      const reason = document.getElementById('returnReason').value.trim();
+    function executeDeleteSaleConfirmed() {
+      const saleId = APP_STATE.pendingSaleToDeleteId;
+      closeModal('modalDoubleConfirmDeleteSale');
+      if (!saleId) return;
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
           .withSuccessHandler((res) => {
             if (res && res.success) {
-              showToast(res.message, res.wasSettled ? 'warning' : 'success');
-              closeModal('modalReturnSale');
+              showToast(res.message, 'success');
               loadAllData();
             } else {
-              showToast(res ? res.error : 'Error al procesar devolución', 'error');
+              showToast(res ? res.error : 'Error al eliminar', 'error');
             }
           })
-          .processReturnSale(saleId, reason);
+          .deleteSaleByAdmin(saleId);
       } else {
-        const sale = APP_STATE.sales.find(s => s.id === saleId);
-        if (!sale) return;
-
-        const wasSettled = sale.settled;
-        const profit = sale.sellerProfit;
-        const note = wasSettled 
-          ? `[DEVOLUCIÓN DE PRODUCTO: ${sale.productName}] Motivo: ${reason}. ATENCIÓN: La venta ya estaba liquidada (Comisión ya cobrada: €${profit.toFixed(2)}). Este importe constituye una deuda del vendedor con el administrador para el siguiente período como saldo negativo.`
-          : `[DEVOLUCIÓN DE PRODUCTO: ${sale.productName}] Motivo: ${reason}. Venta anulada antes de la liquidación. Relación económica resuelta a cero.`;
-
-        sale.status = 'Restituita';
-        sale.returned = true;
-        sale.notes = sale.notes ? `${sale.notes}\n${note}` : note;
-
+        APP_STATE.sales = APP_STATE.sales.filter(s => s.id !== saleId);
         saveLocalData();
-        showToast(wasSettled 
-          ? `¡Devolución registrada! La comisión de €${profit.toFixed(2)} se cobrará al vendedor en el próximo período.`
-          : 'Devolución completada. Relación económica resuelta a cero.', 
-          wasSettled ? 'warning' : 'success'
-        );
-        closeModal('modalReturnSale');
+        showToast('Venta eliminada permanentemente por el Administrador.', 'success');
         renderAll();
       }
     }
 
-    function handleReopenSale(saleId) {
-      if (!confirm('¿Deseas reactivar esta venta devolviéndola a Ventas Confirmadas?')) return;
+    function executeDeleteSaleDirect(saleId) {
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler(() => { showToast('Venta reactivada', 'success'); loadAllData(); })
-          .updateSaleStatus(saleId, 'Ventas Confirmadas', 'Venta reactivada tras devolución');
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast(res.message, 'success');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error', 'error');
+            }
+          })
+          .deleteSaleBySeller(saleId, APP_STATE.activeSellerId);
+      } else {
+        APP_STATE.sales = APP_STATE.sales.filter(s => s.id !== saleId);
+        saveLocalData();
+        showToast('Venta cancelada y eliminada con éxito.', 'success');
+        renderAll();
+      }
+    }
+
+    // ==========================================
+    // 3. GESTIÓN Y SEGUIMIENTO DE ENVÍOS (REQUISITO 1)
+    // ==========================================
+
+    function renderShippingTable() {
+      const tbody = document.getElementById('shippingTableBody');
+      tbody.innerHTML = '';
+
+      const isAdmin = APP_STATE.role === 'ADMIN';
+      const sellerId = APP_STATE.activeSellerId;
+      const filter = document.getElementById('filterShippingTab')?.value || 'PENDIENTE';
+
+      let sales = APP_STATE.sales.filter(s => {
+        if (s.status === 'Devuelta' || s.returned) return false;
+        if (!isAdmin && s.sellerId !== sellerId) return false;
+        return true;
+      });
+
+      if (filter === 'PENDIENTE') sales = sales.filter(s => s.shippingStatus !== 'Enviada');
+      else if (filter === 'ENVIADA') sales = sales.filter(s => s.shippingStatus === 'Enviada');
+
+      if (sales.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" class="empty-state">
+              <i class="fa-solid fa-truck-ramp-box"></i>
+              <p>No hay ventas en esta sección de envíos.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      sales.forEach(s => {
+        const tr = document.createElement('tr');
+        const isShipped = s.shippingStatus === 'Enviada';
+
+        let statusBadge = isShipped
+          ? `<span class="status-badge badge-shipped"><i class="fa-solid fa-truck-fast"></i> Enviada</span>`
+          : `<span class="status-badge badge-not-shipped"><i class="fa-solid fa-box"></i> Pendiente de Envío</span>`;
+
+        let actionBtn = '';
+        if (isAdmin) {
+          if (!isShipped) {
+            actionBtn = `
+              <button class="btn btn-purple btn-sm" onclick="openRegisterShippingModal('${s.id}')">
+                <i class="fa-solid fa-truck"></i> Registrar Envío
+              </button>
+            `;
+          } else {
+            actionBtn = `
+              <button class="btn btn-secondary btn-sm" onclick="openRegisterShippingModal('${s.id}')">
+                <i class="fa-solid fa-pen"></i> Editar Envío
+              </button>
+            `;
+          }
+        } else {
+          actionBtn = isShipped 
+            ? `<span style="color: var(--success); font-weight: 700;"><i class="fa-solid fa-check"></i> En Tránsito</span>`
+            : `<span style="color: var(--warning); font-weight: 600;"><i class="fa-solid fa-hourglass"></i> Pendiente Admin</span>`;
+        }
+
+        tr.innerHTML = `
+          <td><strong>${s.id}</strong></td>
+          <td>${formatDate(s.date)}</td>
+          <td>${escapeHtml(s.sellerName)}</td>
+          <td><strong>${escapeHtml(s.productName)}</strong></td>
+          <td>${statusBadge}</td>
+          <td>${isShipped ? formatDate(s.shippingDate) : '-'}</td>
+          <td>
+            ${isShipped ? `<code>${escapeHtml(s.shippingTracking || 'Sin tracking')}</code>` : '<span style="color: var(--gray-500);">En espera</span>'}
+          </td>
+          <td><small style="color: var(--gray-700);">${escapeHtml(s.shippingNotes || '-')}</small></td>
+          <td style="text-align: right;">${actionBtn}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openRegisterShippingModal(saleId) {
+      const sale = APP_STATE.sales.find(s => s.id === saleId);
+      if (!sale) return;
+
+      document.getElementById('shipSaleId').value = sale.id;
+      document.getElementById('shipSaleDetails').value = `${sale.productName} (€${sale.salePrice.toFixed(2)}) - Vendedor: ${sale.sellerName}`;
+      
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('shipDate').value = sale.shippingDate ? sale.shippingDate.split('T')[0] : today;
+      document.getElementById('shipCarrier').value = '';
+      document.getElementById('shipTracking').value = sale.shippingTracking || '';
+      document.getElementById('shipNotes').value = sale.shippingNotes || '';
+
+      openModal('modalRegisterShipping');
+    }
+
+    function submitRegisterShipping(e) {
+      e.preventDefault();
+      const saleId = document.getElementById('shipSaleId').value;
+      const date = document.getElementById('shipDate').value;
+      const carrier = document.getElementById('shipCarrier').value.trim();
+      let tracking = document.getElementById('shipTracking').value.trim();
+      if (carrier && tracking) tracking = `${carrier}: ${tracking}`;
+      else if (carrier && !tracking) tracking = carrier;
+
+      const notes = document.getElementById('shipNotes').value.trim();
+      const shippingData = { date, tracking, notes };
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast(res.message, 'success');
+              closeModal('modalRegisterShipping');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error', 'error');
+            }
+          })
+          .registerSaleShipping(saleId, shippingData);
       } else {
         const sale = APP_STATE.sales.find(s => s.id === saleId);
         if (sale) {
-          sale.status = 'Ventas Confirmadas';
-          sale.returned = false;
+          sale.shippingStatus = 'Enviada';
+          sale.shippingDate = new Date(date).toISOString();
+          sale.shippingTracking = tracking;
+          sale.shippingNotes = notes;
           saveLocalData();
-          showToast('Venta reactivada', 'success');
+          showToast(`¡Envío registrado con éxito para la venta ${sale.id}! El vendedor ya puede verlo en vivo.`, 'success');
+          closeModal('modalRegisterShipping');
           renderAll();
         }
       }
     }
 
     // ==========================================
-    // 4. CONTABILIDAD Y SALDOS (REQUISITOS 2, 4 Y 5)
+    // 4. CONTABILIDAD (DISTINGUE VENTAS ENVIADAS - REQUISITO 3)
     // ==========================================
 
     function renderAccounting() {
@@ -2613,25 +2691,29 @@
       const labelProfit = document.getElementById('labelProfitWho');
 
       if (isAdmin) {
-        labelDebt.textContent = 'Total a Entregar por los Vendedores al Admin';
-        labelProfit.textContent = 'Comisiones Totales de Vendedores';
+        labelDebt.textContent = 'Monto a Entregar por Vendedores (Ventas Enviadas)';
+        labelProfit.textContent = 'Comisiones Vendedores (Ventas Enviadas)';
       } else {
         const sellerName = APP_STATE.sellers.find(s => s.id === sellerId)?.name || 'Vendedor';
         labelDebt.textContent = `Monto a Entregar al Administrador (${sellerName})`;
-        labelProfit.textContent = `Tu Comisión Neta (${sellerName})`;
+        labelProfit.textContent = `Tu Comisión Neta por Ventas Enviadas (${sellerName})`;
       }
 
-      let totalSales = 0;
-      let totalOwedAdminBase = 0;
-      let totalSellerProfit = 0;
+      let totalShippedAmount = 0;
+      let totalOwedAdminShipped = 0;
+      let totalSellerCommissionShipped = 0;
+
+      let totalPendingShipAmount = 0;
+      let countPendingShip = 0;
+
       let returnAdjustments = 0;
       let returnNotes = [];
-      let pendingConfirmedSales = [];
+      let shippedUnsettledSales = [];
 
       APP_STATE.sales.forEach(sale => {
         if (!isAdmin && sale.sellerId !== sellerId) return;
 
-        if (sale.status === 'Restituita') {
+        if (sale.status === 'Devuelta' || sale.returned) {
           if (sale.settled) {
             returnAdjustments += Number(sale.sellerProfit || 0);
             returnNotes.push({
@@ -2639,26 +2721,32 @@
               sellerName: sale.sellerName,
               productName: sale.productName,
               amount: sale.sellerProfit,
-              note: `Devolución del producto "${sale.productName}" (Venta ${sale.id}): comisión de €${Number(sale.sellerProfit).toFixed(2)} ya cobrada anteriormente por el vendedor, ahora adeudada al administrador.`
+              note: `Devolución de "${sale.productName}" (Venta ${sale.id}): comisión de €${Number(sale.sellerProfit).toFixed(2)} ya cobrada anteriormente, ahora adeudada al administrador.`
             });
           }
-        } else if (sale.status === 'Ventas Confirmadas') {
+        } else if (sale.status === 'Venta Confirmada') {
           if (!sale.settled) {
-            pendingConfirmedSales.push(sale);
-            totalSales += Number(sale.salePrice || 0);
-            totalOwedAdminBase += Number(sale.adminPurchasePrice || 0);
-            totalSellerProfit += Number(sale.sellerProfit || 0);
+            // REQUISITO 3: Distinción contable estricta
+            if (sale.shippingStatus === 'Enviada') {
+              shippedUnsettledSales.push(sale);
+              totalShippedAmount += Number(sale.salePrice || 0);
+              totalOwedAdminShipped += Number(sale.adminPurchasePrice || 0);
+              totalSellerCommissionShipped += Number(sale.sellerProfit || 0);
+            } else {
+              totalPendingShipAmount += Number(sale.salePrice || 0);
+              countPendingShip++;
+            }
           }
         }
       });
 
-      const finalAmountOwedAdmin = totalOwedAdminBase + returnAdjustments;
-      const netSellerProfit = totalSellerProfit - returnAdjustments;
+      const finalAmountOwedAdmin = totalOwedAdminShipped + returnAdjustments;
+      const netSellerProfitShipped = totalSellerCommissionShipped - returnAdjustments;
 
       document.getElementById('kpiAmountOwedAdmin').textContent = `€${finalAmountOwedAdmin.toFixed(2)}`;
-      document.getElementById('kpiSellerProfit').textContent = `€${netSellerProfit.toFixed(2)}`;
-      document.getElementById('kpiTotalSales').textContent = `€${totalSales.toFixed(2)}`;
-      document.getElementById('kpiSalesCount').textContent = `${pendingConfirmedSales.length} ventas confirmadas pendientes`;
+      document.getElementById('kpiSellerProfit').textContent = `€${netSellerProfitShipped.toFixed(2)}`;
+      document.getElementById('kpiPendingShipmentAmount').textContent = `€${totalPendingShipAmount.toFixed(2)}`;
+      document.getElementById('kpiPendingShipmentCount').textContent = `${countPendingShip} ventas confirmadas en espera de envío`;
       document.getElementById('kpiReturnAdjustments').textContent = `€${returnAdjustments.toFixed(2)}`;
 
       const alertsContainer = document.getElementById('returnAdjustmentAlertsContainer');
@@ -2680,7 +2768,7 @@
         });
       }
 
-      renderAccountingCurrentTable(pendingConfirmedSales);
+      renderAccountingCurrentTable(shippedUnsettledSales);
       renderAccountingHistoryTable();
     }
 
@@ -2691,9 +2779,9 @@
       if (sales.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="8" class="empty-state">
-              <i class="fa-solid fa-receipt"></i>
-              <p>No hay ventas confirmadas pendientes de liquidar para este período.</p>
+            <td colspan="9" class="empty-state">
+              <i class="fa-solid fa-truck"></i>
+              <p>No hay ventas enviadas pendientes de liquidar.</p>
             </td>
           </tr>
         `;
@@ -2705,12 +2793,13 @@
         tr.innerHTML = `
           <td><strong>${s.id}</strong></td>
           <td>${formatDate(s.date)}</td>
+          <td>${formatDate(s.shippingDate)}</td>
           <td>${escapeHtml(s.sellerName)}</td>
           <td>${escapeHtml(s.productName)}</td>
           <td>€${Number(s.salePrice).toFixed(2)}</td>
           <td style="color: var(--primary); font-weight: 700;">€${Number(s.adminPurchasePrice).toFixed(2)}</td>
           <td style="color: var(--success); font-weight: 700;">€${Number(s.sellerProfit).toFixed(2)}</td>
-          <td><span class="status-badge badge-pending">Pendiente de Liquidar</span></td>
+          <td><span class="status-badge badge-shipped"><i class="fa-solid fa-truck"></i> Enviada</span></td>
         `;
         tbody.appendChild(tr);
       });
@@ -2783,17 +2872,12 @@
       openModal('modalSettlePeriod');
     }
 
-    function openQuickSettleModal(sellerId) {
-      const sel = document.getElementById('settleSellerSelect');
-      if (sel) sel.value = sellerId;
-      openSettlePeriodModal();
-    }
-
     function updateSettlePreview() {
       const sellerId = document.getElementById('settleSellerSelect').value;
       const summaryBox = document.getElementById('settleSummaryContent');
 
-      const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId && s.status === 'Ventas Confirmadas' && !s.settled);
+      // Solo ventas enviadas pendientes de liquidar
+      const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId && s.status === 'Venta Confirmada' && s.shippingStatus === 'Enviada' && !s.settled);
       let totalSales = 0, totalAdminCost = 0, totalProfit = 0;
       sellerSales.forEach(s => {
         totalSales += Number(s.salePrice);
@@ -2802,7 +2886,7 @@
       });
 
       let returnAdjustments = 0;
-      APP_STATE.sales.filter(s => s.sellerId === sellerId && s.status === 'Restituita' && s.settled).forEach(s => {
+      APP_STATE.sales.filter(s => s.sellerId === sellerId && (s.status === 'Devuelta' || s.returned) && s.settled).forEach(s => {
         returnAdjustments += Number(s.sellerProfit);
       });
 
@@ -2810,8 +2894,8 @@
       const finalOwedAdmin = totalAdminCost + returnAdjustments;
 
       summaryBox.innerHTML = `
-        <strong>Resumen de Cierre de Liquidación:</strong><br>
-        • Ventas a liquidar: <strong>${sellerSales.length}</strong> (Ingreso total: €${totalSales.toFixed(2)})<br>
+        <strong>Resumen de Liquidación (Solo Ventas Enviadas):</strong><br>
+        • Ventas enviadas a liquidar: <strong>${sellerSales.length}</strong> (Total: €${totalSales.toFixed(2)})<br>
         • Monto base para el Administrador: <strong>€${totalAdminCost.toFixed(2)}</strong><br>
         • Compensación por Devoluciones pasadas: <strong style="color: var(--danger);">-€${returnAdjustments.toFixed(2)}</strong><br>
         • <strong>Total neto a entregar al Administrador: €${finalOwedAdmin.toFixed(2)}</strong><br>
@@ -2833,14 +2917,14 @@
               closeModal('modalSettlePeriod');
               loadAllData();
             } else {
-              showToast(res ? res.error : 'Error en la liquidación', 'error');
+              showToast(res ? res.error : 'Error', 'error');
             }
           })
           .closeAndSettlePeriod(sellerId, periodLabel, customNote);
       } else {
-        const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId && s.status === 'Ventas Confirmadas' && !s.settled);
+        const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId && s.status === 'Venta Confirmada' && s.shippingStatus === 'Enviada' && !s.settled);
         if (sellerSales.length === 0) {
-          showToast('No hay ventas que liquidar para este vendedor.', 'warning');
+          showToast('No hay ventas enviadas que liquidar para este vendedor.', 'warning');
           return;
         }
 
@@ -2857,7 +2941,7 @@
         });
 
         let returnAdjustments = 0;
-        APP_STATE.sales.filter(s => s.sellerId === sellerId && s.status === 'Restituita' && s.settled).forEach(s => {
+        APP_STATE.sales.filter(s => s.sellerId === sellerId && (s.status === 'Devuelta' || s.returned) && s.settled).forEach(s => {
           returnAdjustments += Number(s.sellerProfit);
         });
 
@@ -2887,7 +2971,248 @@
     }
 
     // ==========================================
-    // 5. REGISTRO Y MODIFICACIÓN DE VENTAS
+    // 5. GESTIÓN DE VENDEDORES (CONTRASEÑAS RANDOM - REQUISITO 7)
+    // ==========================================
+
+    function renderSellers() {
+      const tbody = document.getElementById('sellersTableBody');
+      tbody.innerHTML = '';
+
+      const filter = document.getElementById('filterSellersStatus')?.value || 'ALL';
+
+      let sellers = APP_STATE.sellers;
+      if (filter === 'ACTIVO') sellers = sellers.filter(s => s.status === 'Activo');
+      else if (filter === 'VACACIONES') sellers = sellers.filter(s => s.status === 'De Vacaciones');
+      else if (filter === 'BAJA') sellers = sellers.filter(s => s.status === 'De Baja');
+      else if (filter === 'ARCHIVADO') sellers = sellers.filter(s => s.status === 'Archivado');
+
+      if (sellers.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state">
+              <i class="fa-solid fa-users"></i>
+              <p>No se encontraron vendedores con este filtro.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      sellers.forEach(s => {
+        const tr = document.createElement('tr');
+        
+        let statusBadge = '';
+        if (s.status === 'Activo') statusBadge = '<span class="status-badge badge-confirmed"><i class="fa-solid fa-circle-check"></i> Activo</span>';
+        else if (s.status === 'De Vacaciones') statusBadge = '<span class="status-badge badge-vacation"><i class="fa-solid fa-umbrella-beach"></i> De Vacaciones</span>';
+        else if (s.status === 'De Baja') statusBadge = '<span class="status-badge badge-baja"><i class="fa-solid fa-user-injured"></i> De Baja</span>';
+        else if (s.status === 'Archivado') statusBadge = '<span class="status-badge badge-archived"><i class="fa-solid fa-box-archive"></i> Archivado</span>';
+        else statusBadge = `<span class="status-badge badge-pending">${escapeHtml(s.status)}</span>`;
+
+        tr.innerHTML = `
+          <td><strong>${s.id}</strong></td>
+          <td><strong>${escapeHtml(s.name)}</strong></td>
+          <td><code>${escapeHtml(s.email)}</code></td>
+          <td>${escapeHtml(s.phone || '-')}</td>
+          <td>${statusBadge}</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <code style="background: var(--gray-100); padding: 4px 8px; border-radius: 6px; font-weight: 700;">${escapeHtml(s.password || '********')}</code>
+              <button class="btn btn-secondary btn-sm" title="Ver / Cambiar Contraseña" onclick="openResetPasswordModal('${s.id}')">
+                <i class="fa-solid fa-key"></i>
+              </button>
+            </div>
+          </td>
+          <td style="text-align: right;">
+            <div style="display: flex; gap: 6px; justify-content: flex-end;">
+              <button class="btn btn-secondary btn-sm" title="Cambiar Estado" onclick="openChangeSellerStatusModal('${s.id}')">
+                <i class="fa-solid fa-user-pen"></i> Estado
+              </button>
+              <button class="btn btn-danger btn-sm" title="Eliminar / Archivar" onclick="handleDeleteOrArchiveSeller('${s.id}')">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openAddSellerModal() {
+      document.getElementById('formAddSeller').reset();
+      document.getElementById('newSellerPassword').value = generateRandomPassword(8);
+      openModal('modalAddSeller');
+    }
+
+    function regenerateNewSellerPassword() {
+      document.getElementById('newSellerPassword').value = generateRandomPassword(8);
+    }
+
+    function submitAddSeller(e) {
+      e.preventDefault();
+      const name = document.getElementById('newSellerName').value.trim();
+      const email = document.getElementById('newSellerEmail').value.trim().toLowerCase();
+      const phone = document.getElementById('newSellerPhone').value.trim();
+      const password = document.getElementById('newSellerPassword').value.trim() || generateRandomPassword(8);
+
+      const sellerData = { name, email, phone, password };
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast(res.message, 'success');
+              closeModal('modalAddSeller');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error al registrar', 'error');
+            }
+          })
+          .addSeller(sellerData);
+      } else {
+        const id = 'VEND-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+        APP_STATE.sellers.push({ id, ...sellerData, status: 'Activo', createdAt: new Date().toISOString() });
+        saveLocalData();
+        showToast(`¡Vendedor añadido! Contraseña asignada: ${password}`, 'success');
+        closeModal('modalAddSeller');
+        renderAll();
+      }
+    }
+
+    function openResetPasswordModal(sellerId) {
+      const seller = APP_STATE.sellers.find(s => s.id === sellerId);
+      if (!seller) return;
+
+      document.getElementById('resetPassSellerId').value = seller.id;
+      document.getElementById('resetPassSellerName').value = `${seller.name} (${seller.email})`;
+      document.getElementById('resetPassCurrentValue').value = seller.password || '';
+
+      openModal('modalResetSellerPassword');
+    }
+
+    // REQUISITO 7: Admin genera y cambia contraseña aleatoria instantáneamente
+    function executeGenerateRandomPasswordForSeller() {
+      const sellerId = document.getElementById('resetPassSellerId').value;
+      const newPass = generateRandomPassword(8);
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              document.getElementById('resetPassCurrentValue').value = res.newPassword;
+              showToast(res.message, 'success');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error', 'error');
+            }
+          })
+          .resetSellerPassword(sellerId, newPass);
+      } else {
+        const seller = APP_STATE.sellers.find(s => s.id === sellerId);
+        if (seller) {
+          seller.password = newPass;
+          document.getElementById('resetPassCurrentValue').value = newPass;
+          saveLocalData();
+          showToast(`¡Nueva contraseña generada para ${seller.name}: ${newPass}!`, 'success');
+          renderAll();
+        }
+      }
+    }
+
+    function copyPasswordToClipboard(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      navigator.clipboard.writeText(input.value)
+        .then(() => showToast('Contraseña copiada al portapapeles', 'info'))
+        .catch(() => alert('Contraseña: ' + input.value));
+    }
+
+    function openChangeSellerStatusModal(sellerId) {
+      const seller = APP_STATE.sellers.find(s => s.id === sellerId);
+      if (!seller) return;
+      document.getElementById('statusSellerId').value = seller.id;
+      document.getElementById('statusSellerName').value = `${seller.name} (${seller.email})`;
+      document.getElementById('newSellerStatusSelect').value = seller.status || 'Activo';
+      openModal('modalChangeSellerStatus');
+    }
+
+    function submitChangeSellerStatus(e) {
+      e.preventDefault();
+      const sellerId = document.getElementById('statusSellerId').value;
+      const newStatus = document.getElementById('newSellerStatusSelect').value;
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res && res.success) {
+              showToast(res.message, 'success');
+              closeModal('modalChangeSellerStatus');
+              loadAllData();
+            } else {
+              showToast(res ? res.error : 'Error', 'error');
+            }
+          })
+          .updateSellerStatus(sellerId, newStatus);
+      } else {
+        const seller = APP_STATE.sellers.find(s => s.id === sellerId);
+        if (seller) {
+          seller.status = newStatus;
+          saveLocalData();
+          showToast(`Estado de ${seller.name} cambiado a: ${newStatus}`, 'success');
+          closeModal('modalChangeSellerStatus');
+          renderAll();
+        }
+      }
+    }
+
+    function handleDeleteOrArchiveSeller(sellerId) {
+      const seller = APP_STATE.sellers.find(s => s.id === sellerId);
+      if (!seller) return;
+
+      const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId);
+
+      if (sellerSales.length > 0) {
+        const confirmArchive = confirm(
+          `El vendedor "${seller.name}" tiene ${sellerSales.length} ventas en su historial contable.\n\n` +
+          `Para no dañar ni perder los registros de contabilidad histórica, este vendedor NO puede ser borrado físicamente, pero será ARCHIVADO.\n\n` +
+          `¿Deseas marcarlo como ARCHIVADO ahora?`
+        );
+        if (!confirmArchive) return;
+
+        if (APP_STATE.isGoogleScript) {
+          google.script.run
+            .withSuccessHandler((res) => {
+              showToast(res.message, 'warning');
+              loadAllData();
+            })
+            .updateSellerStatus(sellerId, 'Archivado');
+        } else {
+          seller.status = 'Archivado';
+          saveLocalData();
+          showToast(`El vendedor ${seller.name} ha sido archivado.`, 'warning');
+          renderAll();
+        }
+      } else {
+        const confirmDelete = confirm(`¿Estás seguro de que deseas eliminar permanentemente al vendedor "${seller.name}"?`);
+        if (!confirmDelete) return;
+
+        if (APP_STATE.isGoogleScript) {
+          google.script.run
+            .withSuccessHandler((res) => {
+              showToast(res.message, 'success');
+              loadAllData();
+            })
+            .deleteSeller(sellerId);
+        } else {
+          APP_STATE.sellers = APP_STATE.sellers.filter(s => s.id !== sellerId);
+          saveLocalData();
+          showToast(`Vendedor ${seller.name} eliminado de la base de datos.`, 'success');
+          renderAll();
+        }
+      }
+    }
+
+    // ==========================================
+    // 6. REGISTRO DE VENTAS (REQUISITO 2: DIRECTO A CONFIRMADA)
     // ==========================================
 
     function openNewSaleModal() {
@@ -2987,7 +3312,6 @@
 
       const salePrice = parseFloat(document.getElementById('salePrice').value);
       const adminPurchasePrice = Number(product.purchasePrice);
-      const status = document.getElementById('saleInitialStatus').value;
       const notes = document.getElementById('saleNotes').value.trim();
 
       const saleData = {
@@ -2997,7 +3321,6 @@
         productName: product.title,
         salePrice,
         adminPurchasePrice,
-        status,
         notes,
         date: new Date().toISOString()
       };
@@ -3006,11 +3329,11 @@
         google.script.run
           .withSuccessHandler((res) => {
             if (res && res.success) {
-              showToast('¡Venta registrada con éxito!', 'success');
+              showToast('¡Venta registrada y confirmada!', 'success');
               closeModal('modalNewSale');
               loadAllData();
             } else {
-              showToast(res ? res.error : 'Error al registrar', 'error');
+              showToast(res ? res.error : 'Error', 'error');
             }
           })
           .recordSale(saleData);
@@ -3021,258 +3344,87 @@
           id,
           ...saleData,
           sellerProfit,
+          status: 'Venta Confirmada', // REQUISITO 2: Directo a confirmada
+          shippingStatus: 'Pendiente de Envío', // REQUISITO 1
+          shippingDate: '',
+          shippingTracking: '',
+          shippingNotes: '',
           settled: false,
           settlementDate: '',
           settlementPeriod: '',
           returned: false
         });
         saveLocalData();
-        showToast('¡Venta registrada con éxito!', 'success');
+        showToast('¡Venta registrada y confirmada con éxito!', 'success');
         closeModal('modalNewSale');
         renderAll();
       }
     }
 
-    function openEditSaleModal(saleId) {
+    // ==========================================
+    // DEVOLUCIÓN DE PRODUCTO (REQUISITO 3)
+    // ==========================================
+
+    function openReturnModal(saleId) {
       const sale = APP_STATE.sales.find(s => s.id === saleId);
       if (!sale) return;
 
-      document.getElementById('editSaleId').value = sale.id;
-      document.getElementById('editSaleProductName').value = `${sale.productName} (${sale.sellerName})`;
-      document.getElementById('editSalePrice').value = sale.salePrice;
-      document.getElementById('editSaleAdminCost').value = sale.adminPurchasePrice;
-      document.getElementById('editSaleStatus').value = sale.status;
-      document.getElementById('editSaleNotes').value = sale.notes || '';
+      document.getElementById('returnSaleId').value = sale.id;
+      document.getElementById('returnProductName').value = `${sale.productName} (Vendedor: ${sale.sellerName})`;
+      document.getElementById('returnReason').value = '';
 
-      openModal('modalEditSale');
+      const warningBox = document.getElementById('returnSettledWarningBox');
+      const profitText = document.getElementById('returnProfitAmountText');
+
+      if (sale.settled) {
+        warningBox.style.display = 'flex';
+        profitText.textContent = `€${Number(sale.sellerProfit).toFixed(2)}`;
+      } else {
+        warningBox.style.display = 'none';
+      }
+
+      openModal('modalReturnSale');
     }
 
-    function submitEditSale(e) {
+    function submitReturnSale(e) {
       e.preventDefault();
-      const id = document.getElementById('editSaleId').value;
-      const salePrice = parseFloat(document.getElementById('editSalePrice').value);
-      const adminPurchasePrice = parseFloat(document.getElementById('editSaleAdminCost').value);
-      const status = document.getElementById('editSaleStatus').value;
-      const notes = document.getElementById('editSaleNotes').value.trim();
-
-      const updateData = { id, salePrice, adminPurchasePrice, status, notes };
+      const saleId = document.getElementById('returnSaleId').value;
+      const reason = document.getElementById('returnReason').value.trim();
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
           .withSuccessHandler((res) => {
             if (res && res.success) {
-              showToast('Venta modificada con éxito', 'success');
-              closeModal('modalEditSale');
+              showToast(res.message, res.wasSettled ? 'warning' : 'success');
+              closeModal('modalReturnSale');
               loadAllData();
             } else {
-              showToast(res ? res.error : 'Error al modificar', 'error');
+              showToast(res ? res.error : 'Error', 'error');
             }
           })
-          .updateSaleDetails(updateData);
+          .processReturnSale(saleId, reason);
       } else {
-        const sale = APP_STATE.sales.find(s => s.id === id);
-        if (sale) {
-          sale.salePrice = salePrice;
-          sale.adminPurchasePrice = adminPurchasePrice;
-          sale.sellerProfit = Math.max(0, salePrice - adminPurchasePrice);
-          sale.status = status;
-          sale.notes = notes;
-          saveLocalData();
-          showToast('Venta modificada con éxito', 'success');
-          closeModal('modalEditSale');
-          renderAll();
-        }
-      }
-    }
+        const sale = APP_STATE.sales.find(s => s.id === saleId);
+        if (!sale) return;
 
-    // ==========================================
-    // 6. GESTIÓN DE VENDEDORES (ARCHIVAR / BORRAR / ESTADOS)
-    // ==========================================
+        const wasSettled = sale.settled;
+        const profit = sale.sellerProfit;
+        const note = wasSettled 
+          ? `[DEVOLUCIÓN DE PRODUCTO: ${sale.productName}] Motivo: ${reason}. ATENCIÓN: La venta ya estaba liquidada (Comisión ya cobrada: €${profit.toFixed(2)}). Este importe se adeudará en el período siguiente como saldo negativo.`
+          : `[DEVOLUCIÓN DE PRODUCTO: ${sale.productName}] Motivo: ${reason}. Venta anulada antes de la liquidación. Saldo resuelto a cero.`;
 
-    function renderSellers() {
-      const tbody = document.getElementById('sellersTableBody');
-      tbody.innerHTML = '';
+        sale.status = 'Devuelta';
+        sale.returned = true;
+        sale.notes = sale.notes ? `${sale.notes}\n${note}` : note;
 
-      const filter = document.getElementById('filterSellersStatus')?.value || 'ALL';
-
-      let sellers = APP_STATE.sellers;
-      if (filter === 'ACTIVO') sellers = sellers.filter(s => s.status === 'Activo');
-      else if (filter === 'VACACIONES') sellers = sellers.filter(s => s.status === 'De Vacaciones');
-      else if (filter === 'BAJA') sellers = sellers.filter(s => s.status === 'De Baja');
-      else if (filter === 'ARCHIVADO') sellers = sellers.filter(s => s.status === 'Archivado');
-
-      if (sellers.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" class="empty-state">
-              <i class="fa-solid fa-users"></i>
-              <p>No se encontraron vendedores con este filtro.</p>
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      sellers.forEach(s => {
-        const tr = document.createElement('tr');
-        
-        let statusBadge = '';
-        if (s.status === 'Activo') {
-          statusBadge = '<span class="status-badge badge-confirmed"><i class="fa-solid fa-circle-check"></i> Activo</span>';
-        } else if (s.status === 'De Vacaciones') {
-          statusBadge = '<span class="status-badge badge-vacation"><i class="fa-solid fa-umbrella-beach"></i> De Vacaciones</span>';
-        } else if (s.status === 'De Baja') {
-          statusBadge = '<span class="status-badge badge-baja"><i class="fa-solid fa-user-injured"></i> De Baja Médica</span>';
-        } else if (s.status === 'Archivado') {
-          statusBadge = '<span class="status-badge badge-archived"><i class="fa-solid fa-box-archive"></i> Archivado</span>';
-        } else {
-          statusBadge = `<span class="status-badge badge-pending">${escapeHtml(s.status)}</span>`;
-        }
-
-        tr.innerHTML = `
-          <td><strong>${s.id}</strong></td>
-          <td>
-            <strong>${escapeHtml(s.name)}</strong>
-            <br><small style="color: var(--gray-500);">${escapeHtml(s.email || 'Sin correo')}</small>
-          </td>
-          <td>${escapeHtml(s.phone || '-')}</td>
-          <td>${statusBadge}</td>
-          <td><code>${escapeHtml(s.pin || '1234')}</code></td>
-          <td style="text-align: right;">
-            <div style="display: flex; gap: 6px; justify-content: flex-end;">
-              <button class="btn btn-secondary btn-sm" title="Cambiar Estado" onclick="openChangeSellerStatusModal('${s.id}')">
-                <i class="fa-solid fa-user-pen"></i> Estado
-              </button>
-              <button class="btn btn-danger btn-sm" title="Eliminar / Archivar" onclick="handleDeleteOrArchiveSeller('${s.id}')">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function openAddSellerModal() {
-      document.getElementById('formAddSeller').reset();
-      openModal('modalAddSeller');
-    }
-
-    function submitAddSeller(e) {
-      e.preventDefault();
-      const name = document.getElementById('newSellerName').value.trim();
-      const email = document.getElementById('newSellerEmail').value.trim();
-      const phone = document.getElementById('newSellerPhone').value.trim();
-      const pin = document.getElementById('newSellerPin').value.trim() || '1234';
-
-      const sellerData = { name, email, phone, pin, status: 'Activo' };
-
-      if (APP_STATE.isGoogleScript) {
-        google.script.run
-          .withSuccessHandler((res) => {
-            if (res && res.success) {
-              showToast('¡Vendedor registrado con éxito!', 'success');
-              closeModal('modalAddSeller');
-              loadAllData();
-            } else {
-              showToast(res ? res.error : 'Error al registrar', 'error');
-            }
-          })
-          .addSeller(sellerData);
-      } else {
-        const id = 'VEND-' + Math.random().toString(36).substring(2, 7).toUpperCase();
-        APP_STATE.sellers.push({ id, ...sellerData, createdAt: new Date().toISOString() });
         saveLocalData();
-        showToast('¡Vendedor registrado con éxito!', 'success');
-        closeModal('modalAddSeller');
-        renderAll();
-      }
-    }
-
-    function openChangeSellerStatusModal(sellerId) {
-      const seller = APP_STATE.sellers.find(s => s.id === sellerId);
-      if (!seller) return;
-
-      document.getElementById('statusSellerId').value = seller.id;
-      document.getElementById('statusSellerName').value = `${seller.name} (${seller.id})`;
-      document.getElementById('newSellerStatusSelect').value = seller.status || 'Activo';
-
-      openModal('modalChangeSellerStatus');
-    }
-
-    function submitChangeSellerStatus(e) {
-      e.preventDefault();
-      const sellerId = document.getElementById('statusSellerId').value;
-      const newStatus = document.getElementById('newSellerStatusSelect').value;
-
-      if (APP_STATE.isGoogleScript) {
-        google.script.run
-          .withSuccessHandler((res) => {
-            if (res && res.success) {
-              showToast(res.message, 'success');
-              closeModal('modalChangeSellerStatus');
-              loadAllData();
-            } else {
-              showToast(res ? res.error : 'Error al actualizar estado', 'error');
-            }
-          })
-          .updateSellerStatus(sellerId, newStatus);
-      } else {
-        const seller = APP_STATE.sellers.find(s => s.id === sellerId);
-        if (seller) {
-          seller.status = newStatus;
-          saveLocalData();
-          showToast(`Estado de ${seller.name} cambiado a: ${newStatus}`, 'success');
-          closeModal('modalChangeSellerStatus');
-          renderAll();
-        }
-      }
-    }
-
-    function handleDeleteOrArchiveSeller(sellerId) {
-      const seller = APP_STATE.sellers.find(s => s.id === sellerId);
-      if (!seller) return;
-
-      const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId);
-
-      if (sellerSales.length > 0) {
-        const confirmArchive = confirm(
-          `El vendedor "${seller.name}" tiene ${sellerSales.length} ventas en su historial contable.\n\n` +
-          `Para no dañar ni perder los registros de contabilidad histórica, este vendedor NO puede ser borrado físicamente, pero será ARCHIVADO.\n\n` +
-          `¿Deseas marcarlo como ARCHIVADO ahora?`
+        showToast(wasSettled 
+          ? `¡Devolución registrada! Comisión de €${profit.toFixed(2)} adeudada al administrador para el próximo período.`
+          : 'Devolución completada. Saldo resuelto a cero.', 
+          wasSettled ? 'warning' : 'success'
         );
-        if (!confirmArchive) return;
-
-        if (APP_STATE.isGoogleScript) {
-          google.script.run
-            .withSuccessHandler((res) => {
-              showToast(res.message, 'warning');
-              loadAllData();
-            })
-            .updateSellerStatus(sellerId, 'Archivado');
-        } else {
-          seller.status = 'Archivado';
-          saveLocalData();
-          showToast(`El vendedor ${seller.name} ha sido archivado.`, 'warning');
-          renderAll();
-        }
-      } else {
-        const confirmDelete = confirm(`¿Estás seguro de que deseas eliminar permanentemente al vendedor "${seller.name}"?`);
-        if (!confirmDelete) return;
-
-        if (APP_STATE.isGoogleScript) {
-          google.script.run
-            .withSuccessHandler((res) => {
-              showToast(res.message, 'success');
-              loadAllData();
-            })
-            .deleteSeller(sellerId);
-        } else {
-          APP_STATE.sellers = APP_STATE.sellers.filter(s => s.id !== sellerId);
-          saveLocalData();
-          showToast(`Vendedor ${seller.name} eliminado de la base de datos.`, 'success');
-          renderAll();
-        }
+        closeModal('modalReturnSale');
+        renderAll();
       }
     }
 
