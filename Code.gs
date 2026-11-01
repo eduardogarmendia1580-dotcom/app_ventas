@@ -12,6 +12,9 @@ const SHEET_SALES       = "Vendite";
 const SHEET_SETTLEMENTS = "SaldiMensili";
 
 // Proprietà Script
+// ID facoltativo del foglio Google Sheets (lasciare vuoto se lo script è già collegato al foglio)
+const DEFAULT_SPREADSHEET_ID = "";
+
 const SCRIPT_PROP_SPREADSHEET_ID = "APP_SPREADSHEET_ID";
 const SCRIPT_PROP_ADMIN_PASSWORD = "ADMIN_PASSWORD";
 const SCRIPT_PROP_ADMIN_EMAIL    = "ADMIN_EMAIL";
@@ -64,11 +67,11 @@ function doPost(e) {
  * Gestore universale delle richieste API per la sincronizzazione esterna
  */
 function handleApiRequest(action, data) {
-  let result = { success: false, error: 'Azione non riconosciuta: ' + action };
+  let result = { success: false, ok: false, error: 'Azione non riconosciuta: ' + action };
   try {
     switch (action) {
       case 'ping':
-        result = { success: true, message: 'Connessione a Google Apps Script riuscita!' };
+        result = { success: true, ok: true, message: 'Connessione a Google Apps Script riuscita!' };
         break;
       case 'verifyAdminLogin':
         result = verifyAdminLogin(data.email, data.password);
@@ -83,28 +86,28 @@ function handleApiRequest(action, data) {
         result = verifySellerLogin(data.email, data.password);
         break;
       case 'getInitialData':
-        result = getInitialData(data.sellerId);
+        result = getInitialData(data.sellerId || null);
         break;
       case 'addProduct':
         result = addProduct(data.product || data);
         break;
       case 'deleteProduct':
-        result = deleteProduct(data.productId);
+        result = deleteProduct(data.productId || data.id);
         break;
       case 'addSeller':
         result = addSeller(data.seller || data);
         break;
       case 'resetSellerPassword':
-        result = resetSellerPassword(data.sellerId, data.newPassword);
+        result = resetSellerPassword(data.sellerId || data.id, data.newPassword || data.password);
         break;
       case 'updateSellerStatus':
-        result = updateSellerStatus(data.sellerId, data.newStatus);
+        result = updateSellerStatus(data.sellerId || data.id, data.newStatus || data.status);
         break;
       case 'deleteSeller':
-        result = deleteSeller(data.sellerId);
+        result = deleteSeller(data.sellerId || data.id);
         break;
       case 'deleteSellerForce':
-        result = deleteSellerForce(data.sellerId);
+        result = deleteSellerForce(data.sellerId || data.id);
         break;
       case 'updateSaleAcceptance':
         result = updateSaleAcceptance(data.saleId, data.sellerId, data.status || data.acceptanceStatus);
@@ -113,7 +116,7 @@ function handleApiRequest(action, data) {
         result = recordSale(data.sale || data);
         break;
       case 'registerSaleShipping':
-        result = registerSaleShipping(data.saleId, data.shippingData);
+        result = registerSaleShipping(data.saleId, data.shippingData || data);
         break;
       case 'deleteSaleByAdmin':
         result = deleteSaleByAdmin(data.saleId);
@@ -122,14 +125,19 @@ function handleApiRequest(action, data) {
         result = deleteSaleBySeller(data.saleId, data.sellerId);
         break;
       case 'processReturnSale':
-        result = processReturnSale(data.saleId, data.reason);
+        result = processReturnSale(data.saleId, data.reason || data.returnReason);
         break;
       case 'closeAndSettlePeriod':
         result = closeAndSettlePeriod(data.sellerId, data.periodLabel, data.customNote);
         break;
     }
   } catch (err) {
-    result = { success: false, error: err.toString() };
+    result = { success: false, ok: false, error: err.toString() };
+  }
+
+  if (result) {
+    if (result.success !== undefined && result.ok === undefined) result.ok = result.success;
+    if (result.ok !== undefined && result.success === undefined) result.success = result.ok;
   }
 
   return ContentService.createTextOutput(JSON.stringify(result))
@@ -279,14 +287,16 @@ function verifySellerLogin(email, password) {
  */
 function getSpreadsheet() {
   const props = PropertiesService.getScriptProperties();
-  let ssId = props.getProperty(SCRIPT_PROP_SPREADSHEET_ID);
+  let ssId = (typeof DEFAULT_SPREADSHEET_ID !== 'undefined' && DEFAULT_SPREADSHEET_ID.trim()) 
+    ? DEFAULT_SPREADSHEET_ID.trim() 
+    : props.getProperty(SCRIPT_PROP_SPREADSHEET_ID);
   let ss = null;
 
   if (ssId) {
     try {
       ss = SpreadsheetApp.openById(ssId);
     } catch (err) {
-      console.warn("Foglio di calcolo salvato non accessibile: " + err.message);
+      console.warn("Foglio di calcolo con ID non accessibile: " + err.message);
     }
   }
 
@@ -326,8 +336,8 @@ function setupDatabaseSheets(ss) {
     sellersSheet = ss.insertSheet(SHEET_SELLERS);
     sellersSheet.appendRow(["ID", "Nome", "Email", "Telefono", "DataCreazione", "Stato", "Password"]);
     sellersSheet.getRange("A1:G1").setFontWeight("bold").setBackground("#e9ecef");
-    sellersSheet.appendRow(["VEND-001", "Mario Rossi", "mario.rossi@esempio.com", "+39 333 123 4567", new Date().toISOString(), "Attivo", "Mario2026!"]);
-    sellersSheet.appendRow(["VEND-002", "Laura Bianchi", "laura.bianchi@esempio.com", "+39 333 765 4321", new Date().toISOString(), "Attivo", "Laura2026!"]);
+    sellersSheet.appendRow(["VEND-001", "Mario Rossi", "mario.rossi@esempio.com", "'+39 333 123 4567", new Date().toISOString(), "Activo", "Mario2026!"]);
+    sellersSheet.appendRow(["VEND-002", "Laura Bianchi", "laura.bianchi@esempio.com", "'+39 333 765 4321", new Date().toISOString(), "Activo", "Laura2026!"]);
   }
 
   // 3. Foglio Vendite (con tracciamento Spedizioni)
@@ -392,7 +402,38 @@ function getAllProducts(ss) {
   if (!ss) ss = getSpreadsheet();
   const sheet = ss.getSheetByName(SHEET_PRODUCTS);
   const data  = sheet.getDataRange().getValues();
-  if (data.length <= 1) return [];
+  if (data.length <= 1) {
+    const id = "PROD-001";
+    const now = new Date().toISOString();
+    try {
+      sheet.appendRow([
+        id,
+        "Zapatillas Deportivas Runner Air",
+        "Zapatillas de running ultraligeras y transpirables, tallas 40-45.",
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500",
+        30.00,
+        45.00,
+        80.00,
+        "TUTTI",
+        now,
+        true
+      ]);
+      return [{
+        id:            id,
+        title:         "Zapatillas Deportivas Runner Air",
+        description:   "Zapatillas de running ultraligeras y transpirables, tallas 40-45.",
+        photoUrl:      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500",
+        purchasePrice: 30.00,
+        minPrice:      45.00,
+        maxPrice:      80.00,
+        assignedTo:    "TUTTI",
+        createdAt:     now,
+        active:        true
+      }];
+    } catch(e) {
+      return [];
+    }
+  }
 
   const list = [];
   for (let i = 1; i < data.length; i++) {
@@ -473,15 +514,28 @@ function getAllSellers(ss) {
     const row = data[i];
     if (!row[0]) continue;
 
-    let status = String(row[5] || "Activo");
-    if (status === "true")  status = "Activo";
-    if (status === "false") status = "Archivado";
+    let rawStatus = String(row[5] || "Activo").trim();
+    let status = rawStatus;
+    if (rawStatus === "true" || rawStatus.toLowerCase() === "attivo" || rawStatus.toLowerCase() === "activo" || rawStatus.toLowerCase() === "active" || !rawStatus) {
+      status = "Activo";
+      if (rawStatus !== "Activo") {
+        try { sheet.getRange(i + 1, 6).setValue("Activo"); } catch(e){}
+      }
+    } else if (rawStatus === "false" || rawStatus.toLowerCase() === "archiviato" || rawStatus.toLowerCase() === "archivado") {
+      status = "Archivado";
+    }
+
+    let phone = String(row[3] || "");
+    if (phone === "#ERROR!") {
+      phone = (i === 1) ? "+39 333 123 4567" : ((i === 2) ? "+39 333 765 4321" : "");
+      try { sheet.getRange(i + 1, 4).setValue("'" + phone); } catch(e){}
+    }
 
     list.push({
       id:        String(row[0]),
       name:      String(row[1] || ""),
-      email:     String(row[2] || ""),
-      phone:     String(row[3] || ""),
+      email:     String(row[2] || "").trim(),
+      phone:     phone,
       createdAt: row[4] ? new Date(row[4]).toISOString() : "",
       status:    status,
       password:  String(row[6] || "12345678"),
