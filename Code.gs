@@ -1,30 +1,139 @@
 /**
  * ==============================================================================
- * GESTIÓN DE VENTAS Y CONTABILIDAD MULTI-ROL (ADMIN / VENDEDORES)
+ * GESTIONE VENDITE E CONTABILITÀ MULTI-RUOLO (ADMIN / VENDITORI)
  * Google Apps Script Backend (Code.gs)
  * ==============================================================================
  */
 
-// Nombres de Hojas
-const SHEET_PRODUCTS = "Prodotti";
-const SHEET_SELLERS = "Venditori";
-const SHEET_SALES = "Vendite";
+// Nomi dei Fogli
+const SHEET_PRODUCTS    = "Prodotti";
+const SHEET_SELLERS     = "Venditori";
+const SHEET_SALES       = "Vendite";
 const SHEET_SETTLEMENTS = "SaldiMensili";
+
+// Proprietà Script
 const SCRIPT_PROP_SPREADSHEET_ID = "APP_SPREADSHEET_ID";
 const SCRIPT_PROP_ADMIN_PASSWORD = "ADMIN_PASSWORD";
+const SCRIPT_PROP_ADMIN_EMAIL    = "ADMIN_EMAIL";
 
-// Contraseña inicial por defecto del Administrador
+// Credenziali Admin predefinite
 const DEFAULT_ADMIN_PASSWORD = "admin2026";
+const DEFAULT_ADMIN_EMAIL    = "admin@gestione.com";
 
 /**
- * Servicio Web App doGet
+ * Servizio Web App doGet
+ */
+/**
+ * Servizio Web App doGet: serve la pagina HTML oppure gestisce richieste API REST
  */
 function doGet(e) {
+  if (e && e.parameter && e.parameter.action) {
+    return handleApiRequest(e.parameter.action, e.parameter);
+  }
   return HtmlService.createTemplateFromFile('index')
     .evaluate()
-    .setTitle('Gestión de Ventas y Envíos')
+    .setTitle('Gestione Vendite e Spedizioni')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
+}
+
+/**
+ * Servizio Web App doPost: riceve ed esegue chiamate API (per GitHub Pages o app mobile)
+ */
+function doPost(e) {
+  try {
+    let payload = {};
+    if (e && e.postData && e.postData.contents) {
+      try {
+        payload = JSON.parse(e.postData.contents);
+      } catch (err) {
+        payload = e.parameter || {};
+      }
+    } else if (e && e.parameter) {
+      payload = e.parameter;
+    }
+    const action = payload.action || (e && e.parameter ? e.parameter.action : '');
+    return handleApiRequest(action, payload);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/**
+ * Gestore universale delle richieste API per la sincronizzazione esterna
+ */
+function handleApiRequest(action, data) {
+  let result = { success: false, error: 'Azione non riconosciuta: ' + action };
+  try {
+    switch (action) {
+      case 'ping':
+        result = { success: true, message: 'Connessione a Google Apps Script riuscita!' };
+        break;
+      case 'verifyAdminLogin':
+        result = verifyAdminLogin(data.email, data.password);
+        break;
+      case 'changeAdminPassword':
+        result = changeAdminPassword(data.currentPassword, data.newPassword);
+        break;
+      case 'changeAdminEmail':
+        result = changeAdminEmail(data.currentPassword, data.newEmail);
+        break;
+      case 'verifySellerLogin':
+        result = verifySellerLogin(data.email, data.password);
+        break;
+      case 'getInitialData':
+        result = getInitialData(data.sellerId);
+        break;
+      case 'addProduct':
+        result = addProduct(data.product || data);
+        break;
+      case 'deleteProduct':
+        result = deleteProduct(data.productId);
+        break;
+      case 'addSeller':
+        result = addSeller(data.seller || data);
+        break;
+      case 'resetSellerPassword':
+        result = resetSellerPassword(data.sellerId, data.newPassword);
+        break;
+      case 'updateSellerStatus':
+        result = updateSellerStatus(data.sellerId, data.newStatus);
+        break;
+      case 'deleteSeller':
+        result = deleteSeller(data.sellerId);
+        break;
+      case 'deleteSellerForce':
+        result = deleteSellerForce(data.sellerId);
+        break;
+      case 'updateSaleAcceptance':
+        result = updateSaleAcceptance(data.saleId, data.sellerId, data.status || data.acceptanceStatus);
+        break;
+      case 'recordSale':
+        result = recordSale(data.sale || data);
+        break;
+      case 'registerSaleShipping':
+        result = registerSaleShipping(data.saleId, data.shippingData);
+        break;
+      case 'deleteSaleByAdmin':
+        result = deleteSaleByAdmin(data.saleId);
+        break;
+      case 'deleteSaleBySeller':
+        result = deleteSaleBySeller(data.saleId, data.sellerId);
+        break;
+      case 'processReturnSale':
+        result = processReturnSale(data.saleId, data.reason);
+        break;
+      case 'closeAndSettlePeriod':
+        result = closeAndSettlePeriod(data.sellerId, data.periodLabel, data.customNote);
+        break;
+    }
+  } catch (err) {
+    result = { success: false, error: err.toString() };
+  }
+
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function include(filename) {
@@ -32,7 +141,7 @@ function include(filename) {
 }
 
 /**
- * Generador de contraseñas aleatorias seguras
+ * Generatore di password casuali sicure
  */
 function generateRandomPassword(length) {
   const len = length || 8;
@@ -45,7 +154,7 @@ function generateRandomPassword(length) {
 }
 
 /**
- * Gestión de Contraseña de Administrador
+ * Gestione Password Amministratore
  */
 function getAdminPassword() {
   const props = PropertiesService.getScriptProperties();
@@ -57,44 +166,106 @@ function getAdminPassword() {
   return pass;
 }
 
-function verifyAdminLogin(inputPassword) {
-  const actualPass = getAdminPassword();
-  if (inputPassword === actualPass) {
-    return { success: true, message: "Acceso concedido como Administrador" };
+/**
+ * Gestione Email Amministratore
+ */
+function getAdminEmail() {
+  const props = PropertiesService.getScriptProperties();
+  let email = props.getProperty(SCRIPT_PROP_ADMIN_EMAIL);
+  if (!email) {
+    email = DEFAULT_ADMIN_EMAIL;
+    props.setProperty(SCRIPT_PROP_ADMIN_EMAIL, email);
+  }
+  return email;
+}
+
+/**
+ * Verifica login Admin (email + password)
+ */
+function verifyAdminLogin(inputEmail, inputPassword) {
+  const actualEmail = getAdminEmail();
+  const actualPass  = getAdminPassword();
+
+  const emailMatch = String(inputEmail  || "").trim().toLowerCase() === String(actualEmail).trim().toLowerCase();
+  const passMatch  = String(inputPassword || "").trim() === String(actualPass).trim();
+
+  if (emailMatch && passMatch) {
+    return { success: true, adminEmail: actualEmail, message: "Accesso concesso come Amministratore" };
+  } else if (!emailMatch) {
+    return { success: false, error: "Email di Amministratore non riconosciuta." };
   } else {
-    return { success: false, error: "Contraseña de Administrador incorrecta" };
+    return { success: false, error: "Password di Amministratore errata." };
   }
 }
 
 /**
- * REQUISITO 6 Y 7: Login de Vendedor por Email y Contraseña (sin desplegable público)
+ * Cambio password Admin (verifica password attuale)
+ */
+function changeAdminPassword(currentPassword, newPassword) {
+  try {
+    const actualPass = getAdminPassword();
+    if (String(currentPassword || "").trim() !== String(actualPass).trim()) {
+      return { success: false, error: "La password attuale non è corretta." };
+    }
+    if (!newPassword || String(newPassword).trim().length < 6) {
+      return { success: false, error: "La nuova password deve essere di almeno 6 caratteri." };
+    }
+    PropertiesService.getScriptProperties().setProperty(SCRIPT_PROP_ADMIN_PASSWORD, String(newPassword).trim());
+    return { success: true, message: "Password di amministratore aggiornata con successo." };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
+/**
+ * Cambio email Admin (verifica password per conferma)
+ */
+function changeAdminEmail(currentPassword, newEmail) {
+  try {
+    const actualPass = getAdminPassword();
+    if (String(currentPassword || "").trim() !== String(actualPass).trim()) {
+      return { success: false, error: "La password non è corretta. Operazione non autorizzata." };
+    }
+    const cleanEmail = String(newEmail || "").trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes("@")) {
+      return { success: false, error: "Inserisci un indirizzo email valido." };
+    }
+    PropertiesService.getScriptProperties().setProperty(SCRIPT_PROP_ADMIN_EMAIL, cleanEmail);
+    return { success: true, newEmail: cleanEmail, message: "Email di amministratore aggiornata con successo. Usa la nuova email al prossimo accesso." };
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
+/**
+ * Login Venditore tramite Email e Password
  */
 function verifySellerLogin(email, password) {
   try {
     const ss = getSpreadsheet();
     const sellers = getAllSellers(ss);
     const cleanEmail = String(email || "").trim().toLowerCase();
-    const cleanPass = String(password || "").trim();
+    const cleanPass  = String(password || "").trim();
 
     const found = sellers.find(s => String(s.email).trim().toLowerCase() === cleanEmail);
     if (!found) {
-      return { success: false, error: "No existe ningún vendedor registrado con ese correo electrónico." };
+      return { success: false, error: "Nessun venditore registrato con questa email." };
     }
 
     if (found.status === "Archivado") {
-      return { success: false, error: "Esta cuenta de vendedor se encuentra archivada / inactiva. Contacta al Administrador." };
+      return { success: false, error: "Questo account venditore è archiviato / inattivo. Contatta l'Amministratore." };
     }
 
     if (String(found.password).trim() !== cleanPass) {
-      return { success: false, error: "Contraseña incorrecta para este vendedor." };
+      return { success: false, error: "Password errata per questo venditore." };
     }
 
     return {
       success: true,
       seller: {
-        id: found.id,
-        name: found.name,
-        email: found.email,
+        id:     found.id,
+        name:   found.name,
+        email:  found.email,
         status: found.status
       }
     };
@@ -104,7 +275,7 @@ function verifySellerLogin(email, password) {
 }
 
 /**
- * Obtiene o inicializa la hoja de cálculo de backend
+ * Ottiene o inizializza il foglio di calcolo backend
  */
 function getSpreadsheet() {
   const props = PropertiesService.getScriptProperties();
@@ -115,7 +286,7 @@ function getSpreadsheet() {
     try {
       ss = SpreadsheetApp.openById(ssId);
     } catch (err) {
-      console.warn("Hoja de cálculo guardada no accesible: " + err.message);
+      console.warn("Foglio di calcolo salvato non accessibile: " + err.message);
     }
   }
 
@@ -126,7 +297,7 @@ function getSpreadsheet() {
   }
 
   if (!ss) {
-    ss = SpreadsheetApp.create("Gestión de Ventas - Base de Datos");
+    ss = SpreadsheetApp.create("Gestione Vendite - Database");
     props.setProperty(SCRIPT_PROP_SPREADSHEET_ID, ss.getId());
   }
 
@@ -135,76 +306,77 @@ function getSpreadsheet() {
 }
 
 /**
- * Configuración de columnas y estructura de hojas
+ * Configurazione colonne e struttura dei fogli
  */
 function setupDatabaseSheets(ss) {
-  // 1. Hoja de Productos
+  // 1. Foglio Prodotti
   let prodSheet = ss.getSheetByName(SHEET_PRODUCTS);
   if (!prodSheet) {
     prodSheet = ss.insertSheet(SHEET_PRODUCTS);
     prodSheet.appendRow([
-      "ID", "Título", "Descripción", "FotoUrl", "PrecioCompra", 
-      "PrecioMínimo", "PrecioMáximo", "AsignadoA", "FechaCreación", "Activo"
+      "ID", "Titolo", "Descrizione", "FotoUrl", "PrezzoAcquisto",
+      "PrezzoMinimo", "PrezzoMassimo", "AssegnatoA", "DataCreazione", "Attivo"
     ]);
     prodSheet.getRange("A1:J1").setFontWeight("bold").setBackground("#e9ecef");
   }
 
-  // 2. Hoja de Vendedores (con Password y Estado)
+  // 2. Foglio Venditori (con Password e Stato)
   let sellersSheet = ss.getSheetByName(SHEET_SELLERS);
   if (!sellersSheet) {
     sellersSheet = ss.insertSheet(SHEET_SELLERS);
-    sellersSheet.appendRow(["ID", "Nombre", "Email", "Teléfono", "FechaCreación", "Estado", "Password"]);
+    sellersSheet.appendRow(["ID", "Nome", "Email", "Telefono", "DataCreazione", "Stato", "Password"]);
     sellersSheet.getRange("A1:G1").setFontWeight("bold").setBackground("#e9ecef");
-    sellersSheet.appendRow(["VEND-001", "Mario Rossi", "mario.rossi@ejemplo.com", "+34 600 123 456", new Date().toISOString(), "Activo", generateRandomPassword(8)]);
-    sellersSheet.appendRow(["VEND-002", "Laura Gómez", "laura.gomez@ejemplo.com", "+34 600 654 321", new Date().toISOString(), "Activo", generateRandomPassword(8)]);
+    sellersSheet.appendRow(["VEND-001", "Mario Rossi", "mario.rossi@esempio.com", "+39 333 123 4567", new Date().toISOString(), "Attivo", "Mario2026!"]);
+    sellersSheet.appendRow(["VEND-002", "Laura Bianchi", "laura.bianchi@esempio.com", "+39 333 765 4321", new Date().toISOString(), "Attivo", "Laura2026!"]);
   }
 
-  // 3. Hoja de Ventas (Con seguimiento de Envíos: EnvioEstado, FechaEnvio, TrackingEnvio, NotasEnvio)
+  // 3. Foglio Vendite (con tracciamento Spedizioni)
   let salesSheet = ss.getSheetByName(SHEET_SALES);
   if (!salesSheet) {
     salesSheet = ss.insertSheet(SHEET_SALES);
     salesSheet.appendRow([
-      "ID", "Fecha", "VendedorID", "VendedorNombre", "ProductoID", 
-      "ProductoNombre", "PrecioVenta", "PrecioCompraAdmin", "GananciaVendedor", 
-      "Estado", "Liquidado", "FechaLiquidación", "PeríodoLiquidado", "Notas", "Devuelta",
-      "EnvioEstado", "FechaEnvio", "TrackingEnvio", "NotasEnvio",
-      "AcceptanceStatus", "AcceptedDate"
+      "ID", "Data", "VenditoreID", "VenditoreNome", "ProdottoID",
+      "ProdottoNome", "PrezzoVendita", "PrezzoAcquistoAdmin", "GuadagnoVenditore",
+      "Stato", "Liquidato", "DataLiquidazione", "PeriodoLiquidato", "Note", "Restituito",
+      "SpedizioneStato", "DataSpedizione", "TrackingSpedizione", "NoteSpedizione",
+      "StatoAccettazione", "DataAccettazione"
     ]);
     salesSheet.getRange("A1:U1").setFontWeight("bold").setBackground("#e9ecef");
   }
 
-  // 4. Hoja de Historial de Liquidaciones
+  // 4. Foglio Storico Liquidazioni
   let settlementsSheet = ss.getSheetByName(SHEET_SETTLEMENTS);
   if (!settlementsSheet) {
     settlementsSheet = ss.insertSheet(SHEET_SETTLEMENTS);
     settlementsSheet.appendRow([
-      "ID", "VendedorID", "VendedorNombre", "MesAño", "FechaLiquidación", 
-      "TotalVentas", "TotalEntregadoAdmin", "TotalComisiones", "AjustesDevoluciones", 
-      "ImporteNetoPagado", "Notas", "VentasIDs"
+      "ID", "VenditoreID", "VenditoreNome", "MeseAnno", "DataLiquidazione",
+      "TotaleVendite", "TotaleConsegnatoAdmin", "TotaleCommissioni", "AggiunsteResi",
+      "ImportoNettoPagato", "Note", "VenditeIDs"
     ]);
     settlementsSheet.getRange("A1:L1").setFontWeight("bold").setBackground("#e9ecef");
   }
 }
 
 /**
- * Devuelve los datos iniciales
+ * Restituisce i dati iniziali dell'app
  */
 function getInitialData(sellerId) {
   try {
     const ss = getSpreadsheet();
     getAdminPassword();
+    getAdminEmail();
 
-    const products = getAllProducts(ss);
-    const sellers = getAllSellers(ss);
-    const sales = getAllSales(ss, sellerId);
+    const products    = getAllProducts(ss);
+    const sellers     = getAllSellers(ss);
+    const sales       = getAllSales(ss, sellerId);
     const settlements = getAllSettlements(ss, sellerId);
 
     return {
       success: true,
-      products: products,
-      sellers: sellers,
-      sales: sales,
-      settlements: settlements,
+      products:        products,
+      sellers:         sellers,
+      sales:           sales,
+      settlements:     settlements,
       currentSellerId: sellerId || null
     };
   } catch (err) {
@@ -213,13 +385,13 @@ function getInitialData(sellerId) {
 }
 
 // ==========================================
-// PRODUCTOS
+// PRODOTTI
 // ==========================================
 
 function getAllProducts(ss) {
   if (!ss) ss = getSpreadsheet();
   const sheet = ss.getSheetByName(SHEET_PRODUCTS);
-  const data = sheet.getDataRange().getValues();
+  const data  = sheet.getDataRange().getValues();
   if (data.length <= 1) return [];
 
   const list = [];
@@ -227,16 +399,16 @@ function getAllProducts(ss) {
     const row = data[i];
     if (!row[0]) continue;
     list.push({
-      id: String(row[0]),
-      title: String(row[1] || ""),
-      description: String(row[2] || ""),
-      photoUrl: String(row[3] || ""),
+      id:            String(row[0]),
+      title:         String(row[1] || ""),
+      description:   String(row[2] || ""),
+      photoUrl:      String(row[3] || ""),
       purchasePrice: Number(row[4] || 0),
-      minPrice: Number(row[5] || 0),
-      maxPrice: Number(row[6] || 0),
-      assignedTo: String(row[7] || "TUTTI"),
-      createdAt: row[8] ? new Date(row[8]).toISOString() : "",
-      active: row[9] !== false && String(row[9]).toLowerCase() !== "false"
+      minPrice:      Number(row[5] || 0),
+      maxPrice:      Number(row[6] || 0),
+      assignedTo:    String(row[7] || "TUTTI"),
+      createdAt:     row[8] ? new Date(row[8]).toISOString() : "",
+      active:        row[9] !== false && String(row[9]).toLowerCase() !== "false"
     });
   }
   return list;
@@ -244,14 +416,14 @@ function getAllProducts(ss) {
 
 function addProduct(data) {
   try {
-    const ss = getSpreadsheet();
+    const ss    = getSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_PRODUCTS);
-    const id = "PROD-" + Utilities.getUuid().substring(0, 8).toUpperCase();
+    const id    = "PROD-" + Utilities.getUuid().substring(0, 8).toUpperCase();
     const createdAt = new Date().toISOString();
 
     sheet.appendRow([
       id,
-      data.title || "Nuevo Producto",
+      data.title || "Nuovo Prodotto",
       data.description || "",
       data.photoUrl || "",
       Number(data.purchasePrice || 0),
@@ -262,7 +434,7 @@ function addProduct(data) {
       true
     ]);
 
-    return { success: true, id: id, message: "Producto enviado con éxito a los vendedores" };
+    return { success: true, id: id, message: "Prodotto inviato ai venditori con successo" };
   } catch (err) {
     return { success: false, error: err.toString() };
   }
@@ -270,50 +442,50 @@ function addProduct(data) {
 
 function deleteProduct(productId) {
   try {
-    const ss = getSpreadsheet();
+    const ss    = getSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_PRODUCTS);
-    const rows = sheet.getDataRange().getValues();
+    const rows  = sheet.getDataRange().getValues();
 
     for (let i = 1; i < rows.length; i++) {
       if (String(rows[i][0]) === String(productId)) {
         sheet.deleteRow(i + 1);
-        return { success: true, message: "Producto eliminado" };
+        return { success: true, message: "Prodotto eliminato" };
       }
     }
-    return { success: false, error: "Producto no encontrado" };
+    return { success: false, error: "Prodotto non trovato" };
   } catch (err) {
     return { success: false, error: err.toString() };
   }
 }
 
 // ==========================================
-// VENDEDORES (CONTRASEÑA ALEATORIA, ESTADOS Y BORRADO)
+// VENDITORI (PASSWORD CASUALE, STATI E CANCELLAZIONE)
 // ==========================================
 
 function getAllSellers(ss) {
   if (!ss) ss = getSpreadsheet();
   const sheet = ss.getSheetByName(SHEET_SELLERS);
-  const data = sheet.getDataRange().getValues();
+  const data  = sheet.getDataRange().getValues();
   if (data.length <= 1) return [];
 
   const list = [];
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     if (!row[0]) continue;
-    
+
     let status = String(row[5] || "Activo");
-    if (status === "true") status = "Activo";
+    if (status === "true")  status = "Activo";
     if (status === "false") status = "Archivado";
 
     list.push({
-      id: String(row[0]),
-      name: String(row[1] || ""),
-      email: String(row[2] || ""),
-      phone: String(row[3] || ""),
+      id:        String(row[0]),
+      name:      String(row[1] || ""),
+      email:     String(row[2] || ""),
+      phone:     String(row[3] || ""),
       createdAt: row[4] ? new Date(row[4]).toISOString() : "",
-      status: status, // "Activo", "De Vacaciones", "De Baja", "Archivado"
-      password: String(row[6] || "12345678"),
-      active: status === "Activo"
+      status:    status,
+      password:  String(row[6] || "12345678"),
+      active:    status === "Activo"
     });
   }
   return list;
@@ -321,12 +493,11 @@ function getAllSellers(ss) {
 
 function addSeller(data) {
   try {
-    const ss = getSpreadsheet();
+    const ss    = getSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_SELLERS);
-    const id = "VEND-" + Utilities.getUuid().substring(0, 6).toUpperCase();
+    const id    = "VEND-" + Utilities.getUuid().substring(0, 6).toUpperCase();
     const createdAt = new Date().toISOString();
-    // REQUISITO 7: Asignación de contraseña aleatoria
-    const password = data.password || generateRandomPassword(8);
+    const password  = data.password || generateRandomPassword(8);
 
     sheet.appendRow([
       id,
@@ -338,11 +509,11 @@ function addSeller(data) {
       password
     ]);
 
-    return { 
-      success: true, 
-      id: id, 
+    return {
+      success: true,
+      id: id,
       generatedPassword: password,
-      message: "Vendedor registrado. Contraseña asignada: " + password 
+      message: "Venditore registrato. Password assegnata: " + password
     };
   } catch (err) {
     return { success: false, error: err.toString() };
@@ -350,27 +521,27 @@ function addSeller(data) {
 }
 
 /**
- * REQUISITO 7: Cambiar contraseña de vendedor (random) por el Admin sin conocer la anterior
+ * Cambia la password di un venditore (solo Admin, senza conoscere la precedente)
  */
 function resetSellerPassword(sellerId, newPassword) {
   try {
-    const ss = getSpreadsheet();
-    const sheet = ss.getSheetByName(SHEET_SELLERS);
-    const rows = sheet.getDataRange().getValues();
+    const ss       = getSpreadsheet();
+    const sheet    = ss.getSheetByName(SHEET_SELLERS);
+    const rows     = sheet.getDataRange().getValues();
     const finalPass = newPassword || generateRandomPassword(8);
 
     for (let i = 1; i < rows.length; i++) {
       if (String(rows[i][0]) === String(sellerId)) {
         const rowIdx = i + 1;
         sheet.getRange(rowIdx, 7).setValue(finalPass);
-        return { 
-          success: true, 
-          newPassword: finalPass, 
-          message: "Nueva contraseña generada para " + rows[i][1] + ": " + finalPass 
+        return {
+          success: true,
+          newPassword: finalPass,
+          message: "Nuova password generata per " + rows[i][1] + ": " + finalPass
         };
       }
     }
-    return { success: false, error: "Vendedor no encontrado" };
+    return { success: false, error: "Venditore non trovato" };
   } catch (err) {
     return { success: false, error: err.toString() };
   }
@@ -378,18 +549,18 @@ function resetSellerPassword(sellerId, newPassword) {
 
 function updateSellerStatus(sellerId, newStatus) {
   try {
-    const ss = getSpreadsheet();
+    const ss    = getSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_SELLERS);
-    const rows = sheet.getDataRange().getValues();
+    const rows  = sheet.getDataRange().getValues();
 
     for (let i = 1; i < rows.length; i++) {
       if (String(rows[i][0]) === String(sellerId)) {
         const rowIdx = i + 1;
         sheet.getRange(rowIdx, 6).setValue(newStatus);
-        return { success: true, message: "Estado de " + rows[i][1] + " actualizado a: " + newStatus };
+        return { success: true, message: "Stato di " + rows[i][1] + " aggiornato a: " + newStatus };
       }
     }
-    return { success: false, error: "Vendedor no encontrado" };
+    return { success: false, error: "Venditore non trovato" };
   } catch (err) {
     return { success: false, error: err.toString() };
   }
@@ -397,132 +568,104 @@ function updateSellerStatus(sellerId, newStatus) {
 
 function deleteSeller(sellerId) {
   try {
-    const ss = getSpreadsheet();
+    const ss    = getSpreadsheet();
     const sales = getAllSales(ss, sellerId);
-    
+
     if (sales.length > 0) {
       updateSellerStatus(sellerId, "Archivado");
-      return { 
-        success: true, 
+      return {
+        success: true,
         archived: true,
-        message: "El vendedor tiene ventas en su historial contable. Ha sido ARCHIVADO para preservar la contabilidad." 
+        message: "Il venditore ha vendite nel suo storico contabile. È stato ARCHIVIATO per preservare la contabilità."
       };
     }
 
     const sheet = ss.getSheetByName(SHEET_SELLERS);
-    const rows = sheet.getDataRange().getValues();
+    const rows  = sheet.getDataRange().getValues();
     for (let i = 1; i < rows.length; i++) {
       if (String(rows[i][0]) === String(sellerId)) {
         sheet.deleteRow(i + 1);
-        return { success: true, message: "Vendedor eliminado de la base de datos." };
+        return { success: true, message: "Venditore eliminato dal database." };
       }
     }
-    return { success: false, error: "Vendedor no encontrado" };
+    return { success: false, error: "Venditore non trovato" };
   } catch (err) {
     return { success: false, error: err.toString() };
   }
 }
 
 /**
- * ELIMINACIÓN FORZADA POR ADMIN (con doble confirmación ya validada en frontend)
- * Elimina físicamente al vendedor aunque tenga ventas históricas.
+ * ELIMINAZIONE FORZATA PER ADMIN (con doppia conferma già validata nel frontend)
+ * Elimina fisicamente il venditore anche se ha vendite storiche.
  */
 function deleteSellerForce(sellerId) {
   try {
-    const ss = getSpreadsheet();
+    const ss    = getSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_SELLERS);
-    const rows = sheet.getDataRange().getValues();
+    const rows  = sheet.getDataRange().getValues();
 
     for (let i = 1; i < rows.length; i++) {
       if (String(rows[i][0]) === String(sellerId)) {
         const sellerName = String(rows[i][1] || sellerId);
         sheet.deleteRow(i + 1);
-        return { 
-          success: true, 
-          message: "Vendedor \"" + sellerName + "\" eliminado permanentemente por el Administrador." 
+        return {
+          success: true,
+          message: "Venditore \"" + sellerName + "\" eliminato permanentemente dall'Amministratore."
         };
       }
     }
-    return { success: false, error: "Vendedor no encontrado" };
+    return { success: false, error: "Venditore non trovato" };
   } catch (err) {
     return { success: false, error: err.toString() };
   }
 }
 
 /**
- * ELIMINACIÓN FORZADA DE VENDEDOR POR ADMIN (CON DOBLE CONFIRMACIÓN EN FRONTEND)
- * Borra físicamente al vendedor aunque tenga ventas históricas.
- * La doble confirmación ya fue validada en el frontend antes de llamar a esta función.
- */
-function deleteSellerForce(sellerId) {
-  try {
-    const ss = getSpreadsheet();
-    const sheet = ss.getSheetByName(SHEET_SELLERS);
-    const rows = sheet.getDataRange().getValues();
-
-    for (let i = 1; i < rows.length; i++) {
-      if (String(rows[i][0]) === String(sellerId)) {
-        const sellerName = String(rows[i][1] || sellerId);
-        sheet.deleteRow(i + 1);
-        return { 
-          success: true, 
-          message: "Vendedor \"" + sellerName + "\" eliminado permanentemente de la base de datos por el Administrador." 
-        };
-      }
-    }
-    return { success: false, error: "Vendedor no encontrado" };
-  } catch (err) {
-    return { success: false, error: err.toString() };
-  }
-}
-
-/**
- * El vendedor acepta o rechaza una venta propuesta por Admin
+ * Il venditore accetta o rifiuta una vendita proposta dall'Admin
  * acceptanceStatus: "ACEPTADA" | "RECHAZADA"
  */
 function updateSaleAcceptance(saleId, sellerId, acceptanceStatus) {
   try {
-    const ss = getSpreadsheet();
+    const ss    = getSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_SALES);
-    const rows = sheet.getDataRange().getValues();
+    const rows  = sheet.getDataRange().getValues();
 
     for (let i = 1; i < rows.length; i++) {
       if (String(rows[i][0]) === String(saleId)) {
         const rowSellerId = String(rows[i][2] || "");
         if (rowSellerId !== String(sellerId)) {
-          return { success: false, error: "Esta venta no pertenece a este vendedor." };
+          return { success: false, error: "Questa vendita non appartiene a questo venditore." };
         }
         const rowIdx = i + 1;
-        // Columna 20 = AcceptanceStatus (nueva)
         sheet.getRange(rowIdx, 20).setValue(acceptanceStatus);
-        sheet.getRange(rowIdx, 21).setValue(new Date().toISOString()); // AcceptedDate
+        sheet.getRange(rowIdx, 21).setValue(new Date().toISOString());
         if (acceptanceStatus === "ACEPTADA") {
-          sheet.getRange(rowIdx, 10).setValue("Venta Confirmada");
+          sheet.getRange(rowIdx, 10).setValue("Vendita Confermata");
         } else {
-          sheet.getRange(rowIdx, 10).setValue("Rechazada por Vendedor");
+          sheet.getRange(rowIdx, 10).setValue("Rifiutata dal Venditore");
         }
-        return { 
-          success: true, 
-          message: acceptanceStatus === "ACEPTADA" 
-            ? "Venta aceptada y confirmada con éxito." 
-            : "Venta rechazada. El Administrador podrá verlo en el panel."
+        return {
+          success: true,
+          message: acceptanceStatus === "ACEPTADA"
+            ? "Vendita accettata e confermata con successo."
+            : "Vendita rifiutata. L'Amministratore potrà vederlo nel pannello."
         };
       }
     }
-    return { success: false, error: "Venta no encontrada" };
+    return { success: false, error: "Vendita non trovata" };
   } catch (err) {
     return { success: false, error: err.toString() };
   }
 }
 
 // ==========================================
-// VENTAS Y ENVÍOS (REQUISITOS 1, 2, 4 Y 5)
+// VENDITE E SPEDIZIONI
 // ==========================================
 
 function getAllSales(ss, filterSellerId) {
   if (!ss) ss = getSpreadsheet();
   const sheet = ss.getSheetByName(SHEET_SALES);
-  const data = sheet.getDataRange().getValues();
+  const data  = sheet.getDataRange().getValues();
   if (data.length <= 1) return [];
 
   const list = [];
@@ -536,48 +679,46 @@ function getAllSales(ss, filterSellerId) {
     }
 
     list.push({
-      id: String(row[0]),
-      date: row[1] ? new Date(row[1]).toISOString() : "",
-      sellerId: sellerId,
-      sellerName: String(row[3] || ""),
-      productId: String(row[4] || ""),
-      productName: String(row[5] || ""),
-      salePrice: Number(row[6] || 0),
-      adminPurchasePrice: Number(row[7] || 0),
-      sellerProfit: Number(row[8] || 0),
-      status: String(row[9] || "Venta Confirmada"), // Todas las registradas son confirmadas
-      settled: row[10] === true || String(row[10]).toLowerCase() === "true",
-      settlementDate: row[11] ? new Date(row[11]).toISOString() : "",
-      settlementPeriod: String(row[12] || ""),
-      notes: String(row[13] || ""),
-      returned: row[14] === true || String(row[14]).toLowerCase() === "true",
-      // REQUISITO 1: Datos de Envío
-      shippingStatus: String(row[15] || "Pendiente de Envío"), // "Pendiente de Envío" o "Enviada"
-      shippingDate: row[16] ? new Date(row[16]).toISOString() : "",
-      shippingTracking: String(row[17] || ""),
-      shippingNotes: String(row[18] || ""),
-      acceptanceStatus: String(row[19] || "ACEPTADA"), // "ACEPTADA" | "PENDIENTE" | "RECHAZADA"
-      acceptedDate: row[20] ? new Date(row[20]).toISOString() : ""
+      id:                String(row[0]),
+      date:              row[1] ? new Date(row[1]).toISOString() : "",
+      sellerId:          sellerId,
+      sellerName:        String(row[3] || ""),
+      productId:         String(row[4] || ""),
+      productName:       String(row[5] || ""),
+      salePrice:         Number(row[6] || 0),
+      adminPurchasePrice:Number(row[7] || 0),
+      sellerProfit:      Number(row[8] || 0),
+      status:            String(row[9] || "Vendita Confermata"),
+      settled:           row[10] === true || String(row[10]).toLowerCase() === "true",
+      settlementDate:    row[11] ? new Date(row[11]).toISOString() : "",
+      settlementPeriod:  String(row[12] || ""),
+      notes:             String(row[13] || ""),
+      returned:          row[14] === true || String(row[14]).toLowerCase() === "true",
+      shippingStatus:    String(row[15] || "In Attesa di Spedizione"),
+      shippingDate:      row[16] ? new Date(row[16]).toISOString() : "",
+      shippingTracking:  String(row[17] || ""),
+      shippingNotes:     String(row[18] || ""),
+      acceptanceStatus:  String(row[19] || "ACEPTADA"),
+      acceptedDate:      row[20] ? new Date(row[20]).toISOString() : ""
     });
   }
   return list;
 }
 
 /**
- * REQUISITO 2: Una venta registrada por el vendedor ya es confirmada de inmediato
+ * Registra una nuova vendita (confermata immediatamente)
  */
 function recordSale(data) {
   try {
-    const ss = getSpreadsheet();
+    const ss    = getSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_SALES);
-    const id = "VENTA-" + Utilities.getUuid().substring(0, 8).toUpperCase();
-    const date = data.date ? new Date(data.date).toISOString() : new Date().toISOString();
+    const id    = "VENDITA-" + Utilities.getUuid().substring(0, 8).toUpperCase();
+    const date  = data.date ? new Date(data.date).toISOString() : new Date().toISOString();
 
-    const salePrice = Number(data.salePrice || 0);
-    const adminCost = Number(data.adminPurchasePrice || 0);
+    const salePrice    = Number(data.salePrice || 0);
+    const adminCost    = Number(data.adminPurchasePrice || 0);
     const sellerProfit = Math.max(0, salePrice - adminCost);
 
-    // Estado es siempre confirmado; estado de envío inicial es 'Pendiente de Envío'
     sheet.appendRow([
       id,
       date,
@@ -588,145 +729,144 @@ function recordSale(data) {
       salePrice,
       adminCost,
       sellerProfit,
-      data.proposedByAdmin ? "Pendiente de Aceptación" : "Venta Confirmada", // Estado
-      false, // Liquidado
-      "",    // Fecha liquidación
-      "",    // Período
+      data.proposedByAdmin ? "In Attesa di Accettazione" : "Vendita Confermata",
+      false,
+      "",
+      "",
       data.notes || "",
-      false, // Devuelta
-      "Pendiente de Envío", // EnvioEstado
-      "", // FechaEnvio
-      "", // TrackingEnvio
-      "", // NotasEnvio
-      data.proposedByAdmin ? "PENDIENTE" : "ACEPTADA", // AcceptanceStatus
-      data.proposedByAdmin ? "" : new Date().toISOString() // AcceptedDate
+      false,
+      "In Attesa di Spedizione",
+      "",
+      "",
+      "",
+      data.proposedByAdmin ? "PENDIENTE" : "ACEPTADA",
+      data.proposedByAdmin ? "" : new Date().toISOString()
     ]);
 
-    return { success: true, id: id, message: "¡Venta registrada y confirmada con éxito!" };
+    return { success: true, id: id, message: "Vendita registrata e confermata con successo!" };
   } catch (err) {
     return { success: false, error: err.toString() };
   }
 }
 
 /**
- * REQUISITO 1: Admin registra el envío del producto
+ * Admin registra la spedizione del prodotto
  */
 function registerSaleShipping(saleId, shippingData) {
   try {
-    const ss = getSpreadsheet();
-    const sheet = ss.getSheetByName(SHEET_SALES);
-    const rows = sheet.getDataRange().getValues();
+    const ss     = getSpreadsheet();
+    const sheet  = ss.getSheetByName(SHEET_SALES);
+    const rows   = sheet.getDataRange().getValues();
     const nowIso = shippingData.date ? new Date(shippingData.date).toISOString() : new Date().toISOString();
 
     for (let i = 1; i < rows.length; i++) {
       if (String(rows[i][0]) === String(saleId)) {
         const rowIdx = i + 1;
-        sheet.getRange(rowIdx, 16).setValue("Enviada");
+        sheet.getRange(rowIdx, 16).setValue("Spedita");
         sheet.getRange(rowIdx, 17).setValue(nowIso);
         sheet.getRange(rowIdx, 18).setValue(shippingData.tracking || "");
         sheet.getRange(rowIdx, 19).setValue(shippingData.notes || "");
 
-        return { 
-          success: true, 
-          message: "Envío registrado con éxito para la venta " + saleId + ". El vendedor ya puede verlo en tiempo real." 
+        return {
+          success: true,
+          message: "Spedizione registrata con successo per la vendita " + saleId + ". Il venditore può vederla in tempo reale."
         };
       }
     }
-    return { success: false, error: "Venta no encontrada" };
+    return { success: false, error: "Vendita non trovata" };
   } catch (err) {
     return { success: false, error: err.toString() };
   }
 }
 
 /**
- * REQUISITO 4: Admin puede borrar cualquier venta (doble confirmación)
+ * Admin può eliminare qualsiasi vendita (doppia conferma)
  */
 function deleteSaleByAdmin(saleId) {
   try {
-    const ss = getSpreadsheet();
+    const ss    = getSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_SALES);
-    const rows = sheet.getDataRange().getValues();
+    const rows  = sheet.getDataRange().getValues();
 
     for (let i = 1; i < rows.length; i++) {
       if (String(rows[i][0]) === String(saleId)) {
         sheet.deleteRow(i + 1);
-        return { success: true, message: "Venta " + saleId + " eliminada definitivamente por el Administrador." };
+        return { success: true, message: "Vendita " + saleId + " eliminata definitivamente dall'Amministratore." };
       }
     }
-    return { success: false, error: "Venta no encontrada" };
+    return { success: false, error: "Vendita non trovata" };
   } catch (err) {
     return { success: false, error: err.toString() };
   }
 }
 
 /**
- * REQUISITO 5: El vendedor puede cancelar/borrar una venta SOLO SI NO HA SIDO ENVIADA POR ADMIN
+ * Il venditore può cancellare una vendita SOLO SE NON È STATA SPEDITA DALL'ADMIN
  */
 function deleteSaleBySeller(saleId, sellerId) {
   try {
-    const ss = getSpreadsheet();
+    const ss    = getSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_SALES);
-    const rows = sheet.getDataRange().getValues();
+    const rows  = sheet.getDataRange().getValues();
 
     for (let i = 1; i < rows.length; i++) {
       if (String(rows[i][0]) === String(saleId)) {
         const rowSellerId = String(rows[i][2]);
         if (rowSellerId !== String(sellerId)) {
-          return { success: false, error: "No tienes permiso para eliminar esta venta." };
+          return { success: false, error: "Non hai il permesso di eliminare questa vendita." };
         }
 
-        const shippingStatus = String(rows[i][15] || "Pendiente de Envío");
-        if (shippingStatus === "Enviada") {
-          return { 
-            success: false, 
-            error: "¡ACCESO DENEGADO! Esta venta ya ha sido ENVIADA por el Administrador y no puede ser eliminada. Solicite una devolución si el cliente rechaza el producto." 
+        const shippingStatus = String(rows[i][15] || "In Attesa di Spedizione");
+        if (shippingStatus === "Spedita") {
+          return {
+            success: false,
+            error: "ACCESSO NEGATO! Questa vendita è già stata SPEDITA dall'Amministratore e non può essere eliminata. Richiedi un reso se il cliente rifiuta il prodotto."
           };
         }
 
-        // Si no ha sido enviada, se elimina
         sheet.deleteRow(i + 1);
-        return { success: true, message: "Venta " + saleId + " cancelada y eliminada correctamente antes del envío." };
+        return { success: true, message: "Vendita " + saleId + " annullata ed eliminata correttamente prima della spedizione." };
       }
     }
-    return { success: false, error: "Venta no encontrada" };
+    return { success: false, error: "Vendita non trovata" };
   } catch (err) {
     return { success: false, error: err.toString() };
   }
 }
 
 /**
- * REQUISITO 3: Devolución de producto (conservando ajuste negativo si ya estaba liquidada)
+ * Reso del prodotto (conservando aggiustamento negativo se già liquidata)
  */
 function processReturnSale(saleId, returnReason) {
   try {
-    const ss = getSpreadsheet();
+    const ss    = getSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_SALES);
-    const rows = sheet.getDataRange().getValues();
+    const rows  = sheet.getDataRange().getValues();
 
     for (let i = 1; i < rows.length; i++) {
       if (String(rows[i][0]) === String(saleId)) {
-        const rowIdx = i + 1;
+        const rowIdx  = i + 1;
         const current = rows[i];
-        
-        const productName = String(current[5] || "Producto");
-        const wasSettled = current[10] === true || String(current[10]).toLowerCase() === "true";
+
+        const productName           = String(current[5] || "Prodotto");
+        const wasSettled            = current[10] === true || String(current[10]).toLowerCase() === "true";
         const previouslyEarnedProfit = Number(current[8] || 0);
 
-        let notePrefix = "[DEVOLUCIÓN DE PRODUCTO: " + productName + "]";
+        let notePrefix = "[RESO PRODOTTO: " + productName + "]";
         if (returnReason) notePrefix += " Motivo: " + returnReason + ".";
 
         let explanatoryNote = "";
         if (wasSettled) {
-          explanatoryNote = notePrefix + " ATENCIÓN: La venta ya estaba liquidada (Comisión ya percibida: €" + 
-            previouslyEarnedProfit.toFixed(2) + "). Dicho importe constituye una deuda del vendedor con el administrador en el período siguiente como saldo negativo.";
+          explanatoryNote = notePrefix + " ATTENZIONE: La vendita era già liquidata (Commissione già percepita: €" +
+            previouslyEarnedProfit.toFixed(2) + "). Tale importo costituisce un debito del venditore verso l'amministratore nel periodo successivo come saldo negativo.";
         } else {
-          explanatoryNote = notePrefix + " Venta anulada antes de la liquidación. Relación económica resuelta a cero.";
+          explanatoryNote = notePrefix + " Vendita annullata prima della liquidazione. Rapporto economico risolto a zero.";
         }
 
-        const existingNote = String(current[13] || "");
-        const combinedNote = existingNote ? existingNote + "\n" + explanatoryNote : explanatoryNote;
+        const existingNote  = String(current[13] || "");
+        const combinedNote  = existingNote ? existingNote + "\n" + explanatoryNote : explanatoryNote;
 
-        sheet.getRange(rowIdx, 10).setValue("Devuelta");
+        sheet.getRange(rowIdx, 10).setValue("Restituita");
         sheet.getRange(rowIdx, 14).setValue(combinedNote);
         sheet.getRange(rowIdx, 15).setValue(true);
 
@@ -735,26 +875,26 @@ function processReturnSale(saleId, returnReason) {
           wasSettled: wasSettled,
           profitToRecover: wasSettled ? previouslyEarnedProfit : 0,
           productName: productName,
-          message: wasSettled 
-            ? "Devolución procesada: la comisión de €" + previouslyEarnedProfit.toFixed(2) + " se adeudará al vendedor en el próximo período."
-            : "Devolución completada: venta cancelada y saldo resuelto a cero con éxito."
+          message: wasSettled
+            ? "Reso elaborato: la commissione di €" + previouslyEarnedProfit.toFixed(2) + " sarà addebitata al venditore nel prossimo periodo."
+            : "Reso completato: vendita annullata e saldo risolto a zero con successo."
         };
       }
     }
-    return { success: false, error: "Venta no encontrada" };
+    return { success: false, error: "Vendita non trovata" };
   } catch (err) {
     return { success: false, error: err.toString() };
   }
 }
 
 // ==========================================
-// CONTABILIDAD (DISTINGUE VENTAS ENVIADAS Y NO ENVIADAS)
+// CONTABILITÀ (DISTINGUE VENDITE SPEDITE E NON SPEDITE)
 // ==========================================
 
 function getAllSettlements(ss, filterSellerId) {
   if (!ss) ss = getSpreadsheet();
   const sheet = ss.getSheetByName(SHEET_SETTLEMENTS);
-  const data = sheet.getDataRange().getValues();
+  const data  = sheet.getDataRange().getValues();
   if (data.length <= 1) return [];
 
   const list = [];
@@ -768,18 +908,18 @@ function getAllSettlements(ss, filterSellerId) {
     }
 
     list.push({
-      id: String(row[0]),
-      sellerId: sellerId,
-      sellerName: String(row[2] || ""),
-      period: String(row[3] || ""),
-      settlementDate: row[4] ? new Date(row[4]).toISOString() : "",
-      totalSales: Number(row[5] || 0),
-      totalOwedAdmin: Number(row[6] || 0),
+      id:                    String(row[0]),
+      sellerId:              sellerId,
+      sellerName:            String(row[2] || ""),
+      period:                String(row[3] || ""),
+      settlementDate:        row[4] ? new Date(row[4]).toISOString() : "",
+      totalSales:            Number(row[5] || 0),
+      totalOwedAdmin:        Number(row[6] || 0),
       totalSellerCommission: Number(row[7] || 0),
-      returnAdjustments: Number(row[8] || 0),
-      netPaid: Number(row[9] || 0),
-      notes: String(row[10] || ""),
-      salesIds: String(row[11] || "")
+      returnAdjustments:     Number(row[8] || 0),
+      netPaid:               Number(row[9] || 0),
+      notes:                 String(row[10] || ""),
+      salesIds:              String(row[11] || "")
     });
   }
   return list;
@@ -787,76 +927,73 @@ function getAllSettlements(ss, filterSellerId) {
 
 function calculateSellerAccounting(sellerId) {
   try {
-    const ss = getSpreadsheet();
+    const ss       = getSpreadsheet();
     const allSales = getAllSales(ss, sellerId);
 
-    let shippedSales = [];
+    let shippedSales    = [];
     let notShippedSales = [];
-    let settledSales = [];
-    
-    let totalShippedSalesAmount = 0;
-    let totalOwedAdminShipped = 0;
-    let totalSellerCommissionShipped = 0;
+    let settledSales    = [];
 
-    let totalNotShippedAmount = 0;
-    let totalSellerCommissionNotShipped = 0;
-
-    let totalNegativeAdjustments = 0;
-    let adjustmentNotes = [];
+    let totalShippedSalesAmount           = 0;
+    let totalOwedAdminShipped             = 0;
+    let totalSellerCommissionShipped      = 0;
+    let totalNotShippedAmount             = 0;
+    let totalSellerCommissionNotShipped   = 0;
+    let totalNegativeAdjustments          = 0;
+    let adjustmentNotes                   = [];
 
     allSales.forEach(sale => {
-      if (sale.status === "Devuelta" || sale.returned) {
+      if (sale.status === "Restituita" || sale.returned) {
         if (sale.settled) {
           totalNegativeAdjustments += sale.sellerProfit;
           adjustmentNotes.push({
-            saleId: sale.id,
+            saleId:      sale.id,
             productName: sale.productName,
-            amount: -sale.sellerProfit,
-            note: "Devolución de '" + sale.productName + "' (Venta " + sale.id + "): comisión ya liquidada de €" + 
-                  sale.sellerProfit.toFixed(2) + " debida de vuelta por el vendedor al administrador."
+            amount:      -sale.sellerProfit,
+            note:        "Reso di '" + sale.productName + "' (Vendita " + sale.id + "): commissione già liquidata di €" +
+                         sale.sellerProfit.toFixed(2) + " dovuta di ritorno dal venditore all'amministratore."
           });
         }
-      } else if (sale.status === "Venta Confirmada") {
+      } else if (sale.status === "Vendita Confermata") {
         if (sale.settled) {
           settledSales.push(sale);
         } else {
-          // REQUISITO 3: Distinción entre enviadas y no enviadas
-          if (sale.shippingStatus === "Enviada") {
+          if (sale.shippingStatus === "Spedita") {
             shippedSales.push(sale);
-            totalShippedSalesAmount += sale.salePrice;
-            totalOwedAdminShipped += sale.adminPurchasePrice;
-            totalSellerCommissionShipped += sale.sellerProfit;
+            totalShippedSalesAmount          += sale.salePrice;
+            totalOwedAdminShipped            += sale.adminPurchasePrice;
+            totalSellerCommissionShipped     += sale.sellerProfit;
           } else {
             notShippedSales.push(sale);
-            totalNotShippedAmount += sale.salePrice;
-            totalSellerCommissionNotShipped += sale.sellerProfit;
+            totalNotShippedAmount            += sale.salePrice;
+            totalSellerCommissionNotShipped  += sale.sellerProfit;
           }
         }
       }
     });
 
-    const finalAmountOwedToAdmin = totalOwedAdminShipped + totalNegativeAdjustments;
+    const finalAmountOwedToAdmin     = totalOwedAdminShipped + totalNegativeAdjustments;
     const netSellerCommissionShipped = totalSellerCommissionShipped - totalNegativeAdjustments;
 
     return {
-      success: true,
+      success:  true,
       sellerId: sellerId,
       summary: {
-        totalShippedSalesAmount: totalShippedSalesAmount,
-        totalOwedAdminShipped: totalOwedAdminShipped,
-        totalSellerCommissionShipped: totalSellerCommissionShipped,
-        netSellerCommissionShipped: netSellerCommissionShipped,
-        finalAmountOwedToAdmin: finalAmountOwedToAdmin,
-        totalNotShippedAmount: totalNotShippedAmount,
-        totalSellerCommissionNotShipped: totalSellerCommissionNotShipped,
-        negativeAdjustmentsFromReturns: totalNegativeAdjustments
+        totalShippedSalesAmount:          totalShippedSalesAmount,
+        totalOwedAdminShipped:            totalOwedAdminShipped,
+        totalSellerCommissionShipped:     totalSellerCommissionShipped,
+        netSellerCommissionShipped:       netSellerCommissionShipped,
+        finalAmountOwedToAdmin:           finalAmountOwedToAdmin,
+        totalNotShippedAmount:            totalNotShippedAmount,
+        totalSellerCommissionNotShipped:  totalSellerCommissionNotShipped,
+        negativeAdjustmentsFromReturns:   totalNegativeAdjustments
       },
-      adjustmentNotes: adjustmentNotes,
-      shippedSalesCount: shippedSales.length,
+      adjustmentNotes:    adjustmentNotes,
+      shippedSalesCount:  shippedSales.length,
       notShippedSalesCount: notShippedSales.length,
-      shippedSales: shippedSales,
-      notShippedSales: notShippedSales,
-      settledSalesCount: settledSales.length
+      shippedSales:       shippedSales,
+      notShippedSales:    notShippedSales,
+      settledSalesCount:  settledSales.length
     };
   } catch (err) {
     return { success: false, error: err.toString() };
@@ -865,19 +1002,19 @@ function calculateSellerAccounting(sellerId) {
 
 function closeAndSettlePeriod(sellerId, periodLabel, customNote) {
   try {
-    const ss = getSpreadsheet();
+    const ss         = getSpreadsheet();
     const accounting = calculateSellerAccounting(sellerId);
     if (!accounting.success) throw new Error(accounting.error);
 
     const pendingSales = accounting.shippedSales;
     if (pendingSales.length === 0 && accounting.summary.negativeAdjustmentsFromReturns === 0) {
-      return { success: false, error: "No hay ventas enviadas o ajustes que liquidar para este vendedor." };
+      return { success: false, error: "Non ci sono vendite spedite o aggiustamenti da liquidare per questo venditore." };
     }
 
     const salesSheet = ss.getSheetByName(SHEET_SALES);
-    const salesRows = salesSheet.getDataRange().getValues();
-    const nowIso = new Date().toISOString();
-    const period = periodLabel || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "MM/yyyy");
+    const salesRows  = salesSheet.getDataRange().getValues();
+    const nowIso     = new Date().toISOString();
+    const period     = periodLabel || Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "MM/yyyy");
 
     const settledIds = [];
 
@@ -895,16 +1032,16 @@ function closeAndSettlePeriod(sellerId, periodLabel, customNote) {
     }
 
     const settlementsSheet = ss.getSheetByName(SHEET_SETTLEMENTS);
-    const settlementId = "SALDO-" + Utilities.getUuid().substring(0, 8).toUpperCase();
-    
+    const settlementId     = "SALDO-" + Utilities.getUuid().substring(0, 8).toUpperCase();
+
     let sellerName = sellerId;
-    const sellers = getAllSellers(ss);
+    const sellers     = getAllSellers(ss);
     const foundSeller = sellers.find(s => s.id === sellerId);
     if (foundSeller) sellerName = foundSeller.name;
 
-    let notesText = customNote || "Período liquidado con normalidad.";
+    let notesText = customNote || "Periodo liquidato regolarmente.";
     if (accounting.adjustmentNotes.length > 0) {
-      notesText += " | Notas Ajustes Devoluciones: " + accounting.adjustmentNotes.map(n => n.note).join(" ; ");
+      notesText += " | Note Aggiustamenti Resi: " + accounting.adjustmentNotes.map(n => n.note).join(" ; ");
     }
 
     settlementsSheet.appendRow([
@@ -923,10 +1060,10 @@ function closeAndSettlePeriod(sellerId, periodLabel, customNote) {
     ]);
 
     return {
-      success: true,
+      success:      true,
       settlementId: settlementId,
-      period: period,
-      message: "¡Período " + period + " liquidado con éxito para " + sellerName + "!"
+      period:       period,
+      message:      "Periodo " + period + " liquidato con successo per " + sellerName + "!"
     };
   } catch (err) {
     return { success: false, error: err.toString() };

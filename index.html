@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="es">
+﻿<!DOCTYPE html>
+<html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <base target="_top">
-  <title>Gestión de Ventas y Envíos</title>
+  <title>Gestione Vendite, Spedizioni e Contabilità</title>
 
   <!-- PWA & MOBILE META TAGS -->
   <link rel="manifest" href="manifest.json">
@@ -12,7 +12,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Ventas App">
+  <meta name="apple-mobile-web-app-title" content="Vendite App">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" href="favicon.png">
 
@@ -65,7 +65,7 @@
       padding-bottom: 30px;
     }
 
-    /* PANTALLA DE LOGIN CON EMAIL Y PASSWORD (SIN DESPLEGABLES PÚBLICOS) */
+    /* PANTALLA DE LOGIN CON EMAIL Y PASSWORD (SIN DESPLEGABLES PÃšBLICOS) */
     #loginScreenOverlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -247,7 +247,7 @@
       100% { transform: scale(1); }
     }
 
-    /* PESTAÑAS DE NAVEGACIÓN UNIFICADAS */
+    /* PESTAÃ‘AS DE NAVEGACIÃ“N UNIFICADAS */
     .nav-tabs-container {
       background: #ffffff;
       border-bottom: 1px solid var(--gray-200);
@@ -448,7 +448,7 @@
       margin-top: 6px;
     }
 
-    /* GRID CATÁLOGO DE PRODUCTOS */
+    /* GRID CATÃLOGO DE PRODUCTOS */
     .products-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -610,7 +610,7 @@
     .badge-baja { background: #f5f3ff; color: #6b21a8; }
     .badge-archived { background: #f3f4f6; color: #4b5563; }
 
-    /* MENÚ RÁPIDO */
+    /* MENÃš RÃPIDO */
     .dropdown {
       position: relative;
       display: inline-block;
@@ -791,7 +791,7 @@
       gap: 12px;
     }
 
-    /* BANNER INSTALACIÓN PWA */
+    /* BANNER INSTALACIÃ“N PWA */
     .install-banner-modal {
       position: fixed;
       bottom: 20px;
@@ -845,7 +845,7 @@
       margin-top: 14px;
     }
 
-    /* ESTADOS VACÍOS */
+    /* ESTADOS VACÃOS */
     .empty-state {
       text-align: center;
       padding: 44px 20px;
@@ -897,6 +897,80 @@
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
+  
+    .input-password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .btn-toggle-pwd {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--gray-500);
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 4px;
+    }
+    .btn-toggle-pwd:hover { color: var(--gray-700); }
+    .sync-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      background: var(--success-light);
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      cursor: pointer;
+    }
+    .sync-status-badge.local {
+      background: var(--warning-light);
+      color: #92400e;
+      border-color: #fde68a;
+    }
+    .btn-settings {
+      background: var(--gray-100);
+      color: var(--gray-700);
+      border: 1px solid var(--gray-300);
+      border-radius: 9999px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-settings:hover { background: var(--gray-200); color: var(--gray-900); }
+    #loadingOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.7);
+      z-index: 100000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(3px);
+    }
+    .loading-box {
+      background: #ffffff;
+      padding: 24px 32px;
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      color: var(--gray-900);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
   </style>
 </head>
 <body>
@@ -907,37 +981,47 @@
   <div id="loginScreenOverlay">
     <div class="login-card">
       <img src="icon-192.png" alt="Logo" class="login-brand-logo">
-      <h2 class="login-title">Acceso al Sistema</h2>
-      <p class="login-subtitle">Gestión de Ventas y Envíos</p>
+      <h2 class="login-title">Accesso al Sistema</h2>
+      <p class="login-subtitle">GestiÃ³n de Vendite y EnvÃ­os</p>
 
       <div class="login-tabs">
         <button id="btnTabLoginAdmin" class="login-tab-btn active" onclick="switchLoginMode('ADMIN')">
           <i class="fa-solid fa-shield-halved"></i> Administrador
         </button>
         <button id="btnTabLoginSeller" class="login-tab-btn" onclick="switchLoginMode('SELLER')">
-          <i class="fa-solid fa-user-tag"></i> Vendedor
+          <i class="fa-solid fa-user-tag"></i> Venditore
         </button>
       </div>
 
       <!-- FORMULARIO LOGIN ADMIN -->
       <form id="formLoginAdmin" class="login-form" onsubmit="handleAdminLogin(event)">
-        <div class="login-hint-box" style="background: rgba(var(--primary-rgb, 30,64,175),0.08); border-color: var(--primary);">
+        <div class="login-hint-box" style="background: rgba(37, 99, 235, 0.08); border-color: var(--primary);">
           <i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i>
-          <div style="color: var(--gray-700);">Introduce la contraseña de administrador para acceder al panel de gestión.</div>
+          <div style="color: var(--gray-700);">Inserisci la tua email e la password di amministratore per accedere al pannello.</div>
         </div>
 
         <div class="form-group">
-          <label><i class="fa-solid fa-lock"></i> Contraseña de Administrador</label>
-          <input type="password" id="adminPasswordInput" class="form-control" placeholder="Introduce la contraseña de Admin" required autocomplete="current-password">
+          <label><i class="fa-solid fa-envelope"></i> Email Amministratore *</label>
+          <input type="email" id="adminEmailInput" class="form-control" placeholder="admin@gestione.com" required autocomplete="username" value="admin@gestione.com">
+        </div>
+
+        <div class="form-group">
+          <label><i class="fa-solid fa-lock"></i> Password Amministratore *</label>
+          <div class="input-password-wrapper">
+            <input type="password" id="adminPasswordInput" class="form-control" placeholder="Inserisci la password di Admin" required autocomplete="current-password" value="admin2026">
+            <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('adminPasswordInput', this)" title="Mostra/Nascondi password">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
         </div>
 
         <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
           <input type="checkbox" id="rememberSessionAdmin" checked style="width: 16px; height: 16px; cursor: pointer;">
-          <label for="rememberSessionAdmin" style="margin: 0; font-size: 0.82rem; color: var(--gray-700); cursor: pointer;">Recordar sesión en este dispositivo</label>
+          <label for="rememberSessionAdmin" style="margin: 0; font-size: 0.82rem; color: var(--gray-700); cursor: pointer;">Recordar sesiÃ³n en este dispositivo</label>
         </div>
 
         <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
-          <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión como Admin
+          <i class="fa-solid fa-right-to-bracket"></i> Iniciar SesiÃ³n como Admin
         </button>
       </form>
 
@@ -945,44 +1029,44 @@
       <form id="formLoginSeller" class="login-form" onsubmit="handleSellerLogin(event)" style="display: none;">
         <div class="login-hint-box">
           <i class="fa-solid fa-user-lock"></i>
-          <div>Acceso privado: introduce tu correo y la contraseña que te asignó el Administrador.</div>
+          <div>Acceso privado: introduce tu correo y la contraseÃ±a que te asignÃ³ el Administrador.</div>
         </div>
 
         <div class="form-group">
-          <label><i class="fa-solid fa-envelope"></i> Tu Correo Electrónico</label>
+          <label><i class="fa-solid fa-envelope"></i> Tu Correo ElectrÃ³nico</label>
           <input type="email" id="loginSellerEmail" class="form-control" placeholder="ejemplo@correo.com" required autocomplete="username">
         </div>
 
         <div class="form-group">
-          <label><i class="fa-solid fa-key"></i> Contraseña Asignada</label>
-          <input type="password" id="loginSellerPassword" class="form-control" placeholder="Introduce tu contraseña" required autocomplete="current-password">
+          <label><i class="fa-solid fa-key"></i> ContraseÃ±a Asignada</label>
+          <input type="password" id="loginSellerPassword" class="form-control" placeholder="Introduce tu contraseÃ±a" required autocomplete="current-password">
         </div>
 
         <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
           <input type="checkbox" id="rememberSessionSeller" checked style="width: 16px; height: 16px; cursor: pointer;">
-          <label for="rememberSessionSeller" style="margin: 0; font-size: 0.82rem; color: var(--gray-700); cursor: pointer;">Recordar sesión en este dispositivo</label>
+          <label for="rememberSessionSeller" style="margin: 0; font-size: 0.82rem; color: var(--gray-700); cursor: pointer;">Recordar sesiÃ³n en este dispositivo</label>
         </div>
 
         <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px;">
-          <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión como Vendedor
+          <i class="fa-solid fa-right-to-bracket"></i> Iniciar SesiÃ³n como Venditore
         </button>
       </form>
     </div>
   </div>
 
   <!-- ======================================================== -->
-  <!-- BARRA SUPERIOR Y NAVEGACIÓN -->
+  <!-- BARRA SUPERIOR Y NAVEGACIÃ“N -->
   <!-- ======================================================== -->
   <header class="navbar">
     <div class="brand">
       <img src="icon-192.png" alt="Logo">
-      <span>Ventas y Envíos</span>
+      <span>Vendite y EnvÃ­os</span>
     </div>
 
     <div class="navbar-actions">
-      <!-- Botón directo de instalación PWA -->
+      <!-- BotÃ³n directo de instalaciÃ³n PWA -->
       <button id="btnHeaderInstall" class="btn-install-header" onclick="triggerPWAInstall()" style="display: none;">
-        <i class="fa-solid fa-cloud-arrow-down"></i> Instalar App
+        <i class="fa-solid fa-cloud-arrow-down"></i> Installa App
       </button>
 
       <!-- Usuario Autenticado -->
@@ -991,33 +1075,33 @@
         <span id="currentLoggedUserLabel">Cargando...</span>
       </div>
 
-      <!-- Cerrar Sesión -->
-      <button class="btn-logout" onclick="handleLogout()" title="Cerrar Sesión">
-        <i class="fa-solid fa-arrow-right-from-bracket"></i> Salir
+      <!-- Chiudi SesiÃ³n -->
+      <button class="btn-logout" onclick="handleLogout()" title="Chiudi SesiÃ³n">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> Esci
       </button>
     </div>
   </header>
 
-  <!-- PESTAÑAS DE NAVEGACIÓN (REQUISITOS 1 Y 2: SIN PENDIENTES, NUEVA PESTAÑA ENVÍOS) -->
+  <!-- PESTAÃ‘AS DE NAVEGACIÃ“N (REQUISITOS 1 Y 2: SIN PENDIENTES, NUEVA PESTAÃ‘A ENVÃOS) -->
   <nav class="nav-tabs-container">
     <button class="nav-tab-btn active" onclick="switchTab('catalog')">
-      <i class="fa-solid fa-boxes-stacked"></i> Catálogo
+      <i class="fa-solid fa-boxes-stacked"></i> CatÃ¡logo
       <span class="badge-counter" id="badgeCatalog">0</span>
     </button>
     <button class="nav-tab-btn" onclick="switchTab('sales')">
-      <i class="fa-solid fa-receipt"></i> Ventas
+      <i class="fa-solid fa-receipt"></i> Vendite
       <span class="badge-counter" id="badgeSales">0</span>
     </button>
-    <!-- REQUISITO 1: Pestaña Envíos para Admin y seguimiento en tiempo real para Vendedor -->
+    <!-- REQUISITO 1: PestaÃ±a EnvÃ­os para Admin y seguimiento en tiempo real para Venditore -->
     <button class="nav-tab-btn" onclick="switchTab('shipping')">
-      <i class="fa-solid fa-truck-fast"></i> Envíos
+      <i class="fa-solid fa-truck-fast"></i> EnvÃ­os
       <span class="badge-counter" id="badgeShipping">0</span>
     </button>
     <button class="nav-tab-btn" onclick="switchTab('accounting')">
-      <i class="fa-solid fa-scale-balanced"></i> Contabilidad y Saldos
+      <i class="fa-solid fa-scale-balanced"></i> Contabilità & Saldi
     </button>
     <button class="nav-tab-btn admin-only" onclick="switchTab('sellers')">
-      <i class="fa-solid fa-users"></i> Gestión de Vendedores
+      <i class="fa-solid fa-users"></i> GestiÃ³n de Venditorees
     </button>
   </nav>
 
@@ -1025,16 +1109,16 @@
   <main class="main-content">
 
     <!-- ======================================================== -->
-    <!-- 1. CATÁLOGO DE PRODUCTOS -->
+    <!-- 1. CATÃLOGO DE PRODUCTOS -->
     <!-- ======================================================== -->
     <div id="tab-catalog" class="tab-pane active">
       <div class="card">
         <div class="card-header">
           <div class="card-title">
-            <i class="fa-solid fa-boxes-stacked" style="color: var(--primary);"></i> Catálogo de Productos
+            <i class="fa-solid fa-boxes-stacked" style="color: var(--primary);"></i> CatÃ¡logo de Prodottos
           </div>
           <button class="btn btn-primary admin-only" onclick="openAddProductModal()">
-            <i class="fa-solid fa-paper-plane"></i> Enviar Producto a Vendedores
+            <i class="fa-solid fa-paper-plane"></i> Invia Prodotto ai Venditori
           </button>
         </div>
         <div class="card-body">
@@ -1050,19 +1134,19 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title">
-            <i class="fa-solid fa-circle-check" style="color: var(--success);"></i> Registro de Ventas Confirmadas
+            <i class="fa-solid fa-circle-check" style="color: var(--success);"></i> Registro Vendite
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <select id="filterSalesShipping" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderSalesTable()">
-              <option value="ALL">Todas las ventas</option>
-              <option value="PENDIENTE">📦 Pendientes de Envío</option>
-              <option value="ENVIADA">🚚 Enviadas por Admin</option>
-              <option value="DEVUELTA">🔄 Devueltas</option>
-              <option value="PENDIENTE_ACEPT">Pendientes de Aceptación</option>
-              <option value="RECHAZADA">Rechazadas</option>
+              <option value="ALL">Tutte le vendite</option>
+              <option value="PENDIENTE">ðŸ“¦ Pendientes de EnvÃ­o</option>
+              <option value="ENVIADA">ðŸšš Spedite da Admin</option>
+              <option value="DEVUELTA">ðŸ”„ Rese / Restituite</option>
+              <option value="PENDIENTE_ACEPT">Pendientes de AceptaciÃ³n</option>
+              <option value="RECHAZADA">Rifiutate</option>
             </select>
             <button class="btn btn-success" onclick="openNewSaleModal()">
-              <i class="fa-solid fa-cart-plus"></i> Registrar Nueva Venta
+              <i class="fa-solid fa-cart-plus"></i> Registra Nuova Vendita
             </button>
           </div>
         </div>
@@ -1072,16 +1156,16 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Fecha</th>
-                  <th>Vendedor</th>
-                  <th>Producto</th>
-                  <th>Precio Venta</th>
+                  <th>Data</th>
+                  <th>Venditore</th>
+                  <th>Prodotto</th>
+                  <th>Prezzo Vendita</th>
                   <th class="admin-only">Costo Admin</th>
-                  <th>Ganancia Vendedor</th>
-                  <th>Estado Envío</th>
-                  <th>Liquidación</th>
-                  <th>Notas</th>
-                  <th style="text-align: right;">Acciones</th>
+                  <th>Provvigione Venditore</th>
+                  <th>Stato EnvÃ­o</th>
+                  <th>LiquidaciÃ³n</th>
+                  <th>Note</th>
+                  <th style="text-align: right;">Azioni</th>
                 </tr>
               </thead>
               <tbody id="salesTableBody"></tbody>
@@ -1092,19 +1176,19 @@
     </div>
 
     <!-- ======================================================== -->
-    <!-- 3. GESTIÓN Y SEGUIMIENTO DE ENVÍOS (REQUISITO 1) -->
+    <!-- 3. GESTIÃ“N Y SEGUIMIENTO DE ENVÃOS (REQUISITO 1) -->
     <!-- ======================================================== -->
     <div id="tab-shipping" class="tab-pane">
       <div class="card">
         <div class="card-header">
           <div class="card-title">
-            <i class="fa-solid fa-truck-ramp-box" style="color: var(--purple);"></i> Registro y Seguimiento de Envíos en Tiempo Real
+            <i class="fa-solid fa-truck-ramp-box" style="color: var(--purple);"></i> Registro y Seguimiento de EnvÃ­os en Tiempo Real
           </div>
           <div style="display: flex; gap: 8px;">
             <select id="filterShippingTab" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderShippingTable()">
-              <option value="PENDIENTE" selected>📦 Pendientes de Envío por Admin</option>
-              <option value="ENVIADA">🚚 Envíos Realizados / En Tránsito</option>
-              <option value="ALL">Todos los envíos</option>
+              <option value="PENDIENTE" selected>ðŸ“¦ Pendientes de EnvÃ­o por Admin</option>
+              <option value="ENVIADA">ðŸšš EnvÃ­os Realizados / En TrÃ¡nsito</option>
+              <option value="ALL">Todos los envÃ­os</option>
             </select>
           </div>
         </div>
@@ -1113,7 +1197,7 @@
             <i class="fa-solid fa-satellite-dish" style="font-size: 1.4rem;"></i>
             <div>
               <span id="shippingNoticeText">
-                <strong>Seguimiento en Vivo:</strong> El Administrador registra aquí el despacho físico del producto. El vendedor ve al instante cuándo se envió y su número de seguimiento.
+                <strong>Seguimiento en Vivo:</strong> El Administrador registra aquÃ­ el despacho fÃ­sico del producto. El vendedor ve al instante cuÃ¡ndo se enviÃ³ y su nÃºmero de seguimiento.
               </span>
             </div>
           </div>
@@ -1121,15 +1205,15 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>ID Venta</th>
-                  <th>Fecha Venta</th>
-                  <th>Vendedor</th>
-                  <th>Producto</th>
-                  <th>Estado del Envío</th>
-                  <th>Fecha Envío</th>
-                  <th>Nº Seguimiento / Transporte</th>
-                  <th>Notas de Entrega</th>
-                  <th style="text-align: right;">Acción</th>
+                  <th>ID Vendita</th>
+                  <th>Data Venta</th>
+                  <th>Venditore</th>
+                  <th>Prodotto</th>
+                  <th>Stato del EnvÃ­o</th>
+                  <th>Data EnvÃ­o</th>
+                  <th>NÂº Seguimiento / Transporte</th>
+                  <th>Note de Entrega</th>
+                  <th style="text-align: right;">AcciÃ³n</th>
                 </tr>
               </thead>
               <tbody id="shippingTableBody"></tbody>
@@ -1147,90 +1231,90 @@
       <!-- Contenedor de Alertas de Devoluciones / Saldos Negativos -->
       <div id="returnAdjustmentAlertsContainer"></div>
 
-      <!-- Métricas KPI -->
+      <!-- MÃ©tricas KPI -->
       <div class="stats-grid">
         <!-- Requisito 3: Monto a entregar por ventas efectivamente enviadas -->
         <div class="stat-card debt">
           <div class="stat-label">
-            <span id="labelDebtWho">Monto a Entregar al Administrador (Enviadas)</span>
+            <span id="labelDebtWho">Importo da Consegnare ad Admin (Spedite)</span>
           </div>
-          <div class="stat-value" id="kpiAmountOwedAdmin">€0.00</div>
+          <div class="stat-value" id="kpiAmountOwedAdmin">â‚¬0.00</div>
           <div class="stat-subtext" id="kpiAmountOwedSub">
-            Costo de ventas enviadas + compensación de devoluciones
+            Costo de ventas enviadas + compensaciÃ³n de devoluciones
           </div>
         </div>
 
         <!-- Ganancia neta del vendedor por ventas enviadas -->
         <div class="stat-card profit">
           <div class="stat-label">
-            <span id="labelProfitWho">Comisión Neta Vendedor (Enviadas)</span>
+            <span id="labelProfitWho">ComisiÃ³n Neta Venditore (Spedite)</span>
           </div>
-          <div class="stat-value" id="kpiSellerProfit">€0.00</div>
+          <div class="stat-value" id="kpiSellerProfit">â‚¬0.00</div>
           <div class="stat-subtext" id="kpiSellerProfitSub">
-            Comisión neta ya despachada y liquidable
+            ComisiÃ³n neta ya despachada y liquidable
           </div>
         </div>
 
-        <!-- Envíos pendientes (en trámite de despacho) -->
+        <!-- EnvÃ­os pendientes (en trÃ¡mite de despacho) -->
         <div class="stat-card pending-ship">
-          <div class="stat-label">En Trámite (Pendiente de Envío)</div>
-          <div class="stat-value" id="kpiPendingShipmentAmount">€0.00</div>
+          <div class="stat-label">En TrÃ¡mite (Pendiente de EnvÃ­o)</div>
+          <div class="stat-value" id="kpiPendingShipmentAmount">â‚¬0.00</div>
           <div class="stat-subtext" id="kpiPendingShipmentCount">
-            0 ventas confirmadas aún no enviadas
+            0 ventas confirmadas aÃºn no enviadas
           </div>
         </div>
 
-        <!-- Ajustes por Devoluciones pasadas -->
+        <!-- Rettifiche per Resi pasadas -->
         <div class="stat-card adjust">
-          <div class="stat-label">Ajustes por Devoluciones (Saldo Negativo)</div>
-          <div class="stat-value" id="kpiReturnAdjustments">€0.00</div>
+          <div class="stat-label">Rettifiche per Resi (Saldo Negativo)</div>
+          <div class="stat-value" id="kpiReturnAdjustments">â‚¬0.00</div>
           <div class="stat-subtext">Devoluciones de ventas ya liquidadas anteriormente</div>
         </div>
       </div>
 
-      <!-- Barra de Acción: Liquidar Período (Admin) -->
+      <!-- Barra de AcciÃ³n: Liquidar PerÃ­odo (Admin) -->
       <div class="card admin-only">
         <div class="card-header">
           <div class="card-title">
-            <i class="fa-solid fa-hand-holding-dollar"></i> Cierre y Liquidación de Período (Solo Ventas Enviadas)
+            <i class="fa-solid fa-hand-holding-dollar"></i> Cierre y LiquidaciÃ³n de PerÃ­odo (Solo Vendite Spedite)
           </div>
           <button class="btn btn-warning" onclick="openSettlePeriodModal()">
-            <i class="fa-solid fa-file-invoice-dollar"></i> Liquidar Período para Vendedor Seleccionado
+            <i class="fa-solid fa-file-invoice-dollar"></i> Liquidar PerÃ­odo para Venditore Seleccionado
           </button>
         </div>
       </div>
 
-      <!-- Subpestañas Contables -->
+      <!-- SubpestaÃ±as Contables -->
       <div class="card">
         <div class="card-header" style="background: var(--gray-50);">
           <div style="display: flex; gap: 10px;">
             <button id="btnSubTabCurrent" class="btn btn-secondary btn-sm" onclick="toggleAccountingSubTab('current')">
-              <i class="fa-solid fa-list-check"></i> Ventas Enviadas a Liquidar
+              <i class="fa-solid fa-list-check"></i> Vendite Spedite a Liquidar
             </button>
             <button id="btnSubTabHistory" class="btn btn-secondary btn-sm" onclick="toggleAccountingSubTab('history')">
-              <i class="fa-solid fa-clock-rotate-left"></i> Historial de Meses y Saldos Liquidados
+              <i class="fa-solid fa-clock-rotate-left"></i> Storico Mesi & Saldi Chiusi
             </button>
           </div>
         </div>
 
-        <!-- Vista 1: Ventas Enviadas del Período Actual -->
+        <!-- Vista 1: Vendite Spedite del PerÃ­odo Actual -->
         <div id="accountingCurrentView" class="card-body">
           <h4 style="margin-bottom: 14px; color: var(--gray-700);">
-            Detalle de Ventas Confirmadas y Enviadas (Listas para Liquidación)
+            Detalle de Vendite Confermate y Spedite (Listas para LiquidaciÃ³n)
           </h4>
           <div class="table-responsive">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>ID Venta</th>
-                  <th>Fecha Venta</th>
-                  <th>Fecha Envío</th>
-                  <th>Vendedor</th>
-                  <th>Producto</th>
-                  <th>Precio Venta</th>
+                  <th>ID Vendita</th>
+                  <th>Data Venta</th>
+                  <th>Data EnvÃ­o</th>
+                  <th>Venditore</th>
+                  <th>Prodotto</th>
+                  <th>Prezzo Vendita</th>
                   <th>Costo Admin (Base)</th>
-                  <th>Comisión Vendedor</th>
-                  <th>Estado</th>
+                  <th>ComisiÃ³n Venditore</th>
+                  <th>Stato</th>
                 </tr>
               </thead>
               <tbody id="accountingCurrentTableBody"></tbody>
@@ -1241,21 +1325,21 @@
         <!-- Vista 2: Historial de Meses ya Liquidados -->
         <div id="accountingHistoryView" class="card-body" style="display: none;">
           <h4 style="margin-bottom: 14px; color: var(--gray-700);">
-            Historial de Períodos y Meses Ya Liquidados
+            Historial de PerÃ­odos y Meses Ya Liquidados
           </h4>
           <div class="table-responsive">
             <table class="data-table">
               <thead>
                 <tr>
                   <th>ID Saldo</th>
-                  <th>Período (Mes/Año)</th>
-                  <th>Fecha de Cierre</th>
-                  <th>Vendedor</th>
-                  <th>Total Ventas Enviadas</th>
-                  <th>Total Entregado al Admin</th>
-                  <th>Comisión Liquidada</th>
-                  <th>Ajustes Devoluciones</th>
-                  <th>Notas y Detalles</th>
+                  <th>PerÃ­odo (Mes/AÃ±o)</th>
+                  <th>Data de Cierre</th>
+                  <th>Venditore</th>
+                  <th>Total Vendite Spedite</th>
+                  <th>Totale Consegnato ad Admin</th>
+                  <th>ComisiÃ³n Liquidada</th>
+                  <th>Rettifiche Resi</th>
+                  <th>Note y Detalles</th>
                 </tr>
               </thead>
               <tbody id="accountingHistoryTableBody"></tbody>
@@ -1267,24 +1351,24 @@
     </div>
 
     <!-- ======================================================== -->
-    <!-- 5. GESTIÓN DE VENDEDORES (REQUISITOS 6 Y 7: CONTRASEÑAS RANDOM) -->
+    <!-- 5. GESTIÃ“N DE VENDEDORES (REQUISITOS 6 Y 7: CONTRASEÃ‘AS RANDOM) -->
     <!-- ======================================================== -->
     <div id="tab-sellers" class="tab-pane">
       <div class="card">
         <div class="card-header">
           <div class="card-title">
-            <i class="fa-solid fa-users"></i> Gestión y Estado de Vendedores
+            <i class="fa-solid fa-users"></i> GestiÃ³n y Stato de Venditorees
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <select id="filterSellersStatus" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderSellers()">
-              <option value="ALL">Todos los vendedores</option>
-              <option value="ACTIVO" selected>Solo Activos</option>
-              <option value="VACACIONES">De Vacaciones</option>
-              <option value="BAJA">De Baja</option>
-              <option value="ARCHIVADO">Archivados / Inactivos</option>
+              <option value="ALL">Tutti i venditori</option>
+              <option value="ACTIVO" selected>Solo Attivi</option>
+              <option value="VACACIONES">In Ferie</option>
+              <option value="BAJA">In Malattia</option>
+              <option value="ARCHIVADO">Archiviati / Inattivi</option>
             </select>
             <button class="btn btn-primary" onclick="openAddSellerModal()">
-              <i class="fa-solid fa-user-plus"></i> Añadir Nuevo Vendedor
+              <i class="fa-solid fa-user-plus"></i> AÃ±adir Nuevo Venditore
             </button>
           </div>
         </div>
@@ -1294,12 +1378,12 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Nombre Completo</th>
-                  <th>Correo (Login)</th>
-                  <th>Teléfono</th>
-                  <th>Estado</th>
-                  <th>Contraseña Asignada</th>
-                  <th style="text-align: right;">Acciones</th>
+                  <th>Nome Completo</th>
+                  <th>Email (Login)</th>
+                  <th>TelÃ©fono</th>
+                  <th>Stato</th>
+                  <th>ContraseÃ±a Asignada</th>
+                  <th style="text-align: right;">Azioni</th>
                 </tr>
               </thead>
               <tbody id="sellersTableBody"></tbody>
@@ -1315,12 +1399,12 @@
   <!-- MODALES DE OPERACIONES -->
   <!-- ======================================================== -->
 
-  <!-- MODAL: REGISTRAR ENVÍO (REQUISITO 1 - SOLO ADMIN) -->
+  <!-- MODAL: REGISTRAR ENVÃO (REQUISITO 1 - SOLO ADMIN) -->
   <div id="modalRegisterShipping" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title" style="color: var(--purple);">
-          <i class="fa-solid fa-truck-fast"></i> Registrar Envío de Producto
+          <i class="fa-solid fa-truck-fast"></i> Registrar EnvÃ­o de Prodotto
         </div>
         <button class="modal-close" onclick="closeModal('modalRegisterShipping')">&times;</button>
       </div>
@@ -1328,42 +1412,42 @@
         <input type="hidden" id="shipSaleId">
         <div class="modal-body">
           <div class="form-group">
-            <label>Venta y Producto</label>
+            <label>Venta y Prodotto</label>
             <input type="text" id="shipSaleDetails" class="form-control" readonly>
           </div>
           <div class="form-group">
-            <label>Fecha de Envío *</label>
+            <label>Data de EnvÃ­o *</label>
             <input type="date" id="shipDate" class="form-control" required>
           </div>
           <div class="form-group">
-            <label>Empresa de Transporte / Courier</label>
+            <label>Corriere / Spedizioniere</label>
             <input type="text" id="shipCarrier" class="form-control" placeholder="Ej. Correos Express, SEUR, GLS, MRW, DHL...">
           </div>
           <div class="form-group">
-            <label>Número de Seguimiento (Tracking)</label>
+            <label>NÃºmero de Seguimiento (Tracking)</label>
             <input type="text" id="shipTracking" class="form-control" placeholder="Ej. ES1234567890">
           </div>
           <div class="form-group">
-            <label>Notas de Envío / Entrega</label>
+            <label>Note de EnvÃ­o / Entrega</label>
             <textarea id="shipNotes" class="form-control" rows="2" placeholder="Ej. Paquete asegurado, entrega en domicilio"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalRegisterShipping')">Cancelar</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalRegisterShipping')">Annulla</button>
           <button type="submit" class="btn btn-purple">
-            <i class="fa-solid fa-check"></i> Confirmar Envío Realizado
+            <i class="fa-solid fa-check"></i> Confirmar EnvÃ­o Realizado
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: DOBLE CONFIRMACIÓN DE BORRADO DE VENTA (REQUISITO 4) -->
+  <!-- MODAL: DOBLE CONFIRMACIÃ“N DE BORRADO DE VENTA (REQUISITO 4) -->
   <div id="modalDoubleConfirmDeleteSale" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title" style="color: var(--danger);">
-          <i class="fa-solid fa-triangle-exclamation"></i> Segunda Confirmación de Seguridad
+          <i class="fa-solid fa-triangle-exclamation"></i> Segunda ConfirmaciÃ³n de Seguridad
         </div>
         <button class="modal-close" onclick="closeModal('modalDoubleConfirmDeleteSale')">&times;</button>
       </div>
@@ -1371,104 +1455,104 @@
         <div class="alert-box danger">
           <i class="fa-solid fa-circle-exclamation" style="font-size: 1.6rem;"></i>
           <div>
-            <strong>¡ADVERTENCIA IRREVERSIBLE!</strong><br>
-            Estás a punto de eliminar definitivamente del sistema la venta:
+            <strong>Â¡ADVERTENCIA IRREVERSIBLE!</strong><br>
+            EstÃ¡s a punto de eliminar definitivamente del sistema la venta:
             <br><strong id="deleteSaleInfoText" style="color: #000;"></strong>
-            <br><br>Esta acción borrará la venta de la base de datos y afectará los cálculos contables.
+            <br><br>Esta acciÃ³n borrarÃ¡ la venta de la base de datos y afectarÃ¡ los cÃ¡lculos contables.
           </div>
         </div>
         <p style="font-size: 0.9rem; color: var(--gray-700);">
-          Por favor, pulsa <strong>"Eliminar Definitivamente"</strong> solo si estás completamente seguro.
+          Por favor, pulsa <strong>"Elimina Definitivamente"</strong> solo si estÃ¡s completamente seguro.
         </p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="closeModal('modalDoubleConfirmDeleteSale')">Cancelar</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalDoubleConfirmDeleteSale')">Annulla</button>
         <button type="button" class="btn btn-danger" onclick="executeDeleteSaleConfirmed()">
-          <i class="fa-solid fa-trash"></i> Eliminar Definitivamente
+          <i class="fa-solid fa-trash"></i> Elimina Definitivamente
         </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: CAMBIAR / RESETEAR CONTRASEÑA RANDOM DE VENDEDOR (REQUISITO 7) -->
+  <!-- MODAL: CAMBIAR / RESETEAR CONTRASEÃ‘A RANDOM DE VENDEDOR (REQUISITO 7) -->
   <div id="modalResetSellerPassword" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title">
-          <i class="fa-solid fa-key" style="color: var(--primary);"></i> Contraseña de Vendedor
+          <i class="fa-solid fa-key" style="color: var(--primary);"></i> ContraseÃ±a de Venditore
         </div>
         <button class="modal-close" onclick="closeModal('modalResetSellerPassword')">&times;</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="resetPassSellerId">
         <div class="form-group">
-          <label>Vendedor</label>
+          <label>Venditore</label>
           <input type="text" id="resetPassSellerName" class="form-control" readonly>
         </div>
         <div class="form-group">
-          <label>Contraseña Actual Asignada</label>
+          <label>ContraseÃ±a Actual Asignada</label>
           <div style="display: flex; gap: 8px;">
             <input type="text" id="resetPassCurrentValue" class="form-control" readonly style="font-weight: 700; letter-spacing: 1px;">
             <button class="btn btn-secondary" type="button" onclick="copyPasswordToClipboard('resetPassCurrentValue')">
-              <i class="fa-regular fa-copy"></i> Copiar
+              <i class="fa-regular fa-copy"></i> Copia
             </button>
           </div>
         </div>
         <div class="alert-box info">
           <i class="fa-solid fa-dice"></i>
           <div>
-            Puedes generar una nueva contraseña aleatoria en cualquier momento sin necesidad de conocer la anterior.
+            Puedes generar una nueva contraseÃ±a aleatoria en cualquier momento sin necesidad de conocer la anterior.
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="closeModal('modalResetSellerPassword')">Cerrar</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalResetSellerPassword')">Chiudi</button>
         <button type="button" class="btn btn-warning" onclick="executeGenerateRandomPasswordForSeller()">
-          <i class="fa-solid fa-arrows-rotate"></i> Generar Nueva Contraseña Aleatoria
+          <i class="fa-solid fa-arrows-rotate"></i> Generar Nuova ContraseÃ±a Aleatoria
         </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: AÑADIR VENDEDOR (CON CONTRASEÑA ALEATORIA AUTOMÁTICA) -->
+  <!-- MODAL: AÃ‘ADIR VENDEDOR (CON CONTRASEÃ‘A ALEATORIA AUTOMÃTICA) -->
   <div id="modalAddSeller" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title">
-          <i class="fa-solid fa-user-plus"></i> Añadir Nuevo Vendedor
+          <i class="fa-solid fa-user-plus"></i> AÃ±adir Nuevo Venditore
         </div>
         <button class="modal-close" onclick="closeModal('modalAddSeller')">&times;</button>
       </div>
       <form id="formAddSeller" onsubmit="submitAddSeller(event)">
         <div class="modal-body">
           <div class="form-group">
-            <label>Nombre Completo *</label>
-            <input type="text" id="newSellerName" class="form-control" placeholder="Ej. Juan Pérez" required>
+            <label>Nome Completo *</label>
+            <input type="text" id="newSellerName" class="form-control" placeholder="Ej. Juan PÃ©rez" required>
           </div>
           <div class="form-group">
-            <label>Correo Electrónico (Para iniciar sesión) *</label>
+            <label>Correo ElectrÃ³nico (Para iniciar sesiÃ³n) *</label>
             <input type="email" id="newSellerEmail" class="form-control" placeholder="juan.perez@ejemplo.com" required>
           </div>
           <div class="form-group">
-            <label>Teléfono</label>
+            <label>TelÃ©fono</label>
             <input type="tel" id="newSellerPhone" class="form-control" placeholder="+34 600 000 000">
           </div>
           <div class="form-group">
-            <label>Contraseña Generada Aleatoriamente *</label>
+            <label>ContraseÃ±a Generada Aleatoriamente *</label>
             <div style="display: flex; gap: 8px;">
               <input type="text" id="newSellerPassword" class="form-control" required style="font-weight: 700; letter-spacing: 1px;">
               <button class="btn btn-secondary" type="button" onclick="regenerateNewSellerPassword()">
-                <i class="fa-solid fa-dice"></i> Nueva
+                <i class="fa-solid fa-dice"></i> Nuova
               </button>
             </div>
             <small style="color: var(--gray-500); display: block; margin-top: 4px;">
-              Se ha generado automáticamente una contraseña aleatoria y segura.
+              Se ha generado automÃ¡ticamente una contraseÃ±a aleatoria y segura.
             </small>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddSeller')">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Registrar Vendedor</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddSeller')">Annulla</button>
+          <button type="submit" class="btn btn-primary">Registrar Venditore</button>
         </div>
       </form>
     </div>
@@ -1479,7 +1563,7 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title">
-          <i class="fa-solid fa-user-pen" style="color: var(--primary);"></i> Cambiar Estado del Vendedor
+          <i class="fa-solid fa-user-pen" style="color: var(--primary);"></i> Cambiar Stato del Venditore
         </div>
         <button class="modal-close" onclick="closeModal('modalChangeSellerStatus')">&times;</button>
       </div>
@@ -1487,22 +1571,22 @@
         <input type="hidden" id="statusSellerId">
         <div class="modal-body">
           <div class="form-group">
-            <label>Vendedor</label>
+            <label>Venditore</label>
             <input type="text" id="statusSellerName" class="form-control" readonly>
           </div>
           <div class="form-group">
-            <label>Nuevo Estado de Colaboración *</label>
+            <label>Nuevo Stato de ColaboraciÃ³n *</label>
             <select id="newSellerStatusSelect" class="form-control" required>
-              <option value="Activo">🟢 Activo</option>
-              <option value="De Vacaciones">🏖️ De Vacaciones</option>
-              <option value="De Baja">🩺 De Baja Médica</option>
-              <option value="Archivado">📦 Archivado / Inactivo</option>
+              <option value="Activo">ðŸŸ¢ Activo</option>
+              <option value="In Ferie">ðŸ–ï¸ In Ferie</option>
+              <option value="In Malattia">ðŸ©º In Malattia MÃ©dica</option>
+              <option value="Archivado">ðŸ“¦ Archivado / Inactivo</option>
             </select>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalChangeSellerStatus')">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Actualizar Estado</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalChangeSellerStatus')">Annulla</button>
+          <button type="submit" class="btn btn-primary">Actualizar Stato</button>
         </div>
       </form>
     </div>
@@ -1513,51 +1597,51 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title">
-          <i class="fa-solid fa-paper-plane" style="color: var(--primary);"></i> Enviar Producto a los Vendedores
+          <i class="fa-solid fa-paper-plane" style="color: var(--primary);"></i> Invia Prodotto ai Venditori
         </div>
         <button class="modal-close" onclick="closeModal('modalAddProduct')">&times;</button>
       </div>
       <form id="formAddProduct" onsubmit="submitAddProduct(event)">
         <div class="modal-body">
           <div class="form-group">
-            <label>Título del Producto *</label>
+            <label>TÃ­tulo del Prodotto *</label>
             <input type="text" id="prodTitle" class="form-control" placeholder="Ej. Zapatillas Running Air" required>
           </div>
           <div class="form-group">
-            <label>Descripción / Detalles</label>
+            <label>DescripciÃ³n / Detalles</label>
             <textarea id="prodDesc" class="form-control" rows="2" placeholder="Tallas, colores, material..."></textarea>
           </div>
           <div class="form-group">
-            <label>URL de la Foto o Imagen del Producto</label>
+            <label>URL de la Foto o Imagen del Prodotto</label>
             <input type="url" id="prodPhotoUrl" class="form-control" placeholder="https://ejemplo.com/foto.jpg">
-            <small style="color: var(--gray-500); display: block; margin-top: 4px;">O sube una imagen de tu dispositivo:</small>
+            <small style="color: var(--gray-500); display: block; margin-top: 4px;">Oppure carica un'immagine dal dispositivo:</small>
             <input type="file" id="prodPhotoFile" accept="image/*" class="form-control" style="margin-top: 4px;" onchange="handleImageUpload(event, 'prodPhotoUrl')">
           </div>
           <div class="form-group">
-            <label style="color: var(--primary);">Precio de Compra Admin (€) *</label>
+            <label style="color: var(--primary);">Prezzo di Acquisto Admin (â‚¬) *</label>
             <input type="number" step="0.01" min="0" id="prodPurchasePrice" class="form-control" placeholder="Ej. 25.00" required>
-            <small style="color: var(--gray-500);">Visible únicamente para el Administrador.</small>
+            <small style="color: var(--gray-500);">Visible Ãºnicamente para el Administrador.</small>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Precio Mínimo de Venta (€) *</label>
+              <label>Precio MÃ­nimo de Venta (â‚¬) *</label>
               <input type="number" step="0.01" min="0" id="prodMinPrice" class="form-control" placeholder="Ej. 35.00" required>
             </div>
             <div class="form-group">
-              <label>Precio Máximo de Venta (€) *</label>
+              <label>Precio MÃ¡ximo de Venta (â‚¬) *</label>
               <input type="number" step="0.01" min="0" id="prodMaxPrice" class="form-control" placeholder="Ej. 60.00" required>
             </div>
           </div>
           <div class="form-group">
-            <label>Destinatarios (Asignar a)</label>
+            <label>Assegna a</label>
             <select id="prodAssignedTo" class="form-control">
-              <option value="TUTTI">Todos los vendedores activos</option>
+              <option value="TUTTI">Tutti i venditori activos</option>
             </select>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddProduct')">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Enviar Producto</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddProduct')">Annulla</button>
+          <button type="submit" class="btn btn-primary">Enviar Prodotto</button>
         </div>
       </form>
     </div>
@@ -1568,20 +1652,20 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title">
-          <i class="fa-solid fa-cart-plus" style="color: var(--success);"></i> Registrar Nueva Venta
+          <i class="fa-solid fa-cart-plus" style="color: var(--success);"></i> Registra Nuova Vendita
         </div>
         <button class="modal-close" onclick="closeModal('modalNewSale')">&times;</button>
       </div>
       <form id="formNewSale" onsubmit="submitNewSale(event)">
         <div class="modal-body">
           <div class="form-group">
-            <label>Seleccionar Producto *</label>
+            <label>Seleccionar Prodotto *</label>
             <select id="saleProductId" class="form-control" required onchange="onSaleProductSelected()">
               <option value="">-- Selecciona un producto --</option>
             </select>
           </div>
           <div class="form-group" id="saleSellerFieldGroup">
-            <label>Vendedor *</label>
+            <label>Venditore *</label>
             <select id="saleSellerId" class="form-control" required></select>
           </div>
           <div class="alert-box info" id="salePriceHintBox" style="display: none;">
@@ -1590,37 +1674,37 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Precio Real de Venta (€) *</label>
+              <label>Prezzo Effettivo di Vendita (â‚¬) *</label>
               <input type="number" step="0.01" id="salePrice" class="form-control" placeholder="0.00" required oninput="calculateSalePreview()">
             </div>
             <div class="form-group admin-only">
-              <label>Costo de Compra Admin (€)</label>
+              <label>Costo di Acquisto Admin (â‚¬)</label>
               <input type="number" step="0.01" id="saleAdminCost" class="form-control" placeholder="0.00" readonly>
             </div>
           </div>
           <div class="alert-box success" id="saleProfitPreviewBox" style="display: none;">
             <i class="fa-solid fa-coins"></i>
-            <div><strong>Comisión Estimada Vendedor: </strong> <span id="saleEstimatedProfit">€0.00</span></div>
+            <div><strong>ComisiÃ³n Estimada Venditore: </strong> <span id="saleEstimatedProfit">â‚¬0.00</span></div>
           </div>
           <div class="form-group">
-            <label>Notas adicionales</label>
-            <textarea id="saleNotes" class="form-control" rows="2" placeholder="Notas sobre esta venta"></textarea>
+            <label>Note adicionales</label>
+            <textarea id="saleNotes" class="form-control" rows="2" placeholder="Note sobre esta venta"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalNewSale')">Cancelar</button>
-          <button type="submit" class="btn btn-success">Registrar Venta Confirmada</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalNewSale')">Annulla</button>
+          <button type="submit" class="btn btn-success">Registra Vendita Confermata</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: DEVOLUCIÓN DE PRODUCTO (REQUISITO 3) -->
+  <!-- MODAL: DEVOLUCIÃ“N DE PRODUCTO (REQUISITO 3) -->
   <div id="modalReturnSale" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title" style="color: var(--danger);">
-          <i class="fa-solid fa-arrow-rotate-left"></i> Devolución de Producto
+          <i class="fa-solid fa-arrow-rotate-left"></i> DevoluciÃ³n de Prodotto
         </div>
         <button class="modal-close" onclick="closeModal('modalReturnSale')">&times;</button>
       </div>
@@ -1630,81 +1714,196 @@
           <div class="alert-box danger">
             <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.5rem;"></i>
             <div>
-              <strong>Regla de Devolución:</strong><br>
-              En caso de devolución, la relación económica con el vendedor para esta venta volverá a cero.
+              <strong>Regla de DevoluciÃ³n:</strong><br>
+              En caso de devoluciÃ³n, la relaciÃ³n econÃ³mica con el vendedor para esta venta volverÃ¡ a cero.
             </div>
           </div>
 
           <div id="returnSettledWarningBox" class="alert-box warning" style="display: none;">
             <i class="fa-solid fa-bell"></i>
             <div>
-              <strong>¡ATENCIÓN: Venta Ya Liquidada (Saldada)!</strong><br>
-              La comisión que el vendedor ya cobró (<strong id="returnProfitAmountText">€0.00</strong>) 
-              deberá ser <strong>adeudada por el vendedor al administrador en el período siguiente como saldo negativo</strong>.
+              <strong>Â¡ATENCIÃ“N: Venta Ya Liquidada (Saldada)!</strong><br>
+              La comisiÃ³n que el vendedor ya cobrÃ³ (<strong id="returnProfitAmountText">â‚¬0.00</strong>) 
+              deberÃ¡ ser <strong>adeudada por el vendedor al administrador en el perÃ­odo siguiente como saldo negativo</strong>.
             </div>
           </div>
 
           <div class="form-group">
-            <label>Producto Devuelto</label>
+            <label>Prodotto Devuelto</label>
             <input type="text" id="returnProductName" class="form-control" readonly>
           </div>
 
           <div class="form-group">
-            <label>Motivo de la Devolución *</label>
-            <textarea id="returnReason" class="form-control" rows="3" placeholder="Ej. Talla incorrecta, producto defectuoso, el cliente canceló el pedido..." required></textarea>
+            <label>Motivo de la DevoluciÃ³n *</label>
+            <textarea id="returnReason" class="form-control" rows="3" placeholder="Ej. Talla incorrecta, producto defectuoso, el cliente cancelÃ³ el pedido..." required></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalReturnSale')">Cancelar</button>
-          <button type="submit" class="btn btn-danger">Confirmar Devolución</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalReturnSale')">Annulla</button>
+          <button type="submit" class="btn btn-danger">Confirmar DevoluciÃ³n</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: LIQUIDAR PERÍODO CONTABLE -->
+  <!-- MODAL: LIQUIDAR PERÃODO CONTABLE -->
   <div id="modalSettlePeriod" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title">
-          <i class="fa-solid fa-receipt" style="color: var(--primary);"></i> Cierre y Liquidación de Período
+          <i class="fa-solid fa-receipt" style="color: var(--primary);"></i> Cierre y LiquidaciÃ³n de PerÃ­odo
         </div>
         <button class="modal-close" onclick="closeModal('modalSettlePeriod')">&times;</button>
       </div>
       <form id="formSettlePeriod" onsubmit="submitSettlePeriod(event)">
         <div class="modal-body">
           <p style="margin-bottom: 14px; font-size: 0.9rem; color: var(--gray-700);">
-            Solo las ventas <strong>enviadas</strong> pendientes se archivarán como <strong>Liquidadas (Saldadas)</strong>.
+            Solo las ventas <strong>enviadas</strong> pendientes se archivarÃ¡n como <strong>Liquidadas (Saldadas)</strong>.
           </p>
           <div class="form-group">
-            <label>Vendedor a Liquidar *</label>
+            <label>Venditore a Liquidar *</label>
             <select id="settleSellerSelect" class="form-control" required onchange="updateSettlePreview()"></select>
           </div>
           <div class="form-group">
-            <label>Etiqueta del Período (Mes/Año) *</label>
+            <label>Etiqueta del PerÃ­odo (Mes/AÃ±o) *</label>
             <input type="text" id="settlePeriodLabel" class="form-control" placeholder="Ej. 10/2026" required>
           </div>
           <div class="alert-box info" id="settleSummaryBox">
             <div id="settleSummaryContent">Calculando valores...</div>
           </div>
           <div class="form-group">
-            <label>Notas de la Liquidación</label>
+            <label>Note de la LiquidaciÃ³n</label>
             <textarea id="settleNotes" class="form-control" rows="2" placeholder="Ej. Pago realizado por transferencia el 24/10/2026"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalSettlePeriod')">Cancelar</button>
-          <button type="submit" class="btn btn-warning">Ejecutar Liquidación</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalSettlePeriod')">Annulla</button>
+          <button type="submit" class="btn btn-warning">Ejecutar LiquidaciÃ³n</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- TOAST -->
+  
+  <!-- MODAL: IMPOSTAZIONI & PASSWORD ADMIN -->
+  <div id="modalAdminSettings" class="modal-backdrop">
+    <div class="modal" style="max-width: 580px;">
+      <div class="modal-header">
+        <div class="modal-title" style="color: var(--primary);">
+          <i class="fa-solid fa-gear"></i> Impostazioni Amministratore
+        </div>
+        <button class="modal-close" onclick="closeModal('modalAdminSettings')">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- CAMBIO PASSWORD ADMIN -->
+        <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+          <h4 style="color: var(--gray-900); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-key" style="color: var(--primary);"></i> Cambia Password Amministratore
+          </h4>
+          <form id="formChangeAdminPassword" onsubmit="submitChangeAdminPassword(event)">
+            <div class="form-group">
+              <label>Password Attuale *</label>
+              <div class="input-password-wrapper">
+                <input type="password" id="adminCurrentPasswordInput" class="form-control" placeholder="Inserisci la password attuale" required>
+                <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('adminCurrentPasswordInput', this)">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Nuova Password (min. 6 caratteri) *</label>
+                <div class="input-password-wrapper">
+                  <input type="password" id="adminNewPasswordInput" class="form-control" placeholder="Nuova password" minlength="6" required>
+                  <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('adminNewPasswordInput', this)">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Conferma Nuova Password *</label>
+                <div class="input-password-wrapper">
+                  <input type="password" id="adminConfirmPasswordInput" class="form-control" placeholder="Ripeti password" minlength="6" required>
+                  <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('adminConfirmPasswordInput', this)">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+              <i class="fa-solid fa-check"></i> Aggiorna la Mia Password
+            </button>
+          </form>
+        </div>
+
+        <!-- CAMBIO EMAIL ADMIN -->
+        <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+          <h4 style="color: var(--gray-900); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-envelope" style="color: var(--primary);"></i> Cambia Email Amministratore
+          </h4>
+          <form id="formChangeAdminEmail" onsubmit="submitChangeAdminEmail(event)">
+            <div class="form-group">
+              <label>Password Attuale (per autorizzare la modifica) *</label>
+              <div class="input-password-wrapper">
+                <input type="password" id="adminEmailVerifyPasswordInput" class="form-control" placeholder="Password attuale" required>
+                <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('adminEmailVerifyPasswordInput', this)">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Nuova Email di Accesso *</label>
+              <input type="email" id="adminNewEmailInput" class="form-control" placeholder="nuova.email@azienda.com" required>
+            </div>
+            <button type="submit" class="btn btn-secondary btn-sm" style="width: 100%;">
+              <i class="fa-solid fa-envelope-circle-check"></i> Aggiorna la Mia Email
+            </button>
+          </form>
+        </div>
+
+        <!-- SINCRONIZZAZIONE GOOGLE SCRIPT GITHUB PAGES -->
+        <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 12px; padding: 16px;">
+          <h4 style="color: var(--gray-900); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-cloud-arrow-up" style="color: var(--purple);"></i> Sincronizzazione Google Apps Script (GitHub Pages)
+          </h4>
+          <p style="font-size: 0.82rem; color: var(--gray-500); margin-bottom: 12px; line-height: 1.4;">
+            Se pubblichi questa applicazione su <strong>GitHub Pages</strong>, inserisci qui l'URL della Web App di Google Apps Script per sincronizzare i dati con Google Sheets su tutti i dispositivi.
+          </p>
+          <div class="form-group">
+            <label>URL Web App Google Apps Script</label>
+            <input type="url" id="settingsGoogleScriptUrl" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-purple btn-sm" onclick="saveAndTestGoogleScriptUrl()">
+              <i class="fa-solid fa-plug"></i> Salva e Testa Connessione
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="clearGoogleScriptUrl()">
+              Ripristina Default
+            </button>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalAdminSettings')">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY CARICAMENTO SPINNER -->
+  <div id="loadingOverlay">
+    <div class="loading-box">
+      <i class="fa-solid fa-circle-notch fa-spin fa-2x" style="color: var(--primary);"></i>
+      <span id="loadingMessage">Operazione in corso...</span>
+    </div>
+  </div>
+
   <div id="toastContainer" class="toast-container"></div>
 
   <!-- ======================================================== -->
-  <!-- JAVASCRIPT: LÓGICA COMPLETA DE NEGOCIO -->
+  <!-- JAVASCRIPT: LÃ“GICA COMPLETA DE NEGOCIO -->
   <!-- ======================================================== -->
   <script>
     // ESTADO
@@ -1718,12 +1917,69 @@
       sales: [],
       settlements: [],
       activeTab: 'catalog',
-      pendingSaleToDeleteId: null, // Para doble confirmación
+      pendingSaleToDeleteId: null, // Para doble confirmaciÃ³n
       isGoogleScript: typeof google !== 'undefined' && google.script && google.script.run
     };
 
     const LOCAL_STORAGE_KEY = 'VENTAS_APP_DATA_ES_V3';
-    const SESSION_AUTH_KEY = 'VENTAS_AUTH_SESSION_V3';
+    const SESSION_AUTH_KEY = 'GESTIONE_VENDITE_SESSION_V2';
+
+    function showLoading(msg) {
+      const overlay = document.getElementById('loadingOverlay');
+      const text = document.getElementById('loadingMessage');
+      if (text) text.textContent = msg || 'Operazione in corso...';
+      if (overlay) overlay.style.display = 'flex';
+    }
+
+    function hideLoading() {
+      const overlay = document.getElementById('loadingOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+      } else {
+        input.type = 'password';
+        btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+      }
+    }
+
+    function copyPasswordToClipboard(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      copyText(input.value);
+    }
+
+    function copyText(text) {
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Copiato negli appunti: ' + text, 'info');
+      }).catch(() => {
+        prompt('Copia manualmente:', text);
+      });
+    }
+
+    function updateConnectionStatusBadge() {
+      const badge = document.getElementById('connStatusBadge');
+      const text  = document.getElementById('connStatusText');
+      if (!badge || !text) return;
+
+      if (APP_STATE.isGoogleScript) {
+        badge.className = 'sync-status-badge';
+        text.textContent = 'Google Script Nativo';
+      } else if (APP_STATE.googleWebAppUrl && APP_STATE.googleWebAppUrl.trim().startsWith('http')) {
+        badge.className = 'sync-status-badge';
+        text.textContent = 'Google Sheets Collegato';
+      } else {
+        badge.className = 'sync-status-badge local';
+        text.textContent = 'Modalità Locale / Demo';
+      }
+    }
+
 
     // PWA
     let deferredInstallPrompt = null;
@@ -1747,7 +2003,7 @@
       dismissInstallBanner();
       const headerBtn = document.getElementById('btnHeaderInstall');
       if (headerBtn) headerBtn.style.display = 'none';
-      showToast('¡Gracias por instalar la aplicación!', 'success');
+      showToast('Â¡Gracias por instalar la aplicaciÃ³n!', 'success');
       deferredInstallPrompt = null;
     });
 
@@ -1780,12 +2036,12 @@
           dismissInstallBanner();
         });
       } else {
-        alert('Para instalar esta app:\n\n1. Abre el menú del navegador.\n2. Pulsa "Instalar aplicación" o "Añadir a la pantalla de inicio".');
+        alert('Para instalar esta app:\n\n1. Abre el menÃº del navegador.\n2. Pulsa "Instalar aplicaciÃ³n" o "AÃ±adir a la pantalla de inicio".');
         dismissInstallBanner();
       }
     }
 
-    // GENERADOR DE CONTRASEÑAS ALEATORIAS (REQUISITO 7)
+    // GENERADOR DE CONTRASEÃ‘AS ALEATORIAS (REQUISITO 7)
     function generateRandomPassword(length = 8) {
       const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
       let result = "";
@@ -1795,7 +2051,7 @@
       return result;
     }
 
-    // INICIALIZACIÓN
+    // INICIALIZACIÃ“N
     document.addEventListener('DOMContentLoaded', () => {
       initApp();
 
@@ -1827,6 +2083,7 @@
       const dateInput = document.getElementById('shipDate');
       if (dateInput) dateInput.value = now.toISOString().split('T')[0];
 
+      updateConnectionStatusBadge();
       loadAllData();
       checkSavedSession();
     }
@@ -1839,12 +2096,12 @@
           APP_STATE.isAuthenticated = true;
           APP_STATE.role = auth.role;
           APP_STATE.activeSellerId = auth.sellerId || null;
-          APP_STATE.currentUserDisplayName = auth.displayName || (auth.role === 'ADMIN' ? 'Administrador' : 'Vendedor');
+          APP_STATE.currentUserDisplayName = auth.displayName || (auth.role === 'ADMIN' ? 'Administrador' : 'Venditore');
           hideLoginOverlay();
           renderAll();
           return;
         } catch (e) {
-          console.warn('Error en sesión guardada:', e);
+          console.warn('Error en sesiÃ³n guardada:', e);
         }
       }
       showLoginOverlay();
@@ -1886,62 +2143,171 @@
 
     function handleAdminLogin(e) {
       e.preventDefault();
-      const pass = document.getElementById('adminPasswordInput').value.trim();
+      const emailInput = document.getElementById('adminEmailInput');
+      const passInput = document.getElementById('adminPasswordInput');
+      const email = emailInput ? emailInput.value.trim() : 'admin@gestione.com';
+      const pass  = passInput ? passInput.value.trim() : '';
       const remember = document.getElementById('rememberSessionAdmin').checked;
 
-      const performLogin = (isValid) => {
+      if (!email || !pass) {
+        showToast('Inserisci sia email che password.', 'warning');
+        return;
+      }
+
+      showLoading('Accesso amministratore in corso...');
+
+      const performLogin = (isValid, res) => {
+        hideLoading();
         if (isValid) {
           APP_STATE.isAuthenticated = true;
           APP_STATE.role = 'ADMIN';
           APP_STATE.activeSellerId = null;
-          APP_STATE.currentUserDisplayName = 'Administrador';
+          APP_STATE.currentUserDisplayName = 'Amministratore (' + email + ')';
+          APP_STATE.currentUserEmail = email;
 
-          const sessionData = JSON.stringify({ role: 'ADMIN', displayName: 'Administrador' });
+          const sessionData = JSON.stringify({ role: 'ADMIN', displayName: 'Amministratore', email: email });
           if (remember) localStorage.setItem(SESSION_AUTH_KEY, sessionData);
           else sessionStorage.setItem(SESSION_AUTH_KEY, sessionData);
 
           hideLoginOverlay();
           renderAll();
-          showToast('¡Bienvenido, Administrador!', 'success');
+          showToast('Accesso Amministratore effettuato con successo!', 'success');
         } else {
-          showToast('Contraseña de Administrador incorrecta.', 'error');
+          showToast((res && res.error) ? res.error : 'Credenziali di Amministratore non corrette.', 'error');
         }
       };
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => performLogin(res && res.success))
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => performLogin(res && res.success, res))
+          .withFailureHandler((err) => {
+            hideLoading();
+            showToast('Errore connessione Google Script: ' + (err.message || err), 'error');
+          })
+          .verifyAdminLogin(email, pass);
+      } else if (APP_STATE.googleWebAppUrl && APP_STATE.googleWebAppUrl.trim().startsWith('http')) {
+        fetch(APP_STATE.googleWebAppUrl.trim(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'verifyAdminLogin', email: email, password: pass })
+        })
+        .then(res => res.json())
+        .then(res => performLogin(res && res.success, res))
+        .catch(err => {
+          hideLoading();
+          showToast('Errore di connessione a Google Sheets: ' + err.message, 'error');
+        });
+      } else {
+        const localAdminEmail = localStorage.getItem('LOCAL_ADMIN_EMAIL') || 'admin@gestione.com';
+        const localAdminPass  = localStorage.getItem('LOCAL_ADMIN_PASSWORD') || 'admin2026';
+        const isValid = (email.toLowerCase() === localAdminEmail.toLowerCase()) && (pass === localAdminPass);
+        performLogin(isValid, { error: 'Email o password errati. (Default: admin@gestione.com / admin2026)' });
+      }
+    } else {
+          showToast('ContraseÃ±a de Administrador incorrecta.', 'error');
+        }
+      };
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => performLogin(res && res.success))
           .verifyAdminLogin(pass);
       } else {
         performLogin(pass === 'admin2026');
       }
     }
 
-    // REQUISITO 6 Y 7: Vendedor entra con email y contraseña manual
+    // REQUISITO 6 Y 7: Venditore entra con email y contraseÃ±a manual
     function handleSellerLogin(e) {
       e.preventDefault();
       const email = document.getElementById('loginSellerEmail').value.trim().toLowerCase();
       const password = document.getElementById('loginSellerPassword').value.trim();
       const remember = document.getElementById('rememberSessionSeller').checked;
 
+      if (!email || !password) {
+        showToast('Inserisci sia email che password.', 'warning');
+        return;
+      }
+
+      showLoading('Accesso venditore in corso...');
+
       const performSellerLogin = (res) => {
-        if (res.success && res.seller) {
+        hideLoading();
+        if (res && res.success && res.seller) {
           APP_STATE.isAuthenticated = true;
           APP_STATE.role = 'SELLER';
           APP_STATE.activeSellerId = res.seller.id;
           APP_STATE.currentUserDisplayName = res.seller.name;
+          APP_STATE.currentUserEmail = res.seller.email;
 
           const sessionData = JSON.stringify({ 
             role: 'SELLER', 
             sellerId: res.seller.id, 
-            displayName: res.seller.name 
+            displayName: res.seller.name,
+            email: res.seller.email
           });
           if (remember) localStorage.setItem(SESSION_AUTH_KEY, sessionData);
           else sessionStorage.setItem(SESSION_AUTH_KEY, sessionData);
 
           hideLoginOverlay();
           renderAll();
-          showToast(`¡Bienvenido, ${res.seller.name}!`, 'success');
+          showToast('Benvenuto, ' + res.seller.name + '!', 'success');
+        } else {
+          showToast((res && res.error) ? res.error : 'Credenziali venditore non corrette.', 'error');
+        }
+      };
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler(performSellerLogin)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+           .withFailureHandler((err) => {
+            hideLoading();
+            showToast('Errore connessione Google Script: ' + (err.message || err), 'error');
+          })
+          .verifySellerLogin(email, password);
+      } else if (APP_STATE.googleWebAppUrl && APP_STATE.googleWebAppUrl.trim().startsWith('http')) {
+        fetch(APP_STATE.googleWebAppUrl.trim(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'verifySellerLogin', email: email, password: password })
+        })
+        .then(res => res.json())
+        .then(res => performSellerLogin(res))
+        .catch(err => {
+          hideLoading();
+          showToast('Errore di connessione a Google Sheets: ' + err.message, 'error');
+        });
+      } else {
+        const seller = APP_STATE.sellers.find(s => s.email.toLowerCase() === email);
+        if (!seller) {
+          hideLoading();
+          showToast('Nessun venditore registrato con questa email. (Demo: mario.rossi@esempio.com)', 'error');
+          return;
+        }
+        if (seller.status === 'Archivado') {
+          hideLoading();
+          showToast('Il tuo account venditore è archiviato. Contatta l\'Amministratore.', 'warning');
+          return;
+        }
+        if (seller.password !== password) {
+          hideLoading();
+          showToast('Password errata per questo venditore.', 'error');
+          return;
+        }
+        performSellerLogin({ success: true, seller });
+      }
+    });
+          if (remember) localStorage.setItem(SESSION_AUTH_KEY, sessionData);
+          else sessionStorage.setItem(SESSION_AUTH_KEY, sessionData);
+
+          hideLoginOverlay();
+          renderAll();
+          showToast(`Â¡Bienvenido, ${res.seller.name}!`, 'success');
         } else {
           showToast(res.error || 'Credenciales de vendedor incorrectas.', 'error');
         }
@@ -1950,28 +2316,188 @@
       if (APP_STATE.isGoogleScript) {
         google.script.run
           .withSuccessHandler(performSellerLogin)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
           .verifySellerLogin(email, password);
       } else {
         // Fallback local
         const seller = APP_STATE.sellers.find(s => s.email.toLowerCase() === email);
         if (!seller) {
-          showToast('No existe ningún vendedor registrado con ese correo.', 'error');
+          showToast('No existe ningÃºn vendedor registrado con ese correo.', 'error');
           return;
         }
         if (seller.status === 'Archivado') {
-          showToast('Tu cuenta de vendedor está archivada. Contacta al Administrador.', 'warning');
+          showToast('Tu cuenta de vendedor estÃ¡ archivada. Contacta al Administrador.', 'warning');
           return;
         }
         if (seller.password !== password) {
-          showToast('Contraseña incorrecta para este vendedor.', 'error');
+          showToast('ContraseÃ±a incorrecta para este vendedor.', 'error');
           return;
         }
         performSellerLogin({ success: true, seller });
       }
     }
 
+    
+    function openAdminSettingsModal() {
+      const urlInput = document.getElementById('settingsGoogleScriptUrl');
+      if (urlInput) urlInput.value = APP_STATE.googleWebAppUrl || '';
+      openModal('modalAdminSettings');
+    }
+
+    function submitChangeAdminPassword(e) {
+      e.preventDefault();
+      const curPass = document.getElementById('adminCurrentPasswordInput').value.trim();
+      const newPass = document.getElementById('adminNewPasswordInput').value.trim();
+      const confPass = document.getElementById('adminConfirmPasswordInput').value.trim();
+
+      if (newPass !== confPass) {
+        showToast('La nuova password e la conferma non coincidono!', 'warning');
+        return;
+      }
+      if (newPass.length < 6) {
+        showToast('La password deve avere almeno 6 caratteri.', 'warning');
+        return;
+      }
+
+      showLoading('Aggiornamento password...');
+      const handleRes = (res) => {
+        hideLoading();
+        if (res && res.success) {
+          showToast(res.message || 'Password aggiornata con successo!', 'success');
+          document.getElementById('adminCurrentPasswordInput').value = '';
+          document.getElementById('adminNewPasswordInput').value = '';
+          document.getElementById('adminConfirmPasswordInput').value = '';
+          closeModal('modalAdminSettings');
+        } else {
+          showToast((res && res.error) ? res.error : 'Errore aggiornamento password', 'error');
+        }
+      };
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler(handleRes)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+           .withFailureHandler((err) => {
+            hideLoading();
+            showToast('Errore Google Script: ' + (err.message || err), 'error');
+          })
+          .changeAdminPassword(curPass, newPass);
+      } else if (APP_STATE.googleWebAppUrl && APP_STATE.googleWebAppUrl.trim().startsWith('http')) {
+        fetch(APP_STATE.googleWebAppUrl.trim(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'changeAdminPassword', currentPassword: curPass, newPassword: newPass })
+        })
+        .then(r => r.json()).then(handleRes)
+        .catch(err => { hideLoading(); showToast('Errore connessione: ' + err.message, 'error'); });
+      } else {
+        const storedPass = localStorage.getItem('LOCAL_ADMIN_PASSWORD') || 'admin2026';
+        if (curPass !== storedPass) {
+          handleRes({ success: false, error: 'Password attuale non corretta.' });
+        } else {
+          localStorage.setItem('LOCAL_ADMIN_PASSWORD', newPass);
+          handleRes({ success: true, message: 'Password aggiornata con successo in modalità locale!' });
+        }
+      }
+    }
+
+    function submitChangeAdminEmail(e) {
+      e.preventDefault();
+      const curPass = document.getElementById('adminEmailVerifyPasswordInput').value.trim();
+      const newEmail = document.getElementById('adminNewEmailInput').value.trim().toLowerCase();
+
+      if (!newEmail || !newEmail.includes('@')) {
+        showToast('Inserisci un indirizzo email valido.', 'warning');
+        return;
+      }
+
+      showLoading('Aggiornamento email...');
+      const handleRes = (res) => {
+        hideLoading();
+        if (res && res.success) {
+          APP_STATE.currentUserEmail = newEmail;
+          APP_STATE.currentUserDisplayName = 'Amministratore (' + newEmail + ')';
+          document.getElementById('currentLoggedUserLabel').textContent = APP_STATE.currentUserDisplayName;
+          document.getElementById('adminEmailInput').value = newEmail;
+          showToast(res.message || 'Email aggiornata a: ' + newEmail, 'success');
+          document.getElementById('adminEmailVerifyPasswordInput').value = '';
+          document.getElementById('adminNewEmailInput').value = '';
+          closeModal('modalAdminSettings');
+        } else {
+          showToast((res && res.error) ? res.error : 'Errore aggiornamento email', 'error');
+        }
+      };
+
+      if (APP_STATE.isGoogleScript) {
+        google.script.run
+          .withSuccessHandler(handleRes)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+           .withFailureHandler((err) => {
+            hideLoading();
+            showToast('Errore Google Script: ' + (err.message || err), 'error');
+          })
+          .changeAdminEmail(curPass, newEmail);
+      } else if (APP_STATE.googleWebAppUrl && APP_STATE.googleWebAppUrl.trim().startsWith('http')) {
+        fetch(APP_STATE.googleWebAppUrl.trim(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'changeAdminEmail', currentPassword: curPass, newEmail: newEmail })
+        })
+        .then(r => r.json()).then(handleRes)
+        .catch(err => { hideLoading(); showToast('Errore connessione: ' + err.message, 'error'); });
+      } else {
+        const storedPass = localStorage.getItem('LOCAL_ADMIN_PASSWORD') || 'admin2026';
+        if (curPass !== storedPass) {
+          handleRes({ success: false, error: 'Password non corretta.' });
+        } else {
+          localStorage.setItem('LOCAL_ADMIN_EMAIL', newEmail);
+          handleRes({ success: true, message: 'Email aggiornata con successo in modalità locale!' });
+        }
+      }
+    }
+
+    function saveAndTestGoogleScriptUrl() {
+      const url = (document.getElementById('settingsGoogleScriptUrl').value || '').trim();
+      if (!url.startsWith('http')) {
+        showToast('Inserisci un URL valido che inizia con https://', 'warning');
+        return;
+      }
+      showLoading('Verifica connessione con Google Apps Script...');
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'ping' })
+      })
+      .then(res => res.json())
+      .then(json => {
+        hideLoading();
+        if (json && json.success) {
+          APP_STATE.googleWebAppUrl = url;
+          localStorage.setItem('GOOGLE_WEB_APP_URL', url);
+          updateConnectionStatusBadge();
+          showToast('Connessione a Google Sheets riuscita e salvata!', 'success');
+          loadAllData();
+        } else {
+          showToast('Google Script ha risposto ma con errore: ' + (json ? json.error : ''), 'warning');
+        }
+      })
+      .catch(err => {
+        hideLoading();
+        showToast('Impossibile connettersi: ' + err.message + '. Verifica che lo script sia pubblicato con accesso "Chiunque".', 'error');
+      });
+    }
+
+    function clearGoogleScriptUrl() {
+      APP_STATE.googleWebAppUrl = '';
+      localStorage.removeItem('GOOGLE_WEB_APP_URL');
+      document.getElementById('settingsGoogleScriptUrl').value = '';
+      updateConnectionStatusBadge();
+      showToast('URL Google Script rimosso. Torno a modalità locale / nativa.', 'info');
+      loadAllData();
+    }
+
     function handleLogout() {
-      if (!confirm('¿Deseas cerrar tu sesión actual?')) return;
+      if (!confirm('Â¿Deseas cerrar tu sesiÃ³n actual?')) return;
       localStorage.removeItem(SESSION_AUTH_KEY);
       sessionStorage.removeItem(SESSION_AUTH_KEY);
       APP_STATE.isAuthenticated = false;
@@ -1989,7 +2515,9 @@
     function loadAllData() {
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => {
             if (res && res.success) {
               APP_STATE.products = res.products || [];
               APP_STATE.sellers = res.sellers || [];
@@ -1999,6 +2527,12 @@
             } else {
               showToast(res ? res.error : 'Error al cargar datos', 'error');
             }
+          })
+          ..withFailureHandler((err) => {
+            console.warn('Errore getInitialData da Google Script:', err);
+            showToast('Connessione Google Script fallita: ' + (err.message || err) + '. Uso archivio locale.', 'warning');
+            loadLocalMockData();
+            renderAll();
           })
           .getInitialData(APP_STATE.role === 'SELLER' ? APP_STATE.activeSellerId : null);
       } else {
@@ -2022,10 +2556,10 @@
         }
       }
 
-      // Datos demo con contraseñas fijas conocidas (modo local sin Google Script)
+      // Datos demo con contraseÃ±as fijas conocidas (modo local sin Google Script)
       APP_STATE.sellers = [
-        { id: 'VEND-001', name: 'Mario Rossi', email: 'mario.rossi@ejemplo.com', phone: '+34 600 123 456', status: 'Activo', password: 'Mario2026!', createdAt: new Date().toISOString() },
-        { id: 'VEND-002', name: 'Laura Gómez', email: 'laura.gomez@ejemplo.com', phone: '+34 600 654 321', status: 'Activo', password: 'Laura2026!', createdAt: new Date().toISOString() }
+        { id: 'VEND-001', name: 'Mario Rossi', email: 'mario.rossi@esempio.com', phone: '+39 333 123 4567', status: 'Activo', password: 'Mario2026!', createdAt: new Date().toISOString() },
+        { id: 'VEND-002', name: 'Laura GÃ³mez', email: 'laura.gomez@ejemplo.com', phone: '+34 600 654 321', status: 'Activo', password: 'Laura2026!', createdAt: new Date().toISOString() }
       ];
 
       APP_STATE.products = [
@@ -2043,7 +2577,7 @@
         {
           id: 'PROD-002',
           title: 'Chaqueta Cortavientos Impermeable',
-          description: 'Chaqueta técnica con capucha plegable y bolsillos sellados.',
+          description: 'Chaqueta tÃ©cnica con capucha plegable y bolsillos sellados.',
           photoUrl: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&auto=format&fit=crop&q=60',
           purchasePrice: 20.00,
           minPrice: 35.00,
@@ -2089,9 +2623,9 @@
           settled: false,
           settlementDate: '',
           settlementPeriod: '',
-          notes: 'Esperando que Admin envíe la chaqueta',
+          notes: 'Esperando que Admin envÃ­e la chaqueta',
           returned: false,
-          shippingStatus: 'Pendiente de Envío',
+          shippingStatus: 'Pendiente de EnvÃ­o',
           shippingDate: '',
           shippingTracking: '',
           shippingNotes: ''
@@ -2141,8 +2675,8 @@
       const shipNotice = document.getElementById('shippingNoticeText');
       if (shipNotice) {
         shipNotice.innerHTML = isAdmin 
-          ? '<strong>Panel de Envíos del Administrador:</strong> Registra el envío de los productos para cada venta confirmada. El vendedor lo verá al instante.'
-          : '<strong>Seguimiento de Envíos en Tiempo Real:</strong> Aquí puedes ver exactamente qué ventas han sido enviadas por el Administrador y su código de seguimiento.';
+          ? '<strong>Panel de EnvÃ­os del Administrador:</strong> Registra el envÃ­o de los productos para cada venta confirmada. El vendedor lo verÃ¡ al instante.'
+          : '<strong>Seguimiento de EnvÃ­os en Tiempo Real:</strong> AquÃ­ puedes ver exactamente quÃ© ventas han sido enviadas por el Administrador y su cÃ³digo de seguimiento.';
       }
     }
 
@@ -2155,7 +2689,7 @@
 
       if (prodAssign) {
         const cur = prodAssign.value;
-        prodAssign.innerHTML = '<option value="TUTTI">Todos los vendedores activos</option>';
+        prodAssign.innerHTML = '<option value="TUTTI">Tutti i venditori activos</option>';
         activeSellers.forEach(s => {
           const opt = document.createElement('option');
           opt.value = s.id;
@@ -2204,7 +2738,7 @@
         return s.sellerId === sellerId;
       });
 
-      const pendingShipping = filteredSales.filter(s => s.shippingStatus === 'Pendiente de Envío' && s.status !== 'Devuelta').length;
+      const pendingShipping = filteredSales.filter(s => s.shippingStatus === 'Pendiente de EnvÃ­o' && s.status !== 'Devuelta').length;
 
       document.getElementById('badgeCatalog').textContent = visibleProducts.length;
       document.getElementById('badgeSales').textContent = filteredSales.length;
@@ -2227,7 +2761,7 @@
     }
 
     // ==========================================
-    // 1. CATÁLOGO DE PRODUCTOS
+    // 1. CATÃLOGO DE PRODUCTOS
     // ==========================================
 
     function renderCatalog() {
@@ -2248,7 +2782,7 @@
           <div class="empty-state" style="grid-column: 1 / -1;">
             <i class="fa-solid fa-box-open"></i>
             <h3>No hay productos disponibles</h3>
-            <p>${isAdmin ? 'Pulsa en "Enviar Producto a Vendedores" para añadir el primer artículo.' : 'No tienes productos asignados en tu catálogo actualmente.'}</p>
+            <p>${isAdmin ? 'Pulsa en "Invia Prodotto ai Venditori" para aÃ±adir el primer artÃ­culo.' : 'No tienes productos asignados en tu catÃ¡logo actualmente.'}</p>
           </div>
         `;
         return;
@@ -2271,18 +2805,18 @@
           </div>
           <div class="product-details">
             <h4 class="product-title">${escapeHtml(p.title)}</h4>
-            <p class="product-desc">${escapeHtml(p.description || 'Sin descripción especificada.')}</p>
+            <p class="product-desc">${escapeHtml(p.description || 'Sin descripciÃ³n especificada.')}</p>
             
             <div class="product-price-box">
               ${isAdmin ? `
                 <div class="price-row admin-only">
                   <span>Precio Compra Admin:</span>
-                  <strong>€${Number(p.purchasePrice).toFixed(2)}</strong>
+                  <strong>â‚¬${Number(p.purchasePrice).toFixed(2)}</strong>
                 </div>
               ` : ''}
               <div class="price-row allowed-range">
                 <span>Rango Permitido de Venta:</span>
-                <strong>€${Number(p.minPrice).toFixed(2)} - €${Number(p.maxPrice).toFixed(2)}</strong>
+                <strong>â‚¬${Number(p.minPrice).toFixed(2)} - â‚¬${Number(p.maxPrice).toFixed(2)}</strong>
               </div>
             </div>
 
@@ -2291,7 +2825,7 @@
                 <i class="fa-solid fa-cart-plus"></i> Registrar Venta
               </button>
               ${isAdmin ? `
-                <button class="btn btn-danger btn-sm" title="Eliminar Producto" onclick="handleDeleteProduct('${p.id}')">
+                <button class="btn btn-danger btn-sm" title="Eliminar Prodotto" onclick="handleDeleteProduct('${p.id}')">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               ` : ''}
@@ -2318,7 +2852,7 @@
       const assignedTo = document.getElementById('prodAssignedTo').value;
 
       if (minPrice > maxPrice) {
-        showToast('¡El precio mínimo no puede ser superior al precio máximo!', 'warning');
+        showToast('Â¡El precio mÃ­nimo no puede ser superior al precio mÃ¡ximo!', 'warning');
         return;
       }
 
@@ -2326,9 +2860,11 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => {
             if (res && res.success) {
-              showToast('¡Producto enviado a los vendedores con éxito!', 'success');
+              showToast('Â¡Prodotto enviado a los vendedores con Ã©xito!', 'success');
               closeModal('modalAddProduct');
               loadAllData();
             } else {
@@ -2340,25 +2876,27 @@
         const id = 'PROD-' + Math.random().toString(36).substring(2, 8).toUpperCase();
         APP_STATE.products.unshift({ id, ...prodData, active: true, createdAt: new Date().toISOString() });
         saveLocalData();
-        showToast('¡Producto añadido con éxito!', 'success');
+        showToast('Â¡Prodotto aÃ±adido con Ã©xito!', 'success');
         closeModal('modalAddProduct');
         renderAll();
       }
     }
 
     function handleDeleteProduct(productId) {
-      if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) return;
+      if (!confirm('Â¿EstÃ¡s seguro de que deseas eliminar este producto?')) return;
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
-            if (res && res.success) { showToast('Producto eliminado', 'success'); loadAllData(); }
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => {
+            if (res && res.success) { showToast('Prodotto eliminado', 'success'); loadAllData(); }
             else { showToast(res ? res.error : 'Error al eliminar', 'error'); }
           })
           .deleteProduct(productId);
       } else {
         APP_STATE.products = APP_STATE.products.filter(p => p.id !== productId);
         saveLocalData();
-        showToast('Producto eliminado', 'success');
+        showToast('Prodotto eliminado', 'success');
         renderAll();
       }
     }
@@ -2380,7 +2918,7 @@
         return true;
       });
 
-      if (filter === 'PENDIENTE') sales = sales.filter(s => s.shippingStatus === 'Pendiente de Envío' && s.status !== 'Devuelta');
+      if (filter === 'PENDIENTE') sales = sales.filter(s => s.shippingStatus === 'Pendiente de EnvÃ­o' && s.status !== 'Devuelta');
       else if (filter === 'ENVIADA') sales = sales.filter(s => s.shippingStatus === 'Enviada' && s.status !== 'Devuelta');
       else if (filter === 'DEVUELTA') sales = sales.filter(s => s.status === 'Devuelta' || s.returned);
       else if (filter === 'PENDIENTE_ACEPT') sales = sales.filter(s => s.acceptanceStatus === 'PENDIENTE');
@@ -2407,13 +2945,13 @@
 
         let shipBadge = isShipped 
           ? `<span class="status-badge badge-shipped"><i class="fa-solid fa-truck"></i> Enviada (${formatDate(s.shippingDate)})</span>`
-          : `<span class="status-badge badge-not-shipped"><i class="fa-solid fa-box"></i> Pendiente de Envío</span>`;
+          : `<span class="status-badge badge-not-shipped"><i class="fa-solid fa-box"></i> Pendiente de EnvÃ­o</span>`;
 
         if (isReturned) {
           shipBadge = `<span class="status-badge badge-returned"><i class="fa-solid fa-arrow-rotate-left"></i> Devuelta</span>`;
         }
         if (s.acceptanceStatus === 'PENDIENTE') {
-          shipBadge = `<span class="status-badge" style="background:#fef3c7;color:#92400e;border:1px solid #f59e0b;"><i class="fa-solid fa-clock"></i> En espera de aceptación</span>`;
+          shipBadge = `<span class="status-badge" style="background:#fef3c7;color:#92400e;border:1px solid #f59e0b;"><i class="fa-solid fa-clock"></i> En espera de aceptaciÃ³n</span>`;
         }
         if (s.acceptanceStatus === 'RECHAZADA') {
           shipBadge = `<span class="status-badge badge-returned"><i class="fa-solid fa-xmark"></i> Rechazada</span>`;
@@ -2435,18 +2973,18 @@
         // REQUISITO 4 Y 5: Reglas de borrado
         let deleteBtnHtml = '';
         if (isAdmin) {
-          // Admin puede borrar cualquier venta con doble confirmación
+          // Admin puede borrar cualquier venta con doble confirmaciÃ³n
           deleteBtnHtml = `
             <button class="btn btn-danger btn-sm" title="Eliminar Venta (Admin)" onclick="requestDeleteSale('${s.id}')">
               <i class="fa-solid fa-trash"></i>
             </button>
           `;
         } else {
-          // Vendedor SOLO si aún no ha sido enviada por Admin
+          // Venditore SOLO si aÃºn no ha sido enviada por Admin
           if (!isShipped && !isReturned) {
             deleteBtnHtml = `
-              <button class="btn btn-danger btn-sm" title="Cancelar Venta" onclick="requestDeleteSale('${s.id}')">
-                <i class="fa-solid fa-trash"></i> Cancelar
+              <button class="btn btn-danger btn-sm" title="Annulla Venta" onclick="requestDeleteSale('${s.id}')">
+                <i class="fa-solid fa-trash"></i> Annulla
               </button>
             `;
           } else {
@@ -2464,11 +3002,11 @@
           <td>${escapeHtml(s.sellerName)}</td>
           <td>
             <strong>${escapeHtml(s.productName)}</strong>
-            ${isReturned ? '<br><small style="color: var(--danger); font-weight: 700;">(Relación económica anulada)</small>' : ''}
+            ${isReturned ? '<br><small style="color: var(--danger); font-weight: 700;">(RelaciÃ³n econÃ³mica anulada)</small>' : ''}
           </td>
-          <td><strong>€${Number(s.salePrice).toFixed(2)}</strong></td>
-          <td class="admin-only" style="color: var(--primary);">€${Number(s.adminPurchasePrice).toFixed(2)}</td>
-          <td style="color: var(--success); font-weight: 700;">€${Number(s.sellerProfit).toFixed(2)}</td>
+          <td><strong>â‚¬${Number(s.salePrice).toFixed(2)}</strong></td>
+          <td class="admin-only" style="color: var(--primary);">â‚¬${Number(s.adminPurchasePrice).toFixed(2)}</td>
+          <td style="color: var(--success); font-weight: 700;">â‚¬${Number(s.sellerProfit).toFixed(2)}</td>
           <td>${shipBadge}</td>
           <td>
             ${s.settled ? `<span class="status-badge badge-settled"><i class="fa-solid fa-check-double"></i> Saldada</span>` : `<span class="status-badge badge-pending">Sin Saldar</span>`}
@@ -2478,8 +3016,8 @@
             <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center;">
               ${acceptanceBtnHtml}
               ${!isReturned && s.acceptanceStatus !== 'PENDIENTE' ? `
-                <button class="btn btn-warning btn-sm" title="Devolución" onclick="openReturnModal('${s.id}')">
-                  <i class="fa-solid fa-arrow-rotate-left"></i> Devolución
+                <button class="btn btn-warning btn-sm" title="DevoluciÃ³n" onclick="openReturnModal('${s.id}')">
+                  <i class="fa-solid fa-arrow-rotate-left"></i> DevoluciÃ³n
                 </button>
               ` : ''}
               ${deleteBtnHtml}
@@ -2493,7 +3031,7 @@
     }
 
     // ==========================================
-    // REQUISITOS 4 Y 5: BORRADO DE VENTAS CON DOBLE CONFIRMACIÓN
+    // REQUISITOS 4 Y 5: BORRADO DE VENTAS CON DOBLE CONFIRMACIÃ“N
     // ==========================================
 
     function requestDeleteSale(saleId) {
@@ -2502,28 +3040,28 @@
 
       const isAdmin = APP_STATE.role === 'ADMIN';
 
-      // REQUISITO 5: Validación estricta para vendedor
+      // REQUISITO 5: ValidaciÃ³n estricta para vendedor
       if (!isAdmin) {
         if (sale.shippingStatus === 'Enviada') {
-          alert('¡ACCESO DENEGADO! Esta venta ya ha sido enviada por el Administrador y no puede ser eliminada. Solicita una Devolución.');
+          alert('Â¡ACCESO DENEGADO! Esta venta ya ha sido enviada por el Administrador y no puede ser eliminada. Solicita una DevoluciÃ³n.');
           return;
         }
-        if (!confirm(`¿Estás seguro de que deseas cancelar la venta "${sale.productName}" (ID: ${sale.id})?`)) {
+        if (!confirm(`Â¿EstÃ¡s seguro de que deseas cancelar la venta "${sale.productName}" (ID: ${sale.id})?`)) {
           return;
         }
-        // Ejecución para vendedor
+        // EjecuciÃ³n para vendedor
         executeDeleteSaleDirect(sale.id);
         return;
       }
 
-      // REQUISITO 4: Admin pide confirmación 2 VECES
-      // Primera confirmación
-      const firstConfirm = confirm(`[1/2] PRIMERA CONFIRMACIÓN: ¿Deseas eliminar la venta "${sale.productName}" (ID: ${sale.id}) del vendedor ${sale.sellerName}?`);
+      // REQUISITO 4: Admin pide confirmaciÃ³n 2 VECES
+      // Primera confirmaciÃ³n
+      const firstConfirm = confirm(`[1/2] PRIMERA CONFIRMACIÃ“N: Â¿Deseas eliminar la venta "${sale.productName}" (ID: ${sale.id}) del vendedor ${sale.sellerName}?`);
       if (!firstConfirm) return;
 
-      // Segunda confirmación modal explícita
+      // Segunda confirmaciÃ³n modal explÃ­cita
       APP_STATE.pendingSaleToDeleteId = sale.id;
-      document.getElementById('deleteSaleInfoText').textContent = `${sale.productName} (€${Number(sale.salePrice).toFixed(2)}) - Vendedor: ${sale.sellerName} (ID: ${sale.id})`;
+      document.getElementById('deleteSaleInfoText').textContent = `${sale.productName} (â‚¬${Number(sale.salePrice).toFixed(2)}) - Venditore: ${sale.sellerName} (ID: ${sale.id})`;
       openModal('modalDoubleConfirmDeleteSale');
     }
 
@@ -2534,7 +3072,9 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => {
             if (res && res.success) {
               showToast(res.message, 'success');
               loadAllData();
@@ -2554,7 +3094,9 @@
     function executeDeleteSaleDirect(saleId) {
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => {
             if (res && res.success) {
               showToast(res.message, 'success');
               loadAllData();
@@ -2566,13 +3108,13 @@
       } else {
         APP_STATE.sales = APP_STATE.sales.filter(s => s.id !== saleId);
         saveLocalData();
-        showToast('Venta cancelada y eliminada con éxito.', 'success');
+        showToast('Venta cancelada y eliminada con Ã©xito.', 'success');
         renderAll();
       }
     }
 
     // ==========================================
-    // 3. GESTIÓN Y SEGUIMIENTO DE ENVÍOS (REQUISITO 1)
+    // 3. GESTIÃ“N Y SEGUIMIENTO DE ENVÃOS (REQUISITO 1)
     // ==========================================
 
     function renderShippingTable() {
@@ -2597,7 +3139,7 @@
           <tr>
             <td colspan="9" class="empty-state">
               <i class="fa-solid fa-truck-ramp-box"></i>
-              <p>No hay ventas en esta sección de envíos.</p>
+              <p>No hay ventas en esta secciÃ³n de envÃ­os.</p>
             </td>
           </tr>
         `;
@@ -2610,26 +3152,26 @@
 
         let statusBadge = isShipped
           ? `<span class="status-badge badge-shipped"><i class="fa-solid fa-truck-fast"></i> Enviada</span>`
-          : `<span class="status-badge badge-not-shipped"><i class="fa-solid fa-box"></i> Pendiente de Envío</span>`;
+          : `<span class="status-badge badge-not-shipped"><i class="fa-solid fa-box"></i> Pendiente de EnvÃ­o</span>`;
 
         let actionBtn = '';
         if (isAdmin) {
           if (!isShipped) {
             actionBtn = `
               <button class="btn btn-purple btn-sm" onclick="openRegisterShippingModal('${s.id}')">
-                <i class="fa-solid fa-truck"></i> Registrar Envío
+                <i class="fa-solid fa-truck"></i> Registrar EnvÃ­o
               </button>
             `;
           } else {
             actionBtn = `
               <button class="btn btn-secondary btn-sm" onclick="openRegisterShippingModal('${s.id}')">
-                <i class="fa-solid fa-pen"></i> Editar Envío
+                <i class="fa-solid fa-pen"></i> Editar EnvÃ­o
               </button>
             `;
           }
         } else {
           actionBtn = isShipped 
-            ? `<span style="color: var(--success); font-weight: 700;"><i class="fa-solid fa-check"></i> En Tránsito</span>`
+            ? `<span style="color: var(--success); font-weight: 700;"><i class="fa-solid fa-check"></i> En TrÃ¡nsito</span>`
             : `<span style="color: var(--warning); font-weight: 600;"><i class="fa-solid fa-hourglass"></i> Pendiente Admin</span>`;
         }
 
@@ -2655,7 +3197,7 @@
       if (!sale) return;
 
       document.getElementById('shipSaleId').value = sale.id;
-      document.getElementById('shipSaleDetails').value = `${sale.productName} (€${sale.salePrice.toFixed(2)}) - Vendedor: ${sale.sellerName}`;
+      document.getElementById('shipSaleDetails').value = `${sale.productName} (â‚¬${sale.salePrice.toFixed(2)}) - Venditore: ${sale.sellerName}`;
       
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('shipDate').value = sale.shippingDate ? sale.shippingDate.split('T')[0] : today;
@@ -2680,7 +3222,9 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => {
             if (res && res.success) {
               showToast(res.message, 'success');
               closeModal('modalRegisterShipping');
@@ -2698,7 +3242,7 @@
           sale.shippingTracking = tracking;
           sale.shippingNotes = notes;
           saveLocalData();
-          showToast(`¡Envío registrado con éxito para la venta ${sale.id}! El vendedor ya puede verlo en vivo.`, 'success');
+          showToast(`Â¡EnvÃ­o registrado con Ã©xito para la venta ${sale.id}! El vendedor ya puede verlo en vivo.`, 'success');
           closeModal('modalRegisterShipping');
           renderAll();
         }
@@ -2717,12 +3261,12 @@
       const labelProfit = document.getElementById('labelProfitWho');
 
       if (isAdmin) {
-        labelDebt.textContent = 'Monto a Entregar por Vendedores (Ventas Enviadas)';
-        labelProfit.textContent = 'Comisiones Vendedores (Ventas Enviadas)';
+        labelDebt.textContent = 'Monto a Entregar por Venditorees (Vendite Spedite)';
+        labelProfit.textContent = 'Comisiones Venditorees (Vendite Spedite)';
       } else {
-        const sellerName = APP_STATE.sellers.find(s => s.id === sellerId)?.name || 'Vendedor';
-        labelDebt.textContent = `Monto a Entregar al Administrador (${sellerName})`;
-        labelProfit.textContent = `Tu Comisión Neta por Ventas Enviadas (${sellerName})`;
+        const sellerName = APP_STATE.sellers.find(s => s.id === sellerId)?.name || 'Venditore';
+        labelDebt.textContent = `Importo da Consegnare ad Admin (${sellerName})`;
+        labelProfit.textContent = `Tu ComisiÃ³n Neta por Vendite Spedite (${sellerName})`;
       }
 
       let totalShippedAmount = 0;
@@ -2747,12 +3291,12 @@
               sellerName: sale.sellerName,
               productName: sale.productName,
               amount: sale.sellerProfit,
-              note: `Devolución de "${sale.productName}" (Venta ${sale.id}): comisión de €${Number(sale.sellerProfit).toFixed(2)} ya cobrada anteriormente, ahora adeudada al administrador.`
+              note: `DevoluciÃ³n de "${sale.productName}" (Venta ${sale.id}): comisiÃ³n de â‚¬${Number(sale.sellerProfit).toFixed(2)} ya cobrada anteriormente, ahora adeudada al administrador.`
             });
           }
         } else if (sale.status === 'Venta Confirmada') {
           if (!sale.settled) {
-            // REQUISITO 3: Distinción contable estricta
+            // REQUISITO 3: DistinciÃ³n contable estricta
             if (sale.shippingStatus === 'Enviada') {
               shippedUnsettledSales.push(sale);
               totalShippedAmount += Number(sale.salePrice || 0);
@@ -2769,11 +3313,11 @@
       const finalAmountOwedAdmin = totalOwedAdminShipped + returnAdjustments;
       const netSellerProfitShipped = totalSellerCommissionShipped - returnAdjustments;
 
-      document.getElementById('kpiAmountOwedAdmin').textContent = `€${finalAmountOwedAdmin.toFixed(2)}`;
-      document.getElementById('kpiSellerProfit').textContent = `€${netSellerProfitShipped.toFixed(2)}`;
-      document.getElementById('kpiPendingShipmentAmount').textContent = `€${totalPendingShipAmount.toFixed(2)}`;
-      document.getElementById('kpiPendingShipmentCount').textContent = `${countPendingShip} ventas confirmadas en espera de envío`;
-      document.getElementById('kpiReturnAdjustments').textContent = `€${returnAdjustments.toFixed(2)}`;
+      document.getElementById('kpiAmountOwedAdmin').textContent = `â‚¬${finalAmountOwedAdmin.toFixed(2)}`;
+      document.getElementById('kpiSellerProfit').textContent = `â‚¬${netSellerProfitShipped.toFixed(2)}`;
+      document.getElementById('kpiPendingShipmentAmount').textContent = `â‚¬${totalPendingShipAmount.toFixed(2)}`;
+      document.getElementById('kpiPendingShipmentCount').textContent = `${countPendingShip} ventas confirmadas en espera de envÃ­o`;
+      document.getElementById('kpiReturnAdjustments').textContent = `â‚¬${returnAdjustments.toFixed(2)}`;
 
       const alertsContainer = document.getElementById('returnAdjustmentAlertsContainer');
       alertsContainer.innerHTML = '';
@@ -2787,7 +3331,7 @@
             <div>
               <strong><i class="fa-solid fa-note-sticky"></i> Nota Explicativa de Ajuste Negativo (${escapeHtml(rn.sellerName)}):</strong><br>
               ${escapeHtml(rn.note)}
-              <br><small style="color: #7f1d1d; font-weight: 700;">Importe deducido de la comisión o adeudado al administrador: -€${Number(rn.amount).toFixed(2)}</small>
+              <br><small style="color: #7f1d1d; font-weight: 700;">Importe deducido de la comisiÃ³n o adeudado al administrador: -â‚¬${Number(rn.amount).toFixed(2)}</small>
             </div>
           `;
           alertsContainer.appendChild(alert);
@@ -2822,9 +3366,9 @@
           <td>${formatDate(s.shippingDate)}</td>
           <td>${escapeHtml(s.sellerName)}</td>
           <td>${escapeHtml(s.productName)}</td>
-          <td>€${Number(s.salePrice).toFixed(2)}</td>
-          <td style="color: var(--primary); font-weight: 700;">€${Number(s.adminPurchasePrice).toFixed(2)}</td>
-          <td style="color: var(--success); font-weight: 700;">€${Number(s.sellerProfit).toFixed(2)}</td>
+          <td>â‚¬${Number(s.salePrice).toFixed(2)}</td>
+          <td style="color: var(--primary); font-weight: 700;">â‚¬${Number(s.adminPurchasePrice).toFixed(2)}</td>
+          <td style="color: var(--success); font-weight: 700;">â‚¬${Number(s.sellerProfit).toFixed(2)}</td>
           <td><span class="status-badge badge-shipped"><i class="fa-solid fa-truck"></i> Enviada</span></td>
         `;
         tbody.appendChild(tr);
@@ -2848,7 +3392,7 @@
           <tr>
             <td colspan="9" class="empty-state">
               <i class="fa-solid fa-clock-rotate-left"></i>
-              <p>No hay períodos cerrados en el historial de liquidaciones.</p>
+              <p>No hay perÃ­odos cerrados en el historial de liquidaciones.</p>
             </td>
           </tr>
         `;
@@ -2862,13 +3406,13 @@
           <td><span class="status-badge badge-settled"><i class="fa-solid fa-calendar"></i> ${escapeHtml(st.period)}</span></td>
           <td>${formatDate(st.settlementDate)}</td>
           <td>${escapeHtml(st.sellerName)}</td>
-          <td>€${Number(st.totalSales).toFixed(2)}</td>
-          <td style="color: var(--primary); font-weight: 700;">€${Number(st.totalOwedAdmin).toFixed(2)}</td>
-          <td style="color: var(--success); font-weight: 700;">€${Number(st.totalSellerCommission).toFixed(2)}</td>
+          <td>â‚¬${Number(st.totalSales).toFixed(2)}</td>
+          <td style="color: var(--primary); font-weight: 700;">â‚¬${Number(st.totalOwedAdmin).toFixed(2)}</td>
+          <td style="color: var(--success); font-weight: 700;">â‚¬${Number(st.totalSellerCommission).toFixed(2)}</td>
           <td style="color: ${Number(st.returnAdjustments) > 0 ? 'var(--danger)' : 'var(--gray-500)'}; font-weight: 700;">
-            ${Number(st.returnAdjustments) > 0 ? `-€${Number(st.returnAdjustments).toFixed(2)}` : '€0.00'}
+            ${Number(st.returnAdjustments) > 0 ? `-â‚¬${Number(st.returnAdjustments).toFixed(2)}` : 'â‚¬0.00'}
           </td>
-          <td><small style="color: var(--gray-700);">${escapeHtml(st.notes || 'Liquidación cerrada correctamente.')}</small></td>
+          <td><small style="color: var(--gray-700);">${escapeHtml(st.notes || 'LiquidaciÃ³n cerrada correctamente.')}</small></td>
         `;
         tbody.appendChild(tr);
       });
@@ -2920,12 +3464,12 @@
       const finalOwedAdmin = totalAdminCost + returnAdjustments;
 
       summaryBox.innerHTML = `
-        <strong>Resumen de Liquidación (Solo Ventas Enviadas):</strong><br>
-        • Ventas enviadas a liquidar: <strong>${sellerSales.length}</strong> (Total: €${totalSales.toFixed(2)})<br>
-        • Monto base para el Administrador: <strong>€${totalAdminCost.toFixed(2)}</strong><br>
-        • Compensación por Devoluciones pasadas: <strong style="color: var(--danger);">-€${returnAdjustments.toFixed(2)}</strong><br>
-        • <strong>Total neto a entregar al Administrador: €${finalOwedAdmin.toFixed(2)}</strong><br>
-        • <strong>Comisión neta a pagar al Vendedor: €${netProfit.toFixed(2)}</strong>
+        <strong>Resumen de LiquidaciÃ³n (Solo Vendite Spedite):</strong><br>
+        â€¢ Vendite enviadas a liquidar: <strong>${sellerSales.length}</strong> (Total: â‚¬${totalSales.toFixed(2)})<br>
+        â€¢ Monto base para el Administrador: <strong>â‚¬${totalAdminCost.toFixed(2)}</strong><br>
+        â€¢ CompensaciÃ³n por Devoluciones pasadas: <strong style="color: var(--danger);">-â‚¬${returnAdjustments.toFixed(2)}</strong><br>
+        â€¢ <strong>Total neto a entregar al Administrador: â‚¬${finalOwedAdmin.toFixed(2)}</strong><br>
+        â€¢ <strong>ComisiÃ³n neta a pagar al Venditore: â‚¬${netProfit.toFixed(2)}</strong>
       `;
     }
 
@@ -2937,7 +3481,9 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => {
             if (res && res.success) {
               showToast(res.message, 'success');
               closeModal('modalSettlePeriod');
@@ -2985,19 +3531,19 @@
           totalSellerCommission: totalProfit,
           returnAdjustments,
           netPaid: totalProfit - returnAdjustments,
-          notes: customNote || 'Período liquidado con normalidad.',
+          notes: customNote || 'PerÃ­odo liquidado con normalidad.',
           salesIds: settledIds.join(',')
         });
 
         saveLocalData();
-        showToast(`¡Período ${periodLabel} liquidado con éxito para ${sellerName}!`, 'success');
+        showToast(`Â¡PerÃ­odo ${periodLabel} liquidado con Ã©xito para ${sellerName}!`, 'success');
         closeModal('modalSettlePeriod');
         renderAll();
       }
     }
 
     // ==========================================
-    // 5. GESTIÓN DE VENDEDORES (CONTRASEÑAS RANDOM - REQUISITO 7)
+    // 5. GESTIÃ“N DE VENDEDORES (CONTRASEÃ‘AS RANDOM - REQUISITO 7)
     // ==========================================
 
     function renderSellers() {
@@ -3008,8 +3554,8 @@
 
       let sellers = APP_STATE.sellers;
       if (filter === 'ACTIVO') sellers = sellers.filter(s => s.status === 'Activo');
-      else if (filter === 'VACACIONES') sellers = sellers.filter(s => s.status === 'De Vacaciones');
-      else if (filter === 'BAJA') sellers = sellers.filter(s => s.status === 'De Baja');
+      else if (filter === 'VACACIONES') sellers = sellers.filter(s => s.status === 'In Ferie');
+      else if (filter === 'BAJA') sellers = sellers.filter(s => s.status === 'In Malattia');
       else if (filter === 'ARCHIVADO') sellers = sellers.filter(s => s.status === 'Archivado');
 
       if (sellers.length === 0) {
@@ -3029,8 +3575,8 @@
         
         let statusBadge = '';
         if (s.status === 'Activo') statusBadge = '<span class="status-badge badge-confirmed"><i class="fa-solid fa-circle-check"></i> Activo</span>';
-        else if (s.status === 'De Vacaciones') statusBadge = '<span class="status-badge badge-vacation"><i class="fa-solid fa-umbrella-beach"></i> De Vacaciones</span>';
-        else if (s.status === 'De Baja') statusBadge = '<span class="status-badge badge-baja"><i class="fa-solid fa-user-injured"></i> De Baja</span>';
+        else if (s.status === 'In Ferie') statusBadge = '<span class="status-badge badge-vacation"><i class="fa-solid fa-umbrella-beach"></i> In Ferie</span>';
+        else if (s.status === 'In Malattia') statusBadge = '<span class="status-badge badge-baja"><i class="fa-solid fa-user-injured"></i> In Malattia</span>';
         else if (s.status === 'Archivado') statusBadge = '<span class="status-badge badge-archived"><i class="fa-solid fa-box-archive"></i> Archivado</span>';
         else statusBadge = `<span class="status-badge badge-pending">${escapeHtml(s.status)}</span>`;
 
@@ -3043,15 +3589,15 @@
           <td>
             <div style="display: flex; align-items: center; gap: 6px;">
               <code style="background: var(--gray-100); padding: 4px 8px; border-radius: 6px; font-weight: 700;">${escapeHtml(s.password || '********')}</code>
-              <button class="btn btn-secondary btn-sm" title="Ver / Cambiar Contraseña" onclick="openResetPasswordModal('${s.id}')">
+              <button class="btn btn-secondary btn-sm" title="Ver / Cambiar ContraseÃ±a" onclick="openResetPasswordModal('${s.id}')">
                 <i class="fa-solid fa-key"></i>
               </button>
             </div>
           </td>
           <td style="text-align: right;">
             <div style="display: flex; gap: 6px; justify-content: flex-end;">
-              <button class="btn btn-secondary btn-sm" title="Cambiar Estado" onclick="openChangeSellerStatusModal('${s.id}')">
-                <i class="fa-solid fa-user-pen"></i> Estado
+              <button class="btn btn-secondary btn-sm" title="Cambiar Stato" onclick="openChangeSellerStatusModal('${s.id}')">
+                <i class="fa-solid fa-user-pen"></i> Stato
               </button>
               <button class="btn btn-danger btn-sm" title="Eliminar / Archivar" onclick="handleDeleteOrArchiveSeller('${s.id}')">
                 <i class="fa-solid fa-trash"></i>
@@ -3084,7 +3630,9 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => {
             if (res && res.success) {
               showToast(res.message, 'success');
               closeModal('modalAddSeller');
@@ -3098,7 +3646,7 @@
         const id = 'VEND-' + Math.random().toString(36).substring(2, 7).toUpperCase();
         APP_STATE.sellers.push({ id, ...sellerData, status: 'Activo', createdAt: new Date().toISOString() });
         saveLocalData();
-        showToast(`¡Vendedor añadido! Contraseña asignada: ${password}`, 'success');
+        showToast(`Â¡Venditore aÃ±adido! ContraseÃ±a asignada: ${password}`, 'success');
         closeModal('modalAddSeller');
         renderAll();
       }
@@ -3115,14 +3663,16 @@
       openModal('modalResetSellerPassword');
     }
 
-    // REQUISITO 7: Admin genera y cambia contraseña aleatoria instantáneamente
+    // REQUISITO 7: Admin genera y cambia contraseÃ±a aleatoria instantÃ¡neamente
     function executeGenerateRandomPasswordForSeller() {
       const sellerId = document.getElementById('resetPassSellerId').value;
       const newPass = generateRandomPassword(8);
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => {
             if (res && res.success) {
               document.getElementById('resetPassCurrentValue').value = res.newPassword;
               showToast(res.message, 'success');
@@ -3138,7 +3688,7 @@
           seller.password = newPass;
           document.getElementById('resetPassCurrentValue').value = newPass;
           saveLocalData();
-          showToast(`¡Nueva contraseña generada para ${seller.name}: ${newPass}!`, 'success');
+          showToast(`Â¡Nuova contraseÃ±a generada para ${seller.name}: ${newPass}!`, 'success');
           renderAll();
         }
       }
@@ -3148,8 +3698,8 @@
       const input = document.getElementById(inputId);
       if (!input) return;
       navigator.clipboard.writeText(input.value)
-        .then(() => showToast('Contraseña copiada al portapapeles', 'info'))
-        .catch(() => alert('Contraseña: ' + input.value));
+        .then(() => showToast('ContraseÃ±a copiada al portapapeles', 'info'))
+        .catch(() => alert('ContraseÃ±a: ' + input.value));
     }
 
     function openChangeSellerStatusModal(sellerId) {
@@ -3168,7 +3718,9 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => {
             if (res && res.success) {
               showToast(res.message, 'success');
               closeModal('modalChangeSellerStatus');
@@ -3183,7 +3735,7 @@
         if (seller) {
           seller.status = newStatus;
           saveLocalData();
-          showToast(`Estado de ${seller.name} cambiado a: ${newStatus}`, 'success');
+          showToast(`Stato de ${seller.name} cambiado a: ${newStatus}`, 'success');
           closeModal('modalChangeSellerStatus');
           renderAll();
         }
@@ -3197,17 +3749,19 @@
       const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId);
 
       if (sellerSales.length > 0) {
-        // Vendedor con ventas: primero ofrecer Archivar, luego Eliminar con doble conf.
+        // Venditore con ventas: primero ofrecer Archivar, luego Eliminar con doble conf.
         const wantArchive = confirm(
           `El vendedor "${seller.name}" tiene ${sellerSales.length} venta(s) registradas.\n\n` +
-          `• Pulsa ACEPTAR para ARCHIVARLO (recomendado: preserva la contabilidad histórica).\n` +
-          `• Pulsa CANCELAR si prefieres ELIMINARLO permanentemente (se pedirá doble confirmación).`
+          `â€¢ Pulsa ACEPTAR para ARCHIVARLO (recomendado: preserva la contabilidad histÃ³rica).\n` +
+          `â€¢ Pulsa CANCELAR si prefieres ELIMINARLO permanentemente (se pedirÃ¡ doble confirmaciÃ³n).`
         );
 
         if (wantArchive) {
           if (APP_STATE.isGoogleScript) {
             google.script.run
-              .withSuccessHandler((res) => { showToast(res.message, 'warning'); loadAllData(); })
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => { showToast(res.message, 'warning'); loadAllData(); })
               .updateSellerStatus(sellerId, 'Archivado');
           } else {
             seller.status = 'Archivado';
@@ -3216,50 +3770,54 @@
             renderAll();
           }
         } else {
-          // Eliminación forzada — doble confirmación obligatoria
+          // EliminaciÃ³n forzada â€” doble confirmaciÃ³n obligatoria
           const conf1 = confirm(
-            `[CONFIRMACIÓN 1/2] — ELIMINACIÓN PERMANENTE\n\n` +
-            `¿Confirmas que deseas ELIMINAR definitivamente al vendedor "${seller.name}"?\n` +
-            `Sus ${sellerSales.length} ventas quedarán sin vendedor asignado.\n\n` +
-            `Esta acción es IRREVERSIBLE.`
+            `[CONFIRMACIÃ“N 1/2] â€” ELIMINACIÃ“N PERMANENTE\n\n` +
+            `Â¿Confirmas que deseas ELIMINAR definitivamente al vendedor "${seller.name}"?\n` +
+            `Sus ${sellerSales.length} ventas quedarÃ¡n sin vendedor asignado.\n\n` +
+            `Esta acciÃ³n es IRREVERSIBLE.`
           );
           if (!conf1) return;
 
           const conf2 = confirm(
-            `[CONFIRMACIÓN 2/2] — ÚLTIMA ADVERTENCIA\n\n` +
-            `¿Estás COMPLETAMENTE SEGURO de eliminar a "${seller.name}" (${seller.email})?\n\n` +
-            `Pulsa ACEPTAR para confirmar la eliminación permanente.`
+            `[CONFIRMACIÃ“N 2/2] â€” ÃšLTIMA ADVERTENCIA\n\n` +
+            `Â¿EstÃ¡s COMPLETAMENTE SEGURO de eliminar a "${seller.name}" (${seller.email})?\n\n` +
+            `Pulsa ACEPTAR para confirmar la eliminaciÃ³n permanente.`
           );
           if (!conf2) return;
 
           if (APP_STATE.isGoogleScript) {
             google.script.run
-              .withSuccessHandler((res) => { showToast(res.message, 'success'); loadAllData(); })
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => { showToast(res.message, 'success'); loadAllData(); })
               .withFailureHandler((err) => showToast('Error: ' + (err.message || err), 'error'))
               .deleteSellerForce(sellerId);
           } else {
             APP_STATE.sellers = APP_STATE.sellers.filter(s => s.id !== sellerId);
             saveLocalData();
-            showToast(`Vendedor ${seller.name} eliminado permanentemente.`, 'success');
+            showToast(`Venditore ${seller.name} eliminado permanentemente.`, 'success');
             renderAll();
           }
         }
       } else {
-        // Sin ventas: eliminación directa con doble confirmación
-        const conf1 = confirm(`[1/2] ¿Deseas eliminar permanentemente al vendedor "${seller.name}"?`);
+        // Sin ventas: eliminaciÃ³n directa con doble confirmaciÃ³n
+        const conf1 = confirm(`[1/2] Â¿Deseas eliminar permanentemente al vendedor "${seller.name}"?`);
         if (!conf1) return;
-        const conf2 = confirm(`[2/2] CONFIRMACIÓN FINAL: ¿Seguro? Esta acción NO se puede deshacer.`);
+        const conf2 = confirm(`[2/2] CONFIRMACIÃ“N FINAL: Â¿Seguro? Esta acciÃ³n NO se puede deshacer.`);
         if (!conf2) return;
 
         if (APP_STATE.isGoogleScript) {
           google.script.run
-            .withSuccessHandler((res) => { showToast(res.message, 'success'); loadAllData(); })
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => { showToast(res.message, 'success'); loadAllData(); })
             .withFailureHandler((err) => showToast('Error: ' + (err.message || err), 'error'))
             .deleteSellerForce(sellerId);
         } else {
           APP_STATE.sellers = APP_STATE.sellers.filter(s => s.id !== sellerId);
           saveLocalData();
-          showToast(`Vendedor ${seller.name} eliminado de la base de datos.`, 'success');
+          showToast(`Venditore ${seller.name} eliminado de la base de datos.`, 'success');
           renderAll();
         }
       }
@@ -3308,7 +3866,7 @@
       visible.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p.id;
-        opt.textContent = `${p.title} (€${p.minPrice.toFixed(2)} - €${p.maxPrice.toFixed(2)})`;
+        opt.textContent = `${p.title} (â‚¬${p.minPrice.toFixed(2)} - â‚¬${p.maxPrice.toFixed(2)})`;
         sel.appendChild(opt);
       });
     }
@@ -3323,7 +3881,7 @@
 
       if (product) {
         hintBox.style.display = 'flex';
-        hintText.innerHTML = `Precio de venta permitido: <strong>€${product.minPrice.toFixed(2)}</strong> - <strong>€${product.maxPrice.toFixed(2)}</strong>.`;
+        hintText.innerHTML = `Precio de venta permitido: <strong>â‚¬${product.minPrice.toFixed(2)}</strong> - <strong>â‚¬${product.maxPrice.toFixed(2)}</strong>.`;
         salePriceInput.min = product.minPrice;
         salePriceInput.max = product.maxPrice;
         salePriceInput.value = product.minPrice;
@@ -3345,7 +3903,7 @@
 
       if (salePrice > 0) {
         previewBox.style.display = 'flex';
-        previewText.textContent = `€${profit.toFixed(2)}`;
+        previewText.textContent = `â‚¬${profit.toFixed(2)}`;
       } else {
         previewBox.style.display = 'none';
       }
@@ -3381,9 +3939,11 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => {
             if (res && res.success) {
-              showToast('¡Venta registrada y confirmada!', 'success');
+              showToast('Â¡Venta registrada y confirmada!', 'success');
               closeModal('modalNewSale');
               loadAllData();
             } else {
@@ -3399,7 +3959,7 @@
           ...saleData,
           sellerProfit,
           status: 'Venta Confirmada', // REQUISITO 2: Directo a confirmada
-          shippingStatus: 'Pendiente de Envío', // REQUISITO 1
+          shippingStatus: 'Pendiente de EnvÃ­o', // REQUISITO 1
           shippingDate: '',
           shippingTracking: '',
           shippingNotes: '',
@@ -3409,14 +3969,14 @@
           returned: false
         });
         saveLocalData();
-        showToast('¡Venta registrada y confirmada con éxito!', 'success');
+        showToast('Â¡Venta registrada y confirmada con Ã©xito!', 'success');
         closeModal('modalNewSale');
         renderAll();
       }
     }
 
     // ==========================================
-    // DEVOLUCIÓN DE PRODUCTO (REQUISITO 3)
+    // DEVOLUCIÃ“N DE PRODUCTO (REQUISITO 3)
     // ==========================================
 
     function openReturnModal(saleId) {
@@ -3424,7 +3984,7 @@
       if (!sale) return;
 
       document.getElementById('returnSaleId').value = sale.id;
-      document.getElementById('returnProductName').value = `${sale.productName} (Vendedor: ${sale.sellerName})`;
+      document.getElementById('returnProductName').value = `${sale.productName} (Venditore: ${sale.sellerName})`;
       document.getElementById('returnReason').value = '';
 
       const warningBox = document.getElementById('returnSettledWarningBox');
@@ -3432,7 +3992,7 @@
 
       if (sale.settled) {
         warningBox.style.display = 'flex';
-        profitText.textContent = `€${Number(sale.sellerProfit).toFixed(2)}`;
+        profitText.textContent = `â‚¬${Number(sale.sellerProfit).toFixed(2)}`;
       } else {
         warningBox.style.display = 'none';
       }
@@ -3447,7 +4007,9 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res) => {
+          .withSuccessHandler((res)
+          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
+          => {
             if (res && res.success) {
               showToast(res.message, res.wasSettled ? 'warning' : 'success');
               closeModal('modalReturnSale');
@@ -3464,8 +4026,8 @@
         const wasSettled = sale.settled;
         const profit = sale.sellerProfit;
         const note = wasSettled 
-          ? `[DEVOLUCIÓN DE PRODUCTO: ${sale.productName}] Motivo: ${reason}. ATENCIÓN: La venta ya estaba liquidada (Comisión ya cobrada: €${profit.toFixed(2)}). Este importe se adeudará en el período siguiente como saldo negativo.`
-          : `[DEVOLUCIÓN DE PRODUCTO: ${sale.productName}] Motivo: ${reason}. Venta anulada antes de la liquidación. Saldo resuelto a cero.`;
+          ? `[DEVOLUCIÃ“N DE PRODUCTO: ${sale.productName}] Motivo: ${reason}. ATENCIÃ“N: La venta ya estaba liquidada (ComisiÃ³n ya cobrada: â‚¬${profit.toFixed(2)}). Este importe se adeudarÃ¡ en el perÃ­odo siguiente como saldo negativo.`
+          : `[DEVOLUCIÃ“N DE PRODUCTO: ${sale.productName}] Motivo: ${reason}. Venta anulada antes de la liquidaciÃ³n. Saldo resuelto a cero.`;
 
         sale.status = 'Devuelta';
         sale.returned = true;
@@ -3473,8 +4035,8 @@
 
         saveLocalData();
         showToast(wasSettled 
-          ? `¡Devolución registrada! Comisión de €${profit.toFixed(2)} adeudada al administrador para el próximo período.`
-          : 'Devolución completada. Saldo resuelto a cero.', 
+          ? `Â¡DevoluciÃ³n registrada! ComisiÃ³n de â‚¬${profit.toFixed(2)} adeudada al administrador para el prÃ³ximo perÃ­odo.`
+          : 'DevoluciÃ³n completada. Saldo resuelto a cero.', 
           wasSettled ? 'warning' : 'success'
         );
         closeModal('modalReturnSale');
@@ -3503,7 +4065,7 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         document.getElementById(targetInputId).value = e.target.result;
-        showToast('Foto cargada correctamente', 'info');
+        showToast('Foto caricata correttamente', 'info');
       };
       reader.readAsDataURL(file);
     }
@@ -3550,3 +4112,4 @@
   </script>
 </body>
 </html>
+
