@@ -981,15 +981,15 @@
   <div id="loginScreenOverlay">
     <div class="login-card">
       <img src="icon-192.png" alt="Logo" class="login-brand-logo">
-      <h2 class="login-title">Accesso al Sistema</h2>
-      <p class="login-subtitle">GestiÃ³n de Vendite y EnvÃ­os</p>
+      <h2 class="login-title">Acceso al Sistema</h2>
+      <p class="login-subtitle">GestiÃ³n de Ventas y EnvÃ­os</p>
 
       <div class="login-tabs">
         <button id="btnTabLoginAdmin" class="login-tab-btn active" onclick="switchLoginMode('ADMIN')">
           <i class="fa-solid fa-shield-halved"></i> Administrador
         </button>
         <button id="btnTabLoginSeller" class="login-tab-btn" onclick="switchLoginMode('SELLER')">
-          <i class="fa-solid fa-user-tag"></i> Venditore
+          <i class="fa-solid fa-user-tag"></i> Vendedor
         </button>
       </div>
 
@@ -1039,7 +1039,12 @@
 
         <div class="form-group">
           <label><i class="fa-solid fa-key"></i> ContraseÃ±a Asignada</label>
-          <input type="password" id="loginSellerPassword" class="form-control" placeholder="Introduce tu contraseÃ±a" required autocomplete="current-password">
+          <div class="input-password-wrapper">
+            <input type="password" id="loginSellerPassword" class="form-control" placeholder="Introduce tu contraseÃ±a" required autocomplete="current-password">
+            <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('loginSellerPassword', this)" title="Mostra/Nascondi password">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
         </div>
 
         <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
@@ -1048,9 +1053,15 @@
         </div>
 
         <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px;">
-          <i class="fa-solid fa-right-to-bracket"></i> Iniciar SesiÃ³n como Venditore
+          <i class="fa-solid fa-right-to-bracket"></i> Iniciar SesiÃ³n como Vendedor
         </button>
       </form>
+
+      <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--gray-200); text-align: center;">
+        <button type="button" onclick="openAdminSettingsModal()" style="background: none; border: none; color: var(--primary); font-size: 0.82rem; cursor: pointer; text-decoration: underline; display: inline-flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-gear"></i> Configura URL Google Apps Script / Impostazioni
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1060,13 +1071,23 @@
   <header class="navbar">
     <div class="brand">
       <img src="icon-192.png" alt="Logo">
-      <span>Vendite y EnvÃ­os</span>
+      <span>Ventas y EnvÃ­os</span>
     </div>
 
     <div class="navbar-actions">
       <!-- BotÃ³n directo de instalaciÃ³n PWA -->
       <button id="btnHeaderInstall" class="btn-install-header" onclick="triggerPWAInstall()" style="display: none;">
-        <i class="fa-solid fa-cloud-arrow-down"></i> Installa App
+        <i class="fa-solid fa-cloud-arrow-down"></i> Instalar App
+      </button>
+
+      <!-- Stato di connessione (Online / Demo) -->
+      <span id="connStatusBadge" class="connection-status-badge badge-demo" onclick="if(APP_STATE.role==='ADMIN') openAdminSettingsModal();" title="Stato sincronizzazione (clicca per configurare)" style="cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600; padding: 4px 10px; border-radius: 9999px; background: #fef3c7; color: #92400e;">
+        <i class="fa-solid fa-circle-dot"></i> <span id="connStatusText">Locale / Offline</span>
+      </span>
+
+      <!-- Bottone Impostazioni Admin -->
+      <button id="btnAdminSettings" class="btn admin-only" onclick="openAdminSettingsModal()" title="Impostazioni Amministratore (Cambia Password, Cambia Email, Sincronizzazione Google Sheets)" style="display: none; padding: 6px 12px; font-size: 0.82rem; border-radius: 8px; border: 1px solid var(--gray-300); background: #ffffff; color: var(--gray-800); cursor: pointer; align-items: center; gap: 6px; font-weight: 500;">
+        <i class="fa-solid fa-gear" style="color: var(--primary);"></i> <span class="hide-mobile">Impostazioni</span>
       </button>
 
       <!-- Usuario Autenticado -->
@@ -1075,9 +1096,9 @@
         <span id="currentLoggedUserLabel">Cargando...</span>
       </div>
 
-      <!-- Chiudi SesiÃ³n -->
-      <button class="btn-logout" onclick="handleLogout()" title="Chiudi SesiÃ³n">
-        <i class="fa-solid fa-arrow-right-from-bracket"></i> Esci
+      <!-- Cerrar SesiÃ³n -->
+      <button class="btn-logout" onclick="handleLogout()" title="Cerrar SesiÃ³n">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> Salir
       </button>
     </div>
   </header>
@@ -1089,19 +1110,19 @@
       <span class="badge-counter" id="badgeCatalog">0</span>
     </button>
     <button class="nav-tab-btn" onclick="switchTab('sales')">
-      <i class="fa-solid fa-receipt"></i> Vendite
+      <i class="fa-solid fa-receipt"></i> Ventas
       <span class="badge-counter" id="badgeSales">0</span>
     </button>
-    <!-- REQUISITO 1: PestaÃ±a EnvÃ­os para Admin y seguimiento en tiempo real para Venditore -->
+    <!-- REQUISITO 1: PestaÃ±a EnvÃ­os para Admin y seguimiento en tiempo real para Vendedor -->
     <button class="nav-tab-btn" onclick="switchTab('shipping')">
       <i class="fa-solid fa-truck-fast"></i> EnvÃ­os
       <span class="badge-counter" id="badgeShipping">0</span>
     </button>
     <button class="nav-tab-btn" onclick="switchTab('accounting')">
-      <i class="fa-solid fa-scale-balanced"></i> Contabilità & Saldi
+      <i class="fa-solid fa-scale-balanced"></i> Contabilidad y Saldos
     </button>
     <button class="nav-tab-btn admin-only" onclick="switchTab('sellers')">
-      <i class="fa-solid fa-users"></i> GestiÃ³n de Venditorees
+      <i class="fa-solid fa-users"></i> GestiÃ³n de Vendedores
     </button>
   </nav>
 
@@ -1115,10 +1136,10 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title">
-            <i class="fa-solid fa-boxes-stacked" style="color: var(--primary);"></i> CatÃ¡logo de Prodottos
+            <i class="fa-solid fa-boxes-stacked" style="color: var(--primary);"></i> CatÃ¡logo de Productos
           </div>
           <button class="btn btn-primary admin-only" onclick="openAddProductModal()">
-            <i class="fa-solid fa-paper-plane"></i> Invia Prodotto ai Venditori
+            <i class="fa-solid fa-paper-plane"></i> Enviar Producto a Vendedores
           </button>
         </div>
         <div class="card-body">
@@ -1134,19 +1155,19 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title">
-            <i class="fa-solid fa-circle-check" style="color: var(--success);"></i> Registro Vendite
+            <i class="fa-solid fa-circle-check" style="color: var(--success);"></i> Registro de Ventas Confirmadas
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <select id="filterSalesShipping" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderSalesTable()">
-              <option value="ALL">Tutte le vendite</option>
+              <option value="ALL">Todas las ventas</option>
               <option value="PENDIENTE">ðŸ“¦ Pendientes de EnvÃ­o</option>
-              <option value="ENVIADA">ðŸšš Spedite da Admin</option>
-              <option value="DEVUELTA">ðŸ”„ Rese / Restituite</option>
+              <option value="ENVIADA">ðŸšš Enviadas por Admin</option>
+              <option value="DEVUELTA">ðŸ”„ Devueltas</option>
               <option value="PENDIENTE_ACEPT">Pendientes de AceptaciÃ³n</option>
-              <option value="RECHAZADA">Rifiutate</option>
+              <option value="RECHAZADA">Rechazadas</option>
             </select>
             <button class="btn btn-success" onclick="openNewSaleModal()">
-              <i class="fa-solid fa-cart-plus"></i> Registra Nuova Vendita
+              <i class="fa-solid fa-cart-plus"></i> Registrar Nueva Venta
             </button>
           </div>
         </div>
@@ -1156,16 +1177,16 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Data</th>
-                  <th>Venditore</th>
-                  <th>Prodotto</th>
-                  <th>Prezzo Vendita</th>
+                  <th>Fecha</th>
+                  <th>Vendedor</th>
+                  <th>Producto</th>
+                  <th>Precio Venta</th>
                   <th class="admin-only">Costo Admin</th>
-                  <th>Provvigione Venditore</th>
-                  <th>Stato EnvÃ­o</th>
+                  <th>Ganancia Vendedor</th>
+                  <th>Estado EnvÃ­o</th>
                   <th>LiquidaciÃ³n</th>
-                  <th>Note</th>
-                  <th style="text-align: right;">Azioni</th>
+                  <th>Notas</th>
+                  <th style="text-align: right;">Acciones</th>
                 </tr>
               </thead>
               <tbody id="salesTableBody"></tbody>
@@ -1205,14 +1226,14 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>ID Vendita</th>
-                  <th>Data Venta</th>
-                  <th>Venditore</th>
-                  <th>Prodotto</th>
-                  <th>Stato del EnvÃ­o</th>
-                  <th>Data EnvÃ­o</th>
+                  <th>ID Venta</th>
+                  <th>Fecha Venta</th>
+                  <th>Vendedor</th>
+                  <th>Producto</th>
+                  <th>Estado del EnvÃ­o</th>
+                  <th>Fecha EnvÃ­o</th>
                   <th>NÂº Seguimiento / Transporte</th>
-                  <th>Note de Entrega</th>
+                  <th>Notas de Entrega</th>
                   <th style="text-align: right;">AcciÃ³n</th>
                 </tr>
               </thead>
@@ -1236,7 +1257,7 @@
         <!-- Requisito 3: Monto a entregar por ventas efectivamente enviadas -->
         <div class="stat-card debt">
           <div class="stat-label">
-            <span id="labelDebtWho">Importo da Consegnare ad Admin (Spedite)</span>
+            <span id="labelDebtWho">Monto a Entregar al Administrador (Enviadas)</span>
           </div>
           <div class="stat-value" id="kpiAmountOwedAdmin">â‚¬0.00</div>
           <div class="stat-subtext" id="kpiAmountOwedSub">
@@ -1247,7 +1268,7 @@
         <!-- Ganancia neta del vendedor por ventas enviadas -->
         <div class="stat-card profit">
           <div class="stat-label">
-            <span id="labelProfitWho">ComisiÃ³n Neta Venditore (Spedite)</span>
+            <span id="labelProfitWho">ComisiÃ³n Neta Vendedor (Enviadas)</span>
           </div>
           <div class="stat-value" id="kpiSellerProfit">â‚¬0.00</div>
           <div class="stat-subtext" id="kpiSellerProfitSub">
@@ -1264,9 +1285,9 @@
           </div>
         </div>
 
-        <!-- Rettifiche per Resi pasadas -->
+        <!-- Ajustes por Devoluciones pasadas -->
         <div class="stat-card adjust">
-          <div class="stat-label">Rettifiche per Resi (Saldo Negativo)</div>
+          <div class="stat-label">Ajustes por Devoluciones (Saldo Negativo)</div>
           <div class="stat-value" id="kpiReturnAdjustments">â‚¬0.00</div>
           <div class="stat-subtext">Devoluciones de ventas ya liquidadas anteriormente</div>
         </div>
@@ -1276,10 +1297,10 @@
       <div class="card admin-only">
         <div class="card-header">
           <div class="card-title">
-            <i class="fa-solid fa-hand-holding-dollar"></i> Cierre y LiquidaciÃ³n de PerÃ­odo (Solo Vendite Spedite)
+            <i class="fa-solid fa-hand-holding-dollar"></i> Cierre y LiquidaciÃ³n de PerÃ­odo (Solo Ventas Enviadas)
           </div>
           <button class="btn btn-warning" onclick="openSettlePeriodModal()">
-            <i class="fa-solid fa-file-invoice-dollar"></i> Liquidar PerÃ­odo para Venditore Seleccionado
+            <i class="fa-solid fa-file-invoice-dollar"></i> Liquidar PerÃ­odo para Vendedor Seleccionado
           </button>
         </div>
       </div>
@@ -1289,32 +1310,32 @@
         <div class="card-header" style="background: var(--gray-50);">
           <div style="display: flex; gap: 10px;">
             <button id="btnSubTabCurrent" class="btn btn-secondary btn-sm" onclick="toggleAccountingSubTab('current')">
-              <i class="fa-solid fa-list-check"></i> Vendite Spedite a Liquidar
+              <i class="fa-solid fa-list-check"></i> Ventas Enviadas a Liquidar
             </button>
             <button id="btnSubTabHistory" class="btn btn-secondary btn-sm" onclick="toggleAccountingSubTab('history')">
-              <i class="fa-solid fa-clock-rotate-left"></i> Storico Mesi & Saldi Chiusi
+              <i class="fa-solid fa-clock-rotate-left"></i> Historial de Meses y Saldos Liquidados
             </button>
           </div>
         </div>
 
-        <!-- Vista 1: Vendite Spedite del PerÃ­odo Actual -->
+        <!-- Vista 1: Ventas Enviadas del PerÃ­odo Actual -->
         <div id="accountingCurrentView" class="card-body">
           <h4 style="margin-bottom: 14px; color: var(--gray-700);">
-            Detalle de Vendite Confermate y Spedite (Listas para LiquidaciÃ³n)
+            Detalle de Ventas Confirmadas y Enviadas (Listas para LiquidaciÃ³n)
           </h4>
           <div class="table-responsive">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>ID Vendita</th>
-                  <th>Data Venta</th>
-                  <th>Data EnvÃ­o</th>
-                  <th>Venditore</th>
-                  <th>Prodotto</th>
-                  <th>Prezzo Vendita</th>
+                  <th>ID Venta</th>
+                  <th>Fecha Venta</th>
+                  <th>Fecha EnvÃ­o</th>
+                  <th>Vendedor</th>
+                  <th>Producto</th>
+                  <th>Precio Venta</th>
                   <th>Costo Admin (Base)</th>
-                  <th>ComisiÃ³n Venditore</th>
-                  <th>Stato</th>
+                  <th>ComisiÃ³n Vendedor</th>
+                  <th>Estado</th>
                 </tr>
               </thead>
               <tbody id="accountingCurrentTableBody"></tbody>
@@ -1333,13 +1354,13 @@
                 <tr>
                   <th>ID Saldo</th>
                   <th>PerÃ­odo (Mes/AÃ±o)</th>
-                  <th>Data de Cierre</th>
-                  <th>Venditore</th>
-                  <th>Total Vendite Spedite</th>
-                  <th>Totale Consegnato ad Admin</th>
+                  <th>Fecha de Cierre</th>
+                  <th>Vendedor</th>
+                  <th>Total Ventas Enviadas</th>
+                  <th>Total Entregado al Admin</th>
                   <th>ComisiÃ³n Liquidada</th>
-                  <th>Rettifiche Resi</th>
-                  <th>Note y Detalles</th>
+                  <th>Ajustes Devoluciones</th>
+                  <th>Notas y Detalles</th>
                 </tr>
               </thead>
               <tbody id="accountingHistoryTableBody"></tbody>
@@ -1357,18 +1378,18 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title">
-            <i class="fa-solid fa-users"></i> GestiÃ³n y Stato de Venditorees
+            <i class="fa-solid fa-users"></i> GestiÃ³n y Estado de Vendedores
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <select id="filterSellersStatus" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderSellers()">
-              <option value="ALL">Tutti i venditori</option>
-              <option value="ACTIVO" selected>Solo Attivi</option>
-              <option value="VACACIONES">In Ferie</option>
-              <option value="BAJA">In Malattia</option>
-              <option value="ARCHIVADO">Archiviati / Inattivi</option>
+              <option value="ALL">Todos los vendedores</option>
+              <option value="ACTIVO" selected>Solo Activos</option>
+              <option value="VACACIONES">De Vacaciones</option>
+              <option value="BAJA">De Baja</option>
+              <option value="ARCHIVADO">Archivados / Inactivos</option>
             </select>
             <button class="btn btn-primary" onclick="openAddSellerModal()">
-              <i class="fa-solid fa-user-plus"></i> AÃ±adir Nuevo Venditore
+              <i class="fa-solid fa-user-plus"></i> AÃ±adir Nuevo Vendedor
             </button>
           </div>
         </div>
@@ -1378,12 +1399,12 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Nome Completo</th>
-                  <th>Email (Login)</th>
+                  <th>Nombre Completo</th>
+                  <th>Correo (Login)</th>
                   <th>TelÃ©fono</th>
-                  <th>Stato</th>
+                  <th>Estado</th>
                   <th>ContraseÃ±a Asignada</th>
-                  <th style="text-align: right;">Azioni</th>
+                  <th style="text-align: right;">Acciones</th>
                 </tr>
               </thead>
               <tbody id="sellersTableBody"></tbody>
@@ -1404,7 +1425,7 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title" style="color: var(--purple);">
-          <i class="fa-solid fa-truck-fast"></i> Registrar EnvÃ­o de Prodotto
+          <i class="fa-solid fa-truck-fast"></i> Registrar EnvÃ­o de Producto
         </div>
         <button class="modal-close" onclick="closeModal('modalRegisterShipping')">&times;</button>
       </div>
@@ -1412,15 +1433,15 @@
         <input type="hidden" id="shipSaleId">
         <div class="modal-body">
           <div class="form-group">
-            <label>Venta y Prodotto</label>
+            <label>Venta y Producto</label>
             <input type="text" id="shipSaleDetails" class="form-control" readonly>
           </div>
           <div class="form-group">
-            <label>Data de EnvÃ­o *</label>
+            <label>Fecha de EnvÃ­o *</label>
             <input type="date" id="shipDate" class="form-control" required>
           </div>
           <div class="form-group">
-            <label>Corriere / Spedizioniere</label>
+            <label>Empresa de Transporte / Courier</label>
             <input type="text" id="shipCarrier" class="form-control" placeholder="Ej. Correos Express, SEUR, GLS, MRW, DHL...">
           </div>
           <div class="form-group">
@@ -1428,12 +1449,12 @@
             <input type="text" id="shipTracking" class="form-control" placeholder="Ej. ES1234567890">
           </div>
           <div class="form-group">
-            <label>Note de EnvÃ­o / Entrega</label>
+            <label>Notas de EnvÃ­o / Entrega</label>
             <textarea id="shipNotes" class="form-control" rows="2" placeholder="Ej. Paquete asegurado, entrega en domicilio"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalRegisterShipping')">Annulla</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalRegisterShipping')">Cancelar</button>
           <button type="submit" class="btn btn-purple">
             <i class="fa-solid fa-check"></i> Confirmar EnvÃ­o Realizado
           </button>
@@ -1462,13 +1483,13 @@
           </div>
         </div>
         <p style="font-size: 0.9rem; color: var(--gray-700);">
-          Por favor, pulsa <strong>"Elimina Definitivamente"</strong> solo si estÃ¡s completamente seguro.
+          Por favor, pulsa <strong>"Eliminar Definitivamente"</strong> solo si estÃ¡s completamente seguro.
         </p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="closeModal('modalDoubleConfirmDeleteSale')">Annulla</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalDoubleConfirmDeleteSale')">Cancelar</button>
         <button type="button" class="btn btn-danger" onclick="executeDeleteSaleConfirmed()">
-          <i class="fa-solid fa-trash"></i> Elimina Definitivamente
+          <i class="fa-solid fa-trash"></i> Eliminar Definitivamente
         </button>
       </div>
     </div>
@@ -1479,14 +1500,14 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title">
-          <i class="fa-solid fa-key" style="color: var(--primary);"></i> ContraseÃ±a de Venditore
+          <i class="fa-solid fa-key" style="color: var(--primary);"></i> ContraseÃ±a de Vendedor
         </div>
         <button class="modal-close" onclick="closeModal('modalResetSellerPassword')">&times;</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="resetPassSellerId">
         <div class="form-group">
-          <label>Venditore</label>
+          <label>Vendedor</label>
           <input type="text" id="resetPassSellerName" class="form-control" readonly>
         </div>
         <div class="form-group">
@@ -1494,7 +1515,7 @@
           <div style="display: flex; gap: 8px;">
             <input type="text" id="resetPassCurrentValue" class="form-control" readonly style="font-weight: 700; letter-spacing: 1px;">
             <button class="btn btn-secondary" type="button" onclick="copyPasswordToClipboard('resetPassCurrentValue')">
-              <i class="fa-regular fa-copy"></i> Copia
+              <i class="fa-regular fa-copy"></i> Copiar
             </button>
           </div>
         </div>
@@ -1506,9 +1527,9 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="closeModal('modalResetSellerPassword')">Chiudi</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalResetSellerPassword')">Cerrar</button>
         <button type="button" class="btn btn-warning" onclick="executeGenerateRandomPasswordForSeller()">
-          <i class="fa-solid fa-arrows-rotate"></i> Generar Nuova ContraseÃ±a Aleatoria
+          <i class="fa-solid fa-arrows-rotate"></i> Generar Nueva ContraseÃ±a Aleatoria
         </button>
       </div>
     </div>
@@ -1519,14 +1540,14 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title">
-          <i class="fa-solid fa-user-plus"></i> AÃ±adir Nuevo Venditore
+          <i class="fa-solid fa-user-plus"></i> AÃ±adir Nuevo Vendedor
         </div>
         <button class="modal-close" onclick="closeModal('modalAddSeller')">&times;</button>
       </div>
       <form id="formAddSeller" onsubmit="submitAddSeller(event)">
         <div class="modal-body">
           <div class="form-group">
-            <label>Nome Completo *</label>
+            <label>Nombre Completo *</label>
             <input type="text" id="newSellerName" class="form-control" placeholder="Ej. Juan PÃ©rez" required>
           </div>
           <div class="form-group">
@@ -1542,7 +1563,7 @@
             <div style="display: flex; gap: 8px;">
               <input type="text" id="newSellerPassword" class="form-control" required style="font-weight: 700; letter-spacing: 1px;">
               <button class="btn btn-secondary" type="button" onclick="regenerateNewSellerPassword()">
-                <i class="fa-solid fa-dice"></i> Nuova
+                <i class="fa-solid fa-dice"></i> Nueva
               </button>
             </div>
             <small style="color: var(--gray-500); display: block; margin-top: 4px;">
@@ -1551,8 +1572,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddSeller')">Annulla</button>
-          <button type="submit" class="btn btn-primary">Registrar Venditore</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddSeller')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Registrar Vendedor</button>
         </div>
       </form>
     </div>
@@ -1563,7 +1584,7 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title">
-          <i class="fa-solid fa-user-pen" style="color: var(--primary);"></i> Cambiar Stato del Venditore
+          <i class="fa-solid fa-user-pen" style="color: var(--primary);"></i> Cambiar Estado del Vendedor
         </div>
         <button class="modal-close" onclick="closeModal('modalChangeSellerStatus')">&times;</button>
       </div>
@@ -1571,22 +1592,22 @@
         <input type="hidden" id="statusSellerId">
         <div class="modal-body">
           <div class="form-group">
-            <label>Venditore</label>
+            <label>Vendedor</label>
             <input type="text" id="statusSellerName" class="form-control" readonly>
           </div>
           <div class="form-group">
-            <label>Nuevo Stato de ColaboraciÃ³n *</label>
+            <label>Nuevo Estado de ColaboraciÃ³n *</label>
             <select id="newSellerStatusSelect" class="form-control" required>
               <option value="Activo">ðŸŸ¢ Activo</option>
-              <option value="In Ferie">ðŸ–ï¸ In Ferie</option>
-              <option value="In Malattia">ðŸ©º In Malattia MÃ©dica</option>
+              <option value="De Vacaciones">ðŸ–ï¸ De Vacaciones</option>
+              <option value="De Baja">ðŸ©º De Baja MÃ©dica</option>
               <option value="Archivado">ðŸ“¦ Archivado / Inactivo</option>
             </select>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalChangeSellerStatus')">Annulla</button>
-          <button type="submit" class="btn btn-primary">Actualizar Stato</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalChangeSellerStatus')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Actualizar Estado</button>
         </div>
       </form>
     </div>
@@ -1597,14 +1618,14 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title">
-          <i class="fa-solid fa-paper-plane" style="color: var(--primary);"></i> Invia Prodotto ai Venditori
+          <i class="fa-solid fa-paper-plane" style="color: var(--primary);"></i> Enviar Producto a los Vendedores
         </div>
         <button class="modal-close" onclick="closeModal('modalAddProduct')">&times;</button>
       </div>
       <form id="formAddProduct" onsubmit="submitAddProduct(event)">
         <div class="modal-body">
           <div class="form-group">
-            <label>TÃ­tulo del Prodotto *</label>
+            <label>TÃ­tulo del Producto *</label>
             <input type="text" id="prodTitle" class="form-control" placeholder="Ej. Zapatillas Running Air" required>
           </div>
           <div class="form-group">
@@ -1612,13 +1633,13 @@
             <textarea id="prodDesc" class="form-control" rows="2" placeholder="Tallas, colores, material..."></textarea>
           </div>
           <div class="form-group">
-            <label>URL de la Foto o Imagen del Prodotto</label>
+            <label>URL de la Foto o Imagen del Producto</label>
             <input type="url" id="prodPhotoUrl" class="form-control" placeholder="https://ejemplo.com/foto.jpg">
-            <small style="color: var(--gray-500); display: block; margin-top: 4px;">Oppure carica un'immagine dal dispositivo:</small>
+            <small style="color: var(--gray-500); display: block; margin-top: 4px;">O sube una imagen de tu dispositivo:</small>
             <input type="file" id="prodPhotoFile" accept="image/*" class="form-control" style="margin-top: 4px;" onchange="handleImageUpload(event, 'prodPhotoUrl')">
           </div>
           <div class="form-group">
-            <label style="color: var(--primary);">Prezzo di Acquisto Admin (â‚¬) *</label>
+            <label style="color: var(--primary);">Precio de Compra Admin (â‚¬) *</label>
             <input type="number" step="0.01" min="0" id="prodPurchasePrice" class="form-control" placeholder="Ej. 25.00" required>
             <small style="color: var(--gray-500);">Visible Ãºnicamente para el Administrador.</small>
           </div>
@@ -1633,15 +1654,15 @@
             </div>
           </div>
           <div class="form-group">
-            <label>Assegna a</label>
+            <label>Destinatarios (Asignar a)</label>
             <select id="prodAssignedTo" class="form-control">
-              <option value="TUTTI">Tutti i venditori activos</option>
+              <option value="TUTTI">Todos los vendedores activos</option>
             </select>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddProduct')">Annulla</button>
-          <button type="submit" class="btn btn-primary">Enviar Prodotto</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddProduct')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Enviar Producto</button>
         </div>
       </form>
     </div>
@@ -1652,20 +1673,20 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title">
-          <i class="fa-solid fa-cart-plus" style="color: var(--success);"></i> Registra Nuova Vendita
+          <i class="fa-solid fa-cart-plus" style="color: var(--success);"></i> Registrar Nueva Venta
         </div>
         <button class="modal-close" onclick="closeModal('modalNewSale')">&times;</button>
       </div>
       <form id="formNewSale" onsubmit="submitNewSale(event)">
         <div class="modal-body">
           <div class="form-group">
-            <label>Seleccionar Prodotto *</label>
+            <label>Seleccionar Producto *</label>
             <select id="saleProductId" class="form-control" required onchange="onSaleProductSelected()">
               <option value="">-- Selecciona un producto --</option>
             </select>
           </div>
           <div class="form-group" id="saleSellerFieldGroup">
-            <label>Venditore *</label>
+            <label>Vendedor *</label>
             <select id="saleSellerId" class="form-control" required></select>
           </div>
           <div class="alert-box info" id="salePriceHintBox" style="display: none;">
@@ -1674,26 +1695,26 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Prezzo Effettivo di Vendita (â‚¬) *</label>
+              <label>Precio Real de Venta (â‚¬) *</label>
               <input type="number" step="0.01" id="salePrice" class="form-control" placeholder="0.00" required oninput="calculateSalePreview()">
             </div>
             <div class="form-group admin-only">
-              <label>Costo di Acquisto Admin (â‚¬)</label>
+              <label>Costo de Compra Admin (â‚¬)</label>
               <input type="number" step="0.01" id="saleAdminCost" class="form-control" placeholder="0.00" readonly>
             </div>
           </div>
           <div class="alert-box success" id="saleProfitPreviewBox" style="display: none;">
             <i class="fa-solid fa-coins"></i>
-            <div><strong>ComisiÃ³n Estimada Venditore: </strong> <span id="saleEstimatedProfit">â‚¬0.00</span></div>
+            <div><strong>ComisiÃ³n Estimada Vendedor: </strong> <span id="saleEstimatedProfit">â‚¬0.00</span></div>
           </div>
           <div class="form-group">
-            <label>Note adicionales</label>
-            <textarea id="saleNotes" class="form-control" rows="2" placeholder="Note sobre esta venta"></textarea>
+            <label>Notas adicionales</label>
+            <textarea id="saleNotes" class="form-control" rows="2" placeholder="Notas sobre esta venta"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalNewSale')">Annulla</button>
-          <button type="submit" class="btn btn-success">Registra Vendita Confermata</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalNewSale')">Cancelar</button>
+          <button type="submit" class="btn btn-success">Registrar Venta Confirmada</button>
         </div>
       </form>
     </div>
@@ -1704,7 +1725,7 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title" style="color: var(--danger);">
-          <i class="fa-solid fa-arrow-rotate-left"></i> DevoluciÃ³n de Prodotto
+          <i class="fa-solid fa-arrow-rotate-left"></i> DevoluciÃ³n de Producto
         </div>
         <button class="modal-close" onclick="closeModal('modalReturnSale')">&times;</button>
       </div>
@@ -1729,7 +1750,7 @@
           </div>
 
           <div class="form-group">
-            <label>Prodotto Devuelto</label>
+            <label>Producto Devuelto</label>
             <input type="text" id="returnProductName" class="form-control" readonly>
           </div>
 
@@ -1739,7 +1760,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalReturnSale')">Annulla</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalReturnSale')">Cancelar</button>
           <button type="submit" class="btn btn-danger">Confirmar DevoluciÃ³n</button>
         </div>
       </form>
@@ -1761,7 +1782,7 @@
             Solo las ventas <strong>enviadas</strong> pendientes se archivarÃ¡n como <strong>Liquidadas (Saldadas)</strong>.
           </p>
           <div class="form-group">
-            <label>Venditore a Liquidar *</label>
+            <label>Vendedor a Liquidar *</label>
             <select id="settleSellerSelect" class="form-control" required onchange="updateSettlePreview()"></select>
           </div>
           <div class="form-group">
@@ -1772,12 +1793,12 @@
             <div id="settleSummaryContent">Calculando valores...</div>
           </div>
           <div class="form-group">
-            <label>Note de la LiquidaciÃ³n</label>
+            <label>Notas de la LiquidaciÃ³n</label>
             <textarea id="settleNotes" class="form-control" rows="2" placeholder="Ej. Pago realizado por transferencia el 24/10/2026"></textarea>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalSettlePeriod')">Annulla</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalSettlePeriod')">Cancelar</button>
           <button type="submit" class="btn btn-warning">Ejecutar LiquidaciÃ³n</button>
         </div>
       </form>
@@ -1911,75 +1932,21 @@
       isAuthenticated: false,
       role: 'ADMIN',
       activeSellerId: null,
-      currentUserDisplayName: 'Administrador',
+      currentUserDisplayName: 'Amministratore',
+      currentUserEmail: localStorage.getItem('ADMIN_EMAIL') || 'admin@gestione.com',
       products: [],
       sellers: [],
       sales: [],
       settlements: [],
       activeTab: 'catalog',
-      pendingSaleToDeleteId: null, // Para doble confirmaciÃ³n
-      isGoogleScript: typeof google !== 'undefined' && google.script && google.script.run
+      pendingSaleToDeleteId: null,
+      pendingSellerToDeleteId: null,
+      isGoogleScript: typeof google !== 'undefined' && google.script && google.script.run,
+      googleWebAppUrl: localStorage.getItem('GOOGLE_WEB_APP_URL') || ''
     };
 
     const LOCAL_STORAGE_KEY = 'VENTAS_APP_DATA_ES_V3';
-    const SESSION_AUTH_KEY = 'GESTIONE_VENDITE_SESSION_V2';
-
-    function showLoading(msg) {
-      const overlay = document.getElementById('loadingOverlay');
-      const text = document.getElementById('loadingMessage');
-      if (text) text.textContent = msg || 'Operazione in corso...';
-      if (overlay) overlay.style.display = 'flex';
-    }
-
-    function hideLoading() {
-      const overlay = document.getElementById('loadingOverlay');
-      if (overlay) overlay.style.display = 'none';
-    }
-
-    function togglePasswordVisibility(inputId, btn) {
-      const input = document.getElementById(inputId);
-      if (!input) return;
-      if (input.type === 'password') {
-        input.type = 'text';
-        btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
-      } else {
-        input.type = 'password';
-        btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
-      }
-    }
-
-    function copyPasswordToClipboard(inputId) {
-      const input = document.getElementById(inputId);
-      if (!input) return;
-      copyText(input.value);
-    }
-
-    function copyText(text) {
-      if (!text) return;
-      navigator.clipboard.writeText(text).then(() => {
-        showToast('Copiato negli appunti: ' + text, 'info');
-      }).catch(() => {
-        prompt('Copia manualmente:', text);
-      });
-    }
-
-    function updateConnectionStatusBadge() {
-      const badge = document.getElementById('connStatusBadge');
-      const text  = document.getElementById('connStatusText');
-      if (!badge || !text) return;
-
-      if (APP_STATE.isGoogleScript) {
-        badge.className = 'sync-status-badge';
-        text.textContent = 'Google Script Nativo';
-      } else if (APP_STATE.googleWebAppUrl && APP_STATE.googleWebAppUrl.trim().startsWith('http')) {
-        badge.className = 'sync-status-badge';
-        text.textContent = 'Google Sheets Collegato';
-      } else {
-        badge.className = 'sync-status-badge local';
-        text.textContent = 'Modalità Locale / Demo';
-      }
-    }
-
+    const SESSION_AUTH_KEY = 'VENTAS_AUTH_SESSION_V3';
 
     // PWA
     let deferredInstallPrompt = null;
@@ -2088,6 +2055,63 @@
       checkSavedSession();
     }
 
+    
+    function showLoading(msg) {
+      const overlay = document.getElementById('loadingOverlay');
+      const text = document.getElementById('loadingMessage');
+      if (text) text.textContent = msg || 'Operazione in corso...';
+      if (overlay) overlay.style.display = 'flex';
+    }
+
+    function hideLoading() {
+      const overlay = document.getElementById('loadingOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+      } else {
+        input.type = 'password';
+        btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+      }
+    }
+
+    function copyPasswordToClipboard(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      copyText(input.value);
+    }
+
+    function copyText(text) {
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Copiato negli appunti: ' + text, 'info');
+      }).catch(() => {
+        prompt('Copia manualmente:', text);
+      });
+    }
+
+    function updateConnectionStatusBadge() {
+      const badge = document.getElementById('connStatusBadge');
+      const text  = document.getElementById('connStatusText');
+      if (!badge || !text) return;
+
+      if (APP_STATE.isGoogleScript) {
+        badge.className = 'sync-status-badge';
+        text.textContent = 'Google Script Nativo';
+      } else if (APP_STATE.googleWebAppUrl && APP_STATE.googleWebAppUrl.trim().startsWith('http')) {
+        badge.className = 'sync-status-badge';
+        text.textContent = 'Google Sheets Collegato';
+      } else {
+        badge.className = 'sync-status-badge local';
+        text.textContent = 'Modalità Locale / Demo';
+      }
+    }
+
     function checkSavedSession() {
       const savedAuth = localStorage.getItem(SESSION_AUTH_KEY) || sessionStorage.getItem(SESSION_AUTH_KEY);
       if (savedAuth) {
@@ -2096,7 +2120,7 @@
           APP_STATE.isAuthenticated = true;
           APP_STATE.role = auth.role;
           APP_STATE.activeSellerId = auth.sellerId || null;
-          APP_STATE.currentUserDisplayName = auth.displayName || (auth.role === 'ADMIN' ? 'Administrador' : 'Venditore');
+          APP_STATE.currentUserDisplayName = auth.displayName || (auth.role === 'ADMIN' ? 'Administrador' : 'Vendedor');
           hideLoginOverlay();
           renderAll();
           return;
@@ -2144,8 +2168,8 @@
     function handleAdminLogin(e) {
       e.preventDefault();
       const emailInput = document.getElementById('adminEmailInput');
-      const passInput = document.getElementById('adminPasswordInput');
-      const email = emailInput ? emailInput.value.trim() : 'admin@gestione.com';
+      const passInput  = document.getElementById('adminPasswordInput');
+      const email = emailInput ? emailInput.value.trim() : (APP_STATE.currentUserEmail || 'admin@gestione.com');
       const pass  = passInput ? passInput.value.trim() : '';
       const remember = document.getElementById('rememberSessionAdmin').checked;
 
@@ -2179,9 +2203,7 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => performLogin(res && res.success, res))
+          .withSuccessHandler((res) => performLogin(res && res.success, res))
           .withFailureHandler((err) => {
             hideLoading();
             showToast('Errore connessione Google Script: ' + (err.message || err), 'error');
@@ -2193,42 +2215,27 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ action: 'verifyAdminLogin', email: email, password: pass })
         })
-        .then(res => res.json())
+        .then(r => r.json())
         .then(res => performLogin(res && res.success, res))
         .catch(err => {
           hideLoading();
           showToast('Errore di connessione a Google Sheets: ' + err.message, 'error');
         });
       } else {
-        const localAdminEmail = localStorage.getItem('LOCAL_ADMIN_EMAIL') || 'admin@gestione.com';
-        const localAdminPass  = localStorage.getItem('LOCAL_ADMIN_PASSWORD') || 'admin2026';
+        const localAdminEmail = localStorage.getItem('ADMIN_EMAIL') || 'admin@gestione.com';
+        const localAdminPass  = localStorage.getItem('ADMIN_PASSWORD') || 'admin2026';
         const isValid = (email.toLowerCase() === localAdminEmail.toLowerCase()) && (pass === localAdminPass);
         performLogin(isValid, { error: 'Email o password errati. (Default: admin@gestione.com / admin2026)' });
       }
-    } else {
-          showToast('ContraseÃ±a de Administrador incorrecta.', 'error');
-        }
-      };
-
-      if (APP_STATE.isGoogleScript) {
-        google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => performLogin(res && res.success))
-          .verifyAdminLogin(pass);
-      } else {
-        performLogin(pass === 'admin2026');
-      }
     }
 
-    // REQUISITO 6 Y 7: Venditore entra con email y contraseÃ±a manual
     function handleSellerLogin(e) {
       e.preventDefault();
       const email = document.getElementById('loginSellerEmail').value.trim().toLowerCase();
-      const password = document.getElementById('loginSellerPassword').value.trim();
+      const pass  = document.getElementById('loginSellerPassword').value.trim();
       const remember = document.getElementById('rememberSessionSeller').checked;
 
-      if (!email || !password) {
+      if (!email || !pass) {
         showToast('Inserisci sia email che password.', 'warning');
         return;
       }
@@ -2264,26 +2271,26 @@
       if (APP_STATE.isGoogleScript) {
         google.script.run
           .withSuccessHandler(performSellerLogin)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-           .withFailureHandler((err) => {
+          .withFailureHandler((err) => {
             hideLoading();
             showToast('Errore connessione Google Script: ' + (err.message || err), 'error');
           })
-          .verifySellerLogin(email, password);
+          .verifySellerLogin(email, pass);
       } else if (APP_STATE.googleWebAppUrl && APP_STATE.googleWebAppUrl.trim().startsWith('http')) {
         fetch(APP_STATE.googleWebAppUrl.trim(), {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'verifySellerLogin', email: email, password: password })
+          body: JSON.stringify({ action: 'verifySellerLogin', email: email, password: pass })
         })
-        .then(res => res.json())
+        .then(r => r.json())
         .then(res => performSellerLogin(res))
         .catch(err => {
           hideLoading();
           showToast('Errore di connessione a Google Sheets: ' + err.message, 'error');
         });
       } else {
-        const seller = APP_STATE.sellers.find(s => s.email.toLowerCase() === email);
+        const cleanEmail = email.toLowerCase();
+        const seller = APP_STATE.sellers.find(s => s.email.toLowerCase() === cleanEmail || (cleanEmail === 'mario.rossi@esempio.com' && s.email.toLowerCase() === 'mario.rossi@ejemplo.com'));
         if (!seller) {
           hideLoading();
           showToast('Nessun venditore registrato con questa email. (Demo: mario.rossi@esempio.com)', 'error');
@@ -2294,50 +2301,15 @@
           showToast('Il tuo account venditore è archiviato. Contatta l\'Amministratore.', 'warning');
           return;
         }
-        if (seller.password !== password) {
+        if (seller.password !== pass) {
           hideLoading();
           showToast('Password errata per questo venditore.', 'error');
           return;
         }
-        performSellerLogin({ success: true, seller });
-      }
-    });
-          if (remember) localStorage.setItem(SESSION_AUTH_KEY, sessionData);
-          else sessionStorage.setItem(SESSION_AUTH_KEY, sessionData);
-
-          hideLoginOverlay();
-          renderAll();
-          showToast(`Â¡Bienvenido, ${res.seller.name}!`, 'success');
-        } else {
-          showToast(res.error || 'Credenciales de vendedor incorrectas.', 'error');
-        }
-      };
-
-      if (APP_STATE.isGoogleScript) {
-        google.script.run
-          .withSuccessHandler(performSellerLogin)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          .verifySellerLogin(email, password);
-      } else {
-        // Fallback local
-        const seller = APP_STATE.sellers.find(s => s.email.toLowerCase() === email);
-        if (!seller) {
-          showToast('No existe ningÃºn vendedor registrado con ese correo.', 'error');
-          return;
-        }
-        if (seller.status === 'Archivado') {
-          showToast('Tu cuenta de vendedor estÃ¡ archivada. Contacta al Administrador.', 'warning');
-          return;
-        }
-        if (seller.password !== password) {
-          showToast('ContraseÃ±a incorrecta para este vendedor.', 'error');
-          return;
-        }
-        performSellerLogin({ success: true, seller });
+        performSellerLogin({ success: true, seller: seller });
       }
     }
 
-    
     function openAdminSettingsModal() {
       const urlInput = document.getElementById('settingsGoogleScriptUrl');
       if (urlInput) urlInput.value = APP_STATE.googleWebAppUrl || '';
@@ -2363,6 +2335,7 @@
       const handleRes = (res) => {
         hideLoading();
         if (res && res.success) {
+          localStorage.setItem('ADMIN_PASSWORD', newPass);
           showToast(res.message || 'Password aggiornata con successo!', 'success');
           document.getElementById('adminCurrentPasswordInput').value = '';
           document.getElementById('adminNewPasswordInput').value = '';
@@ -2376,8 +2349,7 @@
       if (APP_STATE.isGoogleScript) {
         google.script.run
           .withSuccessHandler(handleRes)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-           .withFailureHandler((err) => {
+          .withFailureHandler((err) => {
             hideLoading();
             showToast('Errore Google Script: ' + (err.message || err), 'error');
           })
@@ -2391,12 +2363,12 @@
         .then(r => r.json()).then(handleRes)
         .catch(err => { hideLoading(); showToast('Errore connessione: ' + err.message, 'error'); });
       } else {
-        const storedPass = localStorage.getItem('LOCAL_ADMIN_PASSWORD') || 'admin2026';
+        const storedPass = localStorage.getItem('ADMIN_PASSWORD') || 'admin2026';
         if (curPass !== storedPass) {
           handleRes({ success: false, error: 'Password attuale non corretta.' });
         } else {
-          localStorage.setItem('LOCAL_ADMIN_PASSWORD', newPass);
-          handleRes({ success: true, message: 'Password aggiornata con successo in modalità locale!' });
+          localStorage.setItem('ADMIN_PASSWORD', newPass);
+          handleRes({ success: true, message: 'Password aggiornata con successo!' });
         }
       }
     }
@@ -2415,11 +2387,26 @@
       const handleRes = (res) => {
         hideLoading();
         if (res && res.success) {
+          localStorage.setItem('ADMIN_EMAIL', newEmail);
           APP_STATE.currentUserEmail = newEmail;
           APP_STATE.currentUserDisplayName = 'Amministratore (' + newEmail + ')';
-          document.getElementById('currentLoggedUserLabel').textContent = APP_STATE.currentUserDisplayName;
-          document.getElementById('adminEmailInput').value = newEmail;
-          showToast(res.message || 'Email aggiornata a: ' + newEmail, 'success');
+          const label = document.getElementById('currentLoggedUserLabel');
+          if (label) label.textContent = APP_STATE.currentUserDisplayName;
+          const emailInput = document.getElementById('adminEmailInput');
+          if (emailInput) emailInput.value = newEmail;
+
+          // Aggiorna la sessione salvata
+          const savedAuth = localStorage.getItem(SESSION_AUTH_KEY) || sessionStorage.getItem(SESSION_AUTH_KEY);
+          if (savedAuth) {
+            try {
+              const a = JSON.parse(savedAuth);
+              a.email = newEmail;
+              if (localStorage.getItem(SESSION_AUTH_KEY)) localStorage.setItem(SESSION_AUTH_KEY, JSON.stringify(a));
+              if (sessionStorage.getItem(SESSION_AUTH_KEY)) sessionStorage.setItem(SESSION_AUTH_KEY, JSON.stringify(a));
+            } catch(e) {}
+          }
+
+          showToast(res.message || ('Email amministratore aggiornata a: ' + newEmail), 'success');
           document.getElementById('adminEmailVerifyPasswordInput').value = '';
           document.getElementById('adminNewEmailInput').value = '';
           closeModal('modalAdminSettings');
@@ -2431,8 +2418,7 @@
       if (APP_STATE.isGoogleScript) {
         google.script.run
           .withSuccessHandler(handleRes)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-           .withFailureHandler((err) => {
+          .withFailureHandler((err) => {
             hideLoading();
             showToast('Errore Google Script: ' + (err.message || err), 'error');
           })
@@ -2446,12 +2432,12 @@
         .then(r => r.json()).then(handleRes)
         .catch(err => { hideLoading(); showToast('Errore connessione: ' + err.message, 'error'); });
       } else {
-        const storedPass = localStorage.getItem('LOCAL_ADMIN_PASSWORD') || 'admin2026';
+        const storedPass = localStorage.getItem('ADMIN_PASSWORD') || 'admin2026';
         if (curPass !== storedPass) {
           handleRes({ success: false, error: 'Password non corretta.' });
         } else {
-          localStorage.setItem('LOCAL_ADMIN_EMAIL', newEmail);
-          handleRes({ success: true, message: 'Email aggiornata con successo in modalità locale!' });
+          localStorage.setItem('ADMIN_EMAIL', newEmail);
+          handleRes({ success: true, message: 'Email aggiornata con successo a: ' + newEmail });
         }
       }
     }
@@ -2495,7 +2481,7 @@
       showToast('URL Google Script rimosso. Torno a modalità locale / nativa.', 'info');
       loadAllData();
     }
-
+    
     function handleLogout() {
       if (!confirm('Â¿Deseas cerrar tu sesiÃ³n actual?')) return;
       localStorage.removeItem(SESSION_AUTH_KEY);
@@ -2515,9 +2501,7 @@
     function loadAllData() {
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => {
+          .withSuccessHandler((res) => {
             if (res && res.success) {
               APP_STATE.products = res.products || [];
               APP_STATE.sellers = res.sellers || [];
@@ -2528,13 +2512,38 @@
               showToast(res ? res.error : 'Error al cargar datos', 'error');
             }
           })
-          ..withFailureHandler((err) => {
-            console.warn('Errore getInitialData da Google Script:', err);
-            showToast('Connessione Google Script fallita: ' + (err.message || err) + '. Uso archivio locale.', 'warning');
+          .getInitialData(APP_STATE.role === 'SELLER' ? APP_STATE.activeSellerId : null);
+      } else if (APP_STATE.googleWebAppUrl && APP_STATE.googleWebAppUrl.trim().startsWith('http')) {
+        showLoading('Caricamento dati da Google Sheets...');
+        fetch(APP_STATE.googleWebAppUrl.trim(), {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ 
+            action: 'getInitialData', 
+            sellerId: APP_STATE.role === 'SELLER' ? APP_STATE.activeSellerId : null 
+          })
+        })
+        .then(r => r.json())
+        .then(res => {
+          hideLoading();
+          if (res && res.success) {
+            APP_STATE.products = res.products || [];
+            APP_STATE.sellers = res.sellers || [];
+            APP_STATE.sales = res.sales || [];
+            APP_STATE.settlements = res.settlements || [];
+            renderAll();
+          } else {
+            showToast(res ? res.error : 'Errore caricamento dati remoti', 'warning');
             loadLocalMockData();
             renderAll();
-          })
-          .getInitialData(APP_STATE.role === 'SELLER' ? APP_STATE.activeSellerId : null);
+          }
+        })
+        .catch(err => {
+          hideLoading();
+          console.warn('Fallback a dati locali:', err);
+          loadLocalMockData();
+          renderAll();
+        });
       } else {
         loadLocalMockData();
         renderAll();
@@ -2559,7 +2568,8 @@
       // Datos demo con contraseÃ±as fijas conocidas (modo local sin Google Script)
       APP_STATE.sellers = [
         { id: 'VEND-001', name: 'Mario Rossi', email: 'mario.rossi@esempio.com', phone: '+39 333 123 4567', status: 'Activo', password: 'Mario2026!', createdAt: new Date().toISOString() },
-        { id: 'VEND-002', name: 'Laura GÃ³mez', email: 'laura.gomez@ejemplo.com', phone: '+34 600 654 321', status: 'Activo', password: 'Laura2026!', createdAt: new Date().toISOString() }
+        { id: 'VEND-002', name: 'Laura Bianchi', email: 'laura.bianchi@esempio.com', phone: '+39 333 765 4321', status: 'Activo', password: 'Laura2026!', createdAt: new Date().toISOString() },
+        { id: 'VEND-003', name: 'Mario Rossi (Demo)', email: 'mario.rossi@ejemplo.com', phone: '+34 600 123 456', status: 'Activo', password: 'Mario2026!', createdAt: new Date().toISOString() }
       ];
 
       APP_STATE.products = [
@@ -2665,7 +2675,11 @@
     function updateRoleUI() {
       const isAdmin = APP_STATE.role === 'ADMIN';
       document.querySelectorAll('.admin-only').forEach(el => {
-        el.style.display = isAdmin ? '' : 'none';
+        if (el.id === 'btnAdminSettings') {
+          el.style.display = isAdmin ? 'inline-flex' : 'none';
+        } else {
+          el.style.display = isAdmin ? '' : 'none';
+        }
       });
 
       if (!isAdmin && APP_STATE.activeTab === 'sellers') {
@@ -2689,7 +2703,7 @@
 
       if (prodAssign) {
         const cur = prodAssign.value;
-        prodAssign.innerHTML = '<option value="TUTTI">Tutti i venditori activos</option>';
+        prodAssign.innerHTML = '<option value="TUTTI">Todos los vendedores activos</option>';
         activeSellers.forEach(s => {
           const opt = document.createElement('option');
           opt.value = s.id;
@@ -2782,7 +2796,7 @@
           <div class="empty-state" style="grid-column: 1 / -1;">
             <i class="fa-solid fa-box-open"></i>
             <h3>No hay productos disponibles</h3>
-            <p>${isAdmin ? 'Pulsa en "Invia Prodotto ai Venditori" para aÃ±adir el primer artÃ­culo.' : 'No tienes productos asignados en tu catÃ¡logo actualmente.'}</p>
+            <p>${isAdmin ? 'Pulsa en "Enviar Producto a Vendedores" para aÃ±adir el primer artÃ­culo.' : 'No tienes productos asignados en tu catÃ¡logo actualmente.'}</p>
           </div>
         `;
         return;
@@ -2825,7 +2839,7 @@
                 <i class="fa-solid fa-cart-plus"></i> Registrar Venta
               </button>
               ${isAdmin ? `
-                <button class="btn btn-danger btn-sm" title="Eliminar Prodotto" onclick="handleDeleteProduct('${p.id}')">
+                <button class="btn btn-danger btn-sm" title="Eliminar Producto" onclick="handleDeleteProduct('${p.id}')">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               ` : ''}
@@ -2860,11 +2874,9 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => {
+          .withSuccessHandler((res) => {
             if (res && res.success) {
-              showToast('Â¡Prodotto enviado a los vendedores con Ã©xito!', 'success');
+              showToast('Â¡Producto enviado a los vendedores con Ã©xito!', 'success');
               closeModal('modalAddProduct');
               loadAllData();
             } else {
@@ -2876,7 +2888,7 @@
         const id = 'PROD-' + Math.random().toString(36).substring(2, 8).toUpperCase();
         APP_STATE.products.unshift({ id, ...prodData, active: true, createdAt: new Date().toISOString() });
         saveLocalData();
-        showToast('Â¡Prodotto aÃ±adido con Ã©xito!', 'success');
+        showToast('Â¡Producto aÃ±adido con Ã©xito!', 'success');
         closeModal('modalAddProduct');
         renderAll();
       }
@@ -2886,17 +2898,15 @@
       if (!confirm('Â¿EstÃ¡s seguro de que deseas eliminar este producto?')) return;
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => {
-            if (res && res.success) { showToast('Prodotto eliminado', 'success'); loadAllData(); }
+          .withSuccessHandler((res) => {
+            if (res && res.success) { showToast('Producto eliminado', 'success'); loadAllData(); }
             else { showToast(res ? res.error : 'Error al eliminar', 'error'); }
           })
           .deleteProduct(productId);
       } else {
         APP_STATE.products = APP_STATE.products.filter(p => p.id !== productId);
         saveLocalData();
-        showToast('Prodotto eliminado', 'success');
+        showToast('Producto eliminado', 'success');
         renderAll();
       }
     }
@@ -2980,11 +2990,11 @@
             </button>
           `;
         } else {
-          // Venditore SOLO si aÃºn no ha sido enviada por Admin
+          // Vendedor SOLO si aÃºn no ha sido enviada por Admin
           if (!isShipped && !isReturned) {
             deleteBtnHtml = `
-              <button class="btn btn-danger btn-sm" title="Annulla Venta" onclick="requestDeleteSale('${s.id}')">
-                <i class="fa-solid fa-trash"></i> Annulla
+              <button class="btn btn-danger btn-sm" title="Cancelar Venta" onclick="requestDeleteSale('${s.id}')">
+                <i class="fa-solid fa-trash"></i> Cancelar
               </button>
             `;
           } else {
@@ -3061,7 +3071,7 @@
 
       // Segunda confirmaciÃ³n modal explÃ­cita
       APP_STATE.pendingSaleToDeleteId = sale.id;
-      document.getElementById('deleteSaleInfoText').textContent = `${sale.productName} (â‚¬${Number(sale.salePrice).toFixed(2)}) - Venditore: ${sale.sellerName} (ID: ${sale.id})`;
+      document.getElementById('deleteSaleInfoText').textContent = `${sale.productName} (â‚¬${Number(sale.salePrice).toFixed(2)}) - Vendedor: ${sale.sellerName} (ID: ${sale.id})`;
       openModal('modalDoubleConfirmDeleteSale');
     }
 
@@ -3072,9 +3082,7 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => {
+          .withSuccessHandler((res) => {
             if (res && res.success) {
               showToast(res.message, 'success');
               loadAllData();
@@ -3094,9 +3102,7 @@
     function executeDeleteSaleDirect(saleId) {
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => {
+          .withSuccessHandler((res) => {
             if (res && res.success) {
               showToast(res.message, 'success');
               loadAllData();
@@ -3197,7 +3203,7 @@
       if (!sale) return;
 
       document.getElementById('shipSaleId').value = sale.id;
-      document.getElementById('shipSaleDetails').value = `${sale.productName} (â‚¬${sale.salePrice.toFixed(2)}) - Venditore: ${sale.sellerName}`;
+      document.getElementById('shipSaleDetails').value = `${sale.productName} (â‚¬${sale.salePrice.toFixed(2)}) - Vendedor: ${sale.sellerName}`;
       
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('shipDate').value = sale.shippingDate ? sale.shippingDate.split('T')[0] : today;
@@ -3222,9 +3228,7 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => {
+          .withSuccessHandler((res) => {
             if (res && res.success) {
               showToast(res.message, 'success');
               closeModal('modalRegisterShipping');
@@ -3261,12 +3265,12 @@
       const labelProfit = document.getElementById('labelProfitWho');
 
       if (isAdmin) {
-        labelDebt.textContent = 'Monto a Entregar por Venditorees (Vendite Spedite)';
-        labelProfit.textContent = 'Comisiones Venditorees (Vendite Spedite)';
+        labelDebt.textContent = 'Monto a Entregar por Vendedores (Ventas Enviadas)';
+        labelProfit.textContent = 'Comisiones Vendedores (Ventas Enviadas)';
       } else {
-        const sellerName = APP_STATE.sellers.find(s => s.id === sellerId)?.name || 'Venditore';
-        labelDebt.textContent = `Importo da Consegnare ad Admin (${sellerName})`;
-        labelProfit.textContent = `Tu ComisiÃ³n Neta por Vendite Spedite (${sellerName})`;
+        const sellerName = APP_STATE.sellers.find(s => s.id === sellerId)?.name || 'Vendedor';
+        labelDebt.textContent = `Monto a Entregar al Administrador (${sellerName})`;
+        labelProfit.textContent = `Tu ComisiÃ³n Neta por Ventas Enviadas (${sellerName})`;
       }
 
       let totalShippedAmount = 0;
@@ -3464,12 +3468,12 @@
       const finalOwedAdmin = totalAdminCost + returnAdjustments;
 
       summaryBox.innerHTML = `
-        <strong>Resumen de LiquidaciÃ³n (Solo Vendite Spedite):</strong><br>
-        â€¢ Vendite enviadas a liquidar: <strong>${sellerSales.length}</strong> (Total: â‚¬${totalSales.toFixed(2)})<br>
+        <strong>Resumen de LiquidaciÃ³n (Solo Ventas Enviadas):</strong><br>
+        â€¢ Ventas enviadas a liquidar: <strong>${sellerSales.length}</strong> (Total: â‚¬${totalSales.toFixed(2)})<br>
         â€¢ Monto base para el Administrador: <strong>â‚¬${totalAdminCost.toFixed(2)}</strong><br>
         â€¢ CompensaciÃ³n por Devoluciones pasadas: <strong style="color: var(--danger);">-â‚¬${returnAdjustments.toFixed(2)}</strong><br>
         â€¢ <strong>Total neto a entregar al Administrador: â‚¬${finalOwedAdmin.toFixed(2)}</strong><br>
-        â€¢ <strong>ComisiÃ³n neta a pagar al Venditore: â‚¬${netProfit.toFixed(2)}</strong>
+        â€¢ <strong>ComisiÃ³n neta a pagar al Vendedor: â‚¬${netProfit.toFixed(2)}</strong>
       `;
     }
 
@@ -3481,9 +3485,7 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => {
+          .withSuccessHandler((res) => {
             if (res && res.success) {
               showToast(res.message, 'success');
               closeModal('modalSettlePeriod');
@@ -3554,8 +3556,8 @@
 
       let sellers = APP_STATE.sellers;
       if (filter === 'ACTIVO') sellers = sellers.filter(s => s.status === 'Activo');
-      else if (filter === 'VACACIONES') sellers = sellers.filter(s => s.status === 'In Ferie');
-      else if (filter === 'BAJA') sellers = sellers.filter(s => s.status === 'In Malattia');
+      else if (filter === 'VACACIONES') sellers = sellers.filter(s => s.status === 'De Vacaciones');
+      else if (filter === 'BAJA') sellers = sellers.filter(s => s.status === 'De Baja');
       else if (filter === 'ARCHIVADO') sellers = sellers.filter(s => s.status === 'Archivado');
 
       if (sellers.length === 0) {
@@ -3575,8 +3577,8 @@
         
         let statusBadge = '';
         if (s.status === 'Activo') statusBadge = '<span class="status-badge badge-confirmed"><i class="fa-solid fa-circle-check"></i> Activo</span>';
-        else if (s.status === 'In Ferie') statusBadge = '<span class="status-badge badge-vacation"><i class="fa-solid fa-umbrella-beach"></i> In Ferie</span>';
-        else if (s.status === 'In Malattia') statusBadge = '<span class="status-badge badge-baja"><i class="fa-solid fa-user-injured"></i> In Malattia</span>';
+        else if (s.status === 'De Vacaciones') statusBadge = '<span class="status-badge badge-vacation"><i class="fa-solid fa-umbrella-beach"></i> De Vacaciones</span>';
+        else if (s.status === 'De Baja') statusBadge = '<span class="status-badge badge-baja"><i class="fa-solid fa-user-injured"></i> De Baja</span>';
         else if (s.status === 'Archivado') statusBadge = '<span class="status-badge badge-archived"><i class="fa-solid fa-box-archive"></i> Archivado</span>';
         else statusBadge = `<span class="status-badge badge-pending">${escapeHtml(s.status)}</span>`;
 
@@ -3596,8 +3598,8 @@
           </td>
           <td style="text-align: right;">
             <div style="display: flex; gap: 6px; justify-content: flex-end;">
-              <button class="btn btn-secondary btn-sm" title="Cambiar Stato" onclick="openChangeSellerStatusModal('${s.id}')">
-                <i class="fa-solid fa-user-pen"></i> Stato
+              <button class="btn btn-secondary btn-sm" title="Cambiar Estado" onclick="openChangeSellerStatusModal('${s.id}')">
+                <i class="fa-solid fa-user-pen"></i> Estado
               </button>
               <button class="btn btn-danger btn-sm" title="Eliminar / Archivar" onclick="handleDeleteOrArchiveSeller('${s.id}')">
                 <i class="fa-solid fa-trash"></i>
@@ -3630,9 +3632,7 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => {
+          .withSuccessHandler((res) => {
             if (res && res.success) {
               showToast(res.message, 'success');
               closeModal('modalAddSeller');
@@ -3646,7 +3646,7 @@
         const id = 'VEND-' + Math.random().toString(36).substring(2, 7).toUpperCase();
         APP_STATE.sellers.push({ id, ...sellerData, status: 'Activo', createdAt: new Date().toISOString() });
         saveLocalData();
-        showToast(`Â¡Venditore aÃ±adido! ContraseÃ±a asignada: ${password}`, 'success');
+        showToast(`Â¡Vendedor aÃ±adido! ContraseÃ±a asignada: ${password}`, 'success');
         closeModal('modalAddSeller');
         renderAll();
       }
@@ -3670,9 +3670,7 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => {
+          .withSuccessHandler((res) => {
             if (res && res.success) {
               document.getElementById('resetPassCurrentValue').value = res.newPassword;
               showToast(res.message, 'success');
@@ -3688,7 +3686,7 @@
           seller.password = newPass;
           document.getElementById('resetPassCurrentValue').value = newPass;
           saveLocalData();
-          showToast(`Â¡Nuova contraseÃ±a generada para ${seller.name}: ${newPass}!`, 'success');
+          showToast(`Â¡Nueva contraseÃ±a generada para ${seller.name}: ${newPass}!`, 'success');
           renderAll();
         }
       }
@@ -3718,9 +3716,7 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => {
+          .withSuccessHandler((res) => {
             if (res && res.success) {
               showToast(res.message, 'success');
               closeModal('modalChangeSellerStatus');
@@ -3735,7 +3731,7 @@
         if (seller) {
           seller.status = newStatus;
           saveLocalData();
-          showToast(`Stato de ${seller.name} cambiado a: ${newStatus}`, 'success');
+          showToast(`Estado de ${seller.name} cambiado a: ${newStatus}`, 'success');
           closeModal('modalChangeSellerStatus');
           renderAll();
         }
@@ -3749,7 +3745,7 @@
       const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId);
 
       if (sellerSales.length > 0) {
-        // Venditore con ventas: primero ofrecer Archivar, luego Eliminar con doble conf.
+        // Vendedor con ventas: primero ofrecer Archivar, luego Eliminar con doble conf.
         const wantArchive = confirm(
           `El vendedor "${seller.name}" tiene ${sellerSales.length} venta(s) registradas.\n\n` +
           `â€¢ Pulsa ACEPTAR para ARCHIVARLO (recomendado: preserva la contabilidad histÃ³rica).\n` +
@@ -3759,9 +3755,7 @@
         if (wantArchive) {
           if (APP_STATE.isGoogleScript) {
             google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => { showToast(res.message, 'warning'); loadAllData(); })
+              .withSuccessHandler((res) => { showToast(res.message, 'warning'); loadAllData(); })
               .updateSellerStatus(sellerId, 'Archivado');
           } else {
             seller.status = 'Archivado';
@@ -3788,15 +3782,13 @@
 
           if (APP_STATE.isGoogleScript) {
             google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => { showToast(res.message, 'success'); loadAllData(); })
+              .withSuccessHandler((res) => { showToast(res.message, 'success'); loadAllData(); })
               .withFailureHandler((err) => showToast('Error: ' + (err.message || err), 'error'))
               .deleteSellerForce(sellerId);
           } else {
             APP_STATE.sellers = APP_STATE.sellers.filter(s => s.id !== sellerId);
             saveLocalData();
-            showToast(`Venditore ${seller.name} eliminado permanentemente.`, 'success');
+            showToast(`Vendedor ${seller.name} eliminado permanentemente.`, 'success');
             renderAll();
           }
         }
@@ -3809,15 +3801,13 @@
 
         if (APP_STATE.isGoogleScript) {
           google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => { showToast(res.message, 'success'); loadAllData(); })
+            .withSuccessHandler((res) => { showToast(res.message, 'success'); loadAllData(); })
             .withFailureHandler((err) => showToast('Error: ' + (err.message || err), 'error'))
             .deleteSellerForce(sellerId);
         } else {
           APP_STATE.sellers = APP_STATE.sellers.filter(s => s.id !== sellerId);
           saveLocalData();
-          showToast(`Venditore ${seller.name} eliminado de la base de datos.`, 'success');
+          showToast(`Vendedor ${seller.name} eliminado de la base de datos.`, 'success');
           renderAll();
         }
       }
@@ -3939,9 +3929,7 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => {
+          .withSuccessHandler((res) => {
             if (res && res.success) {
               showToast('Â¡Venta registrada y confirmada!', 'success');
               closeModal('modalNewSale');
@@ -3984,7 +3972,7 @@
       if (!sale) return;
 
       document.getElementById('returnSaleId').value = sale.id;
-      document.getElementById('returnProductName').value = `${sale.productName} (Venditore: ${sale.sellerName})`;
+      document.getElementById('returnProductName').value = `${sale.productName} (Vendedor: ${sale.sellerName})`;
       document.getElementById('returnReason').value = '';
 
       const warningBox = document.getElementById('returnSettledWarningBox');
@@ -4007,9 +3995,7 @@
 
       if (APP_STATE.isGoogleScript) {
         google.script.run
-          .withSuccessHandler((res)
-          .withFailureHandler((err) => { if (typeof hideLoading === 'function') hideLoading(); showToast('Errore Google Script: ' + (err.message || err), 'error'); })
-          => {
+          .withSuccessHandler((res) => {
             if (res && res.success) {
               showToast(res.message, res.wasSettled ? 'warning' : 'success');
               closeModal('modalReturnSale');
@@ -4065,7 +4051,7 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         document.getElementById(targetInputId).value = e.target.result;
-        showToast('Foto caricata correttamente', 'info');
+        showToast('Foto cargada correctamente', 'info');
       };
       reader.readAsDataURL(file);
     }
