@@ -1384,8 +1384,8 @@
           </div>
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <select id="filterSellersStatus" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderSellers()">
-              <option value="ALL">Todos los vendedores</option>
-              <option value="ACTIVO" selected>Solo Activos</option>
+              <option value="ALL" selected>Todos los vendedores</option>
+              <option value="ACTIVO">Solo Activos</option>
               <option value="VACACIONES">De Vacaciones</option>
               <option value="BAJA">De Baja</option>
               <option value="ARCHIVADO">Archivados / Inactivos</option>
@@ -1681,7 +1681,15 @@
       </div>
       <form id="formNewSale" onsubmit="submitNewSale(event)">
         <div class="modal-body">
-          <div class="form-group">
+          <div id="saleProductBanner" class="alert-box info" style="display: none; align-items: center; gap: 12px; margin-bottom: 14px;">
+            <img id="saleProductBannerImg" src="" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 1px solid var(--gray-300);">
+            <div style="flex: 1;">
+              <div id="saleProductBannerTitle" style="font-weight: 700; font-size: 1rem; color: var(--gray-800);"></div>
+              <div id="saleProductBannerRange" style="font-size: 0.85rem; color: var(--gray-600); margin-top: 2px;"></div>
+            </div>
+            <span class="status-badge badge-active" style="white-space: nowrap;"><i class="fa-solid fa-lock"></i> Seleccionado</span>
+          </div>
+          <div class="form-group" id="saleProductSelectGroup">
             <label>Seleccionar Producto *</label>
             <select id="saleProductId" class="form-control" required onchange="onSaleProductSelected()">
               <option value="">-- Selecciona un producto --</option>
@@ -1712,6 +1720,16 @@
           <div class="form-group">
             <label>Notas adicionales</label>
             <textarea id="saleNotes" class="form-control" rows="2" placeholder="Notas sobre esta venta"></textarea>
+          </div>
+          <div class="form-group" id="saleShippingProofGroup">
+            <label style="color: var(--primary); font-weight: 700;">
+              <i class="fa-solid fa-qrcode"></i> Foto del QR o Código de Barras de Envío <span id="shippingProofRequiredStar" style="color: var(--danger);">*</span>
+            </label>
+            <input type="file" id="saleShippingProofFile" accept="image/*" class="form-control" onchange="handleImageUpload(event, 'saleShippingProofUrl')">
+            <input type="hidden" id="saleShippingProofUrl">
+            <small style="color: var(--gray-600); display: block; margin-top: 4px;" id="saleShippingProofHint">
+              <i class="fa-solid fa-circle-exclamation" style="color: var(--warning);"></i> <strong>Obligatorio para vendedores:</strong> Sube la foto del código de barras o QR de la etiqueta de envío.
+            </small>
           </div>
         </div>
         <div class="modal-footer">
@@ -1809,6 +1827,64 @@
 
   
   <!-- ======================================================== -->
+  
+  <!-- MODAL: REASIGNAR PRODUCTO A VENDEDOR (ADMIN) -->
+  <div id="modalReassignProduct" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-arrows-rotate" style="color: var(--primary);"></i> Reasignar Producto a Vendedor
+        </div>
+        <button class="modal-close" onclick="closeModal('modalReassignProduct')">&times;</button>
+      </div>
+      <form id="formReassignProduct" onsubmit="submitReassignProduct(event)">
+        <input type="hidden" id="reassignProdId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Producto a Reasignar</label>
+            <input type="text" id="reassignProdTitle" class="form-control" readonly style="font-weight: 700; background: var(--gray-100);">
+          </div>
+          <div class="form-group">
+            <label>Asignación Actual</label>
+            <input type="text" id="reassignCurrentSeller" class="form-control" readonly style="color: var(--gray-600); background: var(--gray-100);">
+          </div>
+          <div class="form-group">
+            <label>Nuevo Destinatario *</label>
+            <select id="reassignNewSellerSelect" class="form-control" required></select>
+            <small style="color: var(--gray-500); display: block; margin-top: 4px;">
+              Selecciona el nuevo vendedor responsable o "Todos los Vendedores".
+            </small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalReassignProduct')">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Guardar Reasignación</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: VER COMPROBANTE / QR DE ENVÍO -->
+  <div id="modalViewQr" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-qrcode" style="color: var(--primary);"></i> Comprobante / QR de Envío
+        </div>
+        <button class="modal-close" onclick="closeModal('modalViewQr')">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 20px;">
+        <p id="viewQrSaleInfo" style="font-weight: 600; margin-bottom: 12px; color: var(--gray-700);"></p>
+        <div style="max-height: 420px; overflow: auto; display: flex; justify-content: center; align-items: center; background: #f8f9fa; border-radius: 8px; padding: 10px;">
+          <img id="viewQrImg" src="" alt="Comprobante QR" style="max-width: 100%; max-height: 380px; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('modalViewQr')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- BANNER / PROMPT INSTALLAZIONE PWA -->
   <!-- ======================================================== -->
   <div id="pwaInstallBanner" class="install-banner-modal" style="display: none;">
@@ -1964,6 +2040,85 @@
 const CONFIG_DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyWkIDSLXsY6ennmX5WVCnz4XeNhZ2OBGtqzyAyC-3x5jYaKBhrrJ085my4Gt6yWsQW/exec";
 
 // STATO GLOBALE DELL'APPLICAZIONE
+
+// ==============================================================================
+// MOTORE EFFETTI SONORI (Web Audio API - Non richiede file esterni mp3)
+// ==============================================================================
+const SoundFX = {
+  ctx: null,
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  },
+  // Suono per Admin: "Cha-Ching / Chime" metallico quando viene registrata una vendita
+  playSaleChime() {
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      // Nota 1 (B5 -> E6)
+      const osc1 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(987.77, now);
+      osc1.frequency.exponentialRampToValueAtTime(1318.51, now + 0.1);
+      gain1.gain.setValueAtTime(0.3, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      osc1.connect(gain1);
+      gain1.connect(this.ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.5);
+
+      // Nota 2 (E6 -> G#6) brillante
+      const osc2 = this.ctx.createOscillator();
+      const gain2 = this.ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(1318.51, now + 0.12);
+      osc2.frequency.exponentialRampToValueAtTime(1661.22, now + 0.22);
+      gain2.gain.setValueAtTime(0.3, now + 0.12);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+      osc2.connect(gain2);
+      gain2.connect(this.ctx.destination);
+      osc2.start(now + 0.12);
+      osc2.stop(now + 0.7);
+    } catch(e) {
+      console.warn('Audio non riproducibile:', e);
+    }
+  },
+  // Suono per Venditore: "Drin" campanello gradevole quando gli viene assegnato un oggetto
+  playAssignDrin() {
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      const notes = [880, 1174.66, 1760]; // La5, Re6, La6
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        gain.gain.setValueAtTime(0.25, now + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.35);
+      });
+    } catch(e) {
+      console.warn('Audio non riproducibile:', e);
+    }
+  }
+};
+
+// Sblocco audio al primo tocco o clic dell'utente
+document.addEventListener('click', () => SoundFX.init(), { once: true });
+document.addEventListener('touchstart', () => SoundFX.init(), { once: true });
+
 const APP_STATE = {
   isAuthenticated: false,
   role: 'ADMIN', // 'ADMIN' o 'SELLER'
@@ -2022,6 +2177,7 @@ async function callServer(action, payload = {}, loadingMsg = null) {
           case 'getInitialData': runner.getInitialData(payload.sellerId || null); break;
           case 'addProduct': runner.addProduct(payload.product || payload); break;
           case 'deleteProduct': runner.deleteProduct(payload.productId || payload.id); break;
+          case 'reassignProduct': runner.reassignProduct(payload.productId || payload.id, payload.newAssignedTo || payload.assignedTo); break;
           case 'addSeller': runner.addSeller(payload.seller || payload); break;
           case 'resetSellerPassword': runner.resetSellerPassword(payload.sellerId || payload.id, payload.newPassword || payload.password); break;
           case 'updateSellerStatus': runner.updateSellerStatus(payload.sellerId || payload.id, payload.newStatus || payload.status); break;
@@ -2581,7 +2737,33 @@ async function loadAllData(showSpinner = false) {
           active: isAct
         };
       });
-      APP_STATE.sales = res.sales || [];
+      // Notifiche sonore in tempo reale
+      const incomingSales = res.sales || [];
+      const incomingProds = res.products || [];
+
+      if (APP_STATE._previousSalesCount !== undefined && APP_STATE._previousSalesCount !== null) {
+        if (APP_STATE.role === 'ADMIN' && incomingSales.length > APP_STATE._previousSalesCount) {
+          SoundFX.playSaleChime();
+          showToast('🔔 ¡Nueva venta registrada por un vendedor!', 'success');
+        }
+      }
+      APP_STATE._previousSalesCount = incomingSales.length;
+
+      if (APP_STATE.role === 'SELLER') {
+        const myAssignedIds = incomingProds
+          .filter(p => p.active && (p.assignedTo === 'TUTTI' || p.assignedTo === APP_STATE.activeSellerId))
+          .map(p => p.id);
+        if (APP_STATE._previousAssignedIds !== undefined && APP_STATE._previousAssignedIds !== null) {
+          const hasNew = myAssignedIds.some(id => !APP_STATE._previousAssignedIds.includes(id));
+          if (hasNew) {
+            SoundFX.playAssignDrin();
+            showToast('🔔 ¡Te han asignado un nuevo producto para vender!', 'info');
+          }
+        }
+        APP_STATE._previousAssignedIds = myAssignedIds;
+      }
+
+      APP_STATE.sales = incomingSales;
       APP_STATE.settlements = res.settlements || [];
       saveLocalData();
       updateConnectionStatusBadge();
@@ -2770,6 +2952,82 @@ function renderTabContent(tabId) {
 // 1. CATALOGO PRODOTTI
 // ==========================================
 
+
+// ==============================================================================
+// RIASSEGNAZIONE RAPIDA PRODOTTI E VISUALIZZAZIONE QR (REQUISITI 2 E 4)
+// ==============================================================================
+function openReassignModal(prodId) {
+  const p = APP_STATE.products.find(x => x.id === prodId);
+  if (!p) return;
+
+  const idInput = document.getElementById('reassignProdId');
+  const titleInput = document.getElementById('reassignProdTitle');
+  const curSellerInput = document.getElementById('reassignCurrentSeller');
+  const select = document.getElementById('reassignNewSellerSelect');
+
+  if (idInput) idInput.value = p.id;
+  if (titleInput) titleInput.value = p.title;
+
+  let currentName = '🌐 Todos los Vendedores';
+  if (p.assignedTo && p.assignedTo !== 'TUTTI') {
+    const s = APP_STATE.sellers.find(x => x.id === p.assignedTo);
+    currentName = s ? s.name : p.assignedTo;
+  }
+  if (curSellerInput) curSellerInput.value = currentName;
+
+  if (select) {
+    select.innerHTML = '<option value="TUTTI">🌐 Todos los Vendedores (Visible para todos)</option>';
+    APP_STATE.sellers.filter(s => isSellerActive(s)).forEach(s => {
+      select.innerHTML += '<option value="' + s.id + '">👤 ' + escapeHtml(s.name) + ' (' + escapeHtml(s.email) + ')</option>';
+    });
+    select.value = p.assignedTo || 'TUTTI';
+  }
+
+  openModal('modalReassignProduct');
+}
+
+async function submitReassignProduct(e) {
+  e.preventDefault();
+  const prodId = document.getElementById('reassignProdId')?.value;
+  const newAssignedTo = document.getElementById('reassignNewSellerSelect')?.value || 'TUTTI';
+
+  const p = APP_STATE.products.find(x => x.id === prodId);
+  if (!p) return;
+
+  try {
+    const res = await callServer('reassignProduct', { productId: prodId, newAssignedTo }, 'Reasignando producto en Google Sheets...');
+    p.assignedTo = newAssignedTo;
+    saveLocalData();
+    closeModal('modalReassignProduct');
+    renderCatalog();
+    showToast(res.message || '¡Producto reasignado con éxito!', 'success');
+    SoundFX.playAssignDrin();
+  } catch (err) {
+    if (err.message === 'CONFIG_URL_MISSING') {
+      p.assignedTo = newAssignedTo;
+      saveLocalData();
+      closeModal('modalReassignProduct');
+      renderCatalog();
+      showToast('¡Producto reasignado en modo local!', 'warning');
+      SoundFX.playAssignDrin();
+    } else {
+      showToast('Error al reasignar producto: ' + err.message, 'error');
+    }
+  }
+}
+
+function showQrModal(imgUrl, saleId) {
+  const modal = document.getElementById('modalViewQr');
+  const img = document.getElementById('viewQrImg');
+  const info = document.getElementById('viewQrSaleInfo');
+
+  if (img) img.src = imgUrl || '';
+  if (info) info.textContent = 'Comprobante / QR de Envío para Venta: ' + (saleId || '');
+
+  openModal('modalViewQr');
+}
+
+
 function renderCatalog() {
   const grid = document.getElementById('productsGrid');
   if (!grid) return;
@@ -2816,8 +3074,9 @@ function renderCatalog() {
           '<div class="price-row"><span class="price-label">Precio Permitido:</span><strong style="color: var(--success);">' + formatMoney(p.minPrice) + ' - ' + formatMoney(p.maxPrice) + '</strong></div>' +
           (targetBadge ? '<div style="margin-top: 8px;">' + targetBadge + '</div>' : '') +
         '</div>' +
-        '<div class="product-actions">' +
-          '<button class="btn btn-success btn-sm" style="flex: 1;" onclick="openNewSaleForProduct(\'' + p.id + '\')"><i class="fa-solid fa-cart-plus"></i> Registrar Venta</button>' +
+        '<div class="product-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">' +
+          '<button class="btn btn-success btn-sm" style="flex: 1; min-width: 120px;" onclick="openNewSaleForProduct(\'' + p.id + '\')"><i class="fa-solid fa-cart-plus"></i> Registrar Venta</button>' +
+          (isAdmin ? '<button class="btn btn-secondary btn-sm" onclick="openReassignModal(\'' + p.id + '\')" title="Reasignar a otro vendedor"><i class="fa-solid fa-arrows-rotate"></i> Reasignar</button>' : '') +
           (isAdmin ? '<button class="btn btn-danger btn-sm" onclick="handleDeleteProduct(\'' + p.id + '\')" title="Eliminar producto"><i class="fa-solid fa-trash"></i></button>' : '') +
         '</div>' +
       '</div>';
@@ -2832,16 +3091,65 @@ function openAddProductModal() {
 }
 
 function openNewSaleForProduct(prodId) {
-  document.getElementById('formNewSale').reset();
+  const form = document.getElementById('formNewSale');
+  if (form) form.reset();
   populateSellerDropdowns();
 
+  // Popola la select dei prodotti in modo che il valore prodId esista
   const prodSelect = document.getElementById('saleProductId');
   if (prodSelect) {
+    prodSelect.innerHTML = '<option value="">-- Selecciona un producto --</option>';
+    APP_STATE.products.filter(p => p.active).forEach(p => {
+      prodSelect.innerHTML += '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>';
+    });
     prodSelect.value = prodId;
-    updateSalePriceLimits();
   }
 
+  const p = APP_STATE.products.find(x => x.id === prodId);
+  const banner = document.getElementById('saleProductBanner');
+  const bannerImg = document.getElementById('saleProductBannerImg');
+  const bannerTitle = document.getElementById('saleProductBannerTitle');
+  const bannerRange = document.getElementById('saleProductBannerRange');
+  const selectGroup = document.getElementById('saleProductSelectGroup');
+
+  if (p && banner) {
+    banner.style.display = 'flex';
+    if (bannerImg) bannerImg.src = p.photoUrl || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500';
+    if (bannerTitle) bannerTitle.textContent = p.title;
+    if (bannerRange) bannerRange.textContent = 'Precio permitido: ' + formatMoney(p.minPrice) + ' - ' + formatMoney(p.maxPrice);
+    if (selectGroup) selectGroup.style.display = 'none'; // Nasconde la select: non serve selezionare di nuovo!
+  } else if (selectGroup) {
+    selectGroup.style.display = 'block';
+    if (banner) banner.style.display = 'none';
+  }
+
+  // Pre-imposta venditore se già assegnato
+  const saleSeller = document.getElementById('saleSellerId');
+  if (p && p.assignedTo && p.assignedTo !== 'TUTTI' && saleSeller && APP_STATE.role === 'ADMIN') {
+    saleSeller.value = p.assignedTo;
+  }
+
+  // Aggiorna limiti di prezzo e costo
+  updateSalePriceLimits();
+
+  // Reset campo QR
+  const qrHidden = document.getElementById('saleShippingProofUrl');
+  if (qrHidden) qrHidden.value = '';
+  const qrFile = document.getElementById('saleShippingProofFile');
+  if (qrFile) qrFile.value = '';
+
+  // Configura obbligatorietà QR (obbligatorio per venditore)
+  const isSeller = APP_STATE.role === 'SELLER';
+  const reqStar = document.getElementById('shippingProofRequiredStar');
+  if (reqStar) reqStar.style.display = isSeller ? 'inline' : 'none';
+
   openModal('modalNewSale');
+
+  // Focus immediato sul prezzo di vendita
+  setTimeout(() => {
+    const priceInput = document.getElementById('salePrice');
+    if (priceInput) priceInput.focus();
+  }, 150);
 }
 
 async function handleAddProductSubmit(e) {
@@ -2934,6 +3242,9 @@ function renderSalesTable() {
     const isReturned = s.status === 'Devuelta' || s.returned;
 
     let shipBadge = '<span class="status-badge badge-pending-ship"><i class="fa-solid fa-clock"></i> Pendiente Envío</span>';
+    if (s.shippingStatus === 'Vendido para enviar' || (s.shippingProofUrl && !isShipped)) {
+      shipBadge = '<span class="status-badge" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; font-weight: 600;"><i class="fa-solid fa-boxes-packing"></i> Vendido para enviar</span>';
+    }
     if (isShipped) {
       shipBadge = '<span class="status-badge badge-shipped" title="' + escapeHtml(s.carrier || '') + ' - ' + escapeHtml(s.trackingNumber || '') + '"><i class="fa-solid fa-truck-fast"></i> Enviada (' + escapeHtml(s.trackingNumber || 'S/N') + ')</span>';
     }
@@ -2946,6 +3257,7 @@ function renderSalesTable() {
           '<div class="dropdown-menu">' +
             (!isShipped ? '<button onclick="openRegisterShippingModal(\'' + s.id + '\')"><i class="fa-solid fa-truck"></i> Registrar Envío</button>' : '') +
             (!isReturned ? '<button onclick="openReturnSaleModal(\'' + s.id + '\')"><i class="fa-solid fa-rotate-left"></i> Marcar Devolución (Reso)</button>' : '') +
+            (s.shippingProofUrl ? '<button onclick="showQrModal(\'' + escapeHtml(s.shippingProofUrl) + '\', \'' + escapeHtml(s.id) + '\')"><i class="fa-solid fa-qrcode"></i> Ver QR / Etiqueta Envío</button>' : '') +
             '<button class="text-danger" onclick="openDoubleConfirmDeleteSaleModal(\'' + s.id + '\')"><i class="fa-solid fa-trash-can"></i> Eliminar Venta (Admin)</button>' +
           '</div>' +
         '</div>';
@@ -3036,6 +3348,19 @@ async function handleRecordSaleSubmit(e) {
     return;
   }
 
+  const shippingProofUrl = (document.getElementById('saleShippingProofUrl')?.value || '').trim();
+  const isSeller = APP_STATE.role === 'SELLER';
+
+  // Obbligo foto QR per venditori
+  if (isSeller && !shippingProofUrl) {
+    showToast('¡Atención! Para registrar la venta es OBLIGATORIO adjuntar la foto del QR o código de barras del envío.', 'warning');
+    const qrFile = document.getElementById('saleShippingProofFile');
+    if (qrFile) qrFile.focus();
+    return;
+  }
+
+  const shippingStatus = shippingProofUrl ? 'Vendido para enviar' : 'Pendiente de Envío';
+
   const saleData = {
     sellerId,
     sellerName,
@@ -3043,12 +3368,15 @@ async function handleRecordSaleSubmit(e) {
     productName,
     adminPurchasePrice,
     salePrice,
-    notes
+    notes,
+    shippingProofUrl,
+    shippingStatus
   };
 
   try {
     const res = await callServer('recordSale', { sale: saleData }, 'Registrazione vendita su Google Sheets...');
-    showToast(res.message || '¡Venta registrada y confirmada en Google Sheets!', 'success');
+    showToast(res.message || '¡Venta registrada y lista para enviar en Google Sheets!', 'success');
+    SoundFX.playSaleChime();
     closeModal('modalNewSale');
     await loadAllData(true);
   } catch (err) {
@@ -3161,6 +3489,9 @@ function renderShippingTable() {
     const isShipped = s.shippingStatus === 'Enviada';
 
     let badge = '<span class="status-badge badge-pending-ship"><i class="fa-solid fa-clock"></i> Pendiente de Envío</span>';
+    if (s.shippingStatus === 'Vendido para enviar' || (s.shippingProofUrl && !isShipped)) {
+      badge = '<span class="status-badge" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; font-weight: 600;"><i class="fa-solid fa-boxes-packing"></i> Vendido para enviar</span>';
+    }
     if (isShipped) {
       badge = '<span class="status-badge badge-shipped"><i class="fa-solid fa-circle-check"></i> Enviada por Admin</span>';
     }
@@ -3168,6 +3499,9 @@ function renderShippingTable() {
     let actionHtml = '';
     if (isAdmin) {
       actionHtml = '<button class="btn btn-primary btn-sm" onclick="openRegisterShippingModal(\'' + s.id + '\')"><i class="fa-solid fa-truck-fast"></i> ' + (isShipped ? 'Actualizar Envío' : 'Registrar Envío') + '</button>';
+    }
+    if (s.shippingProofUrl) {
+      actionHtml += ' <button class="btn btn-secondary btn-sm" onclick="showQrModal(\'' + escapeHtml(s.shippingProofUrl) + '\', \'' + escapeHtml(s.id) + '\')" title="Ver QR o Código"><i class="fa-solid fa-qrcode"></i> QR</button>';
     } else {
       actionHtml = isShipped 
         ? '<span style="color: var(--success); font-weight: 700; font-size: 0.85rem;"><i class="fa-solid fa-check"></i> En Camino / Entregado</span>'
@@ -3466,13 +3800,25 @@ function renderSellersTable() {
   if (!tbody) return;
   tbody.innerHTML = '';
 
-  const filterStatus = (document.getElementById('filterSellersStatus')?.value || 'ALL').trim();
+  const filterVal = (document.getElementById('filterSellersStatus')?.value || 'ALL').trim().toUpperCase();
   let sellers = APP_STATE.sellers;
 
-  if (filterStatus && filterStatus !== 'ALL') {
+  if (filterVal && filterVal !== 'ALL') {
     sellers = sellers.filter(s => {
-      if (filterStatus === 'Activo') return isSellerActive(s);
-      return s.status === filterStatus;
+      const sUpper = String(s.status || '').trim().toUpperCase();
+      if (filterVal === 'ACTIVO') {
+        return isSellerActive(s);
+      }
+      if (filterVal === 'VACACIONES') {
+        return sUpper.includes('VACACION');
+      }
+      if (filterVal === 'BAJA') {
+        return sUpper.includes('BAJA');
+      }
+      if (filterVal === 'ARCHIVADO') {
+        return sUpper.includes('ARCHIV') || sUpper === 'FALSE';
+      }
+      return sUpper === filterVal;
     });
   }
 
@@ -3755,6 +4101,14 @@ function escapeHtml(str) {
 }
 
   
+
+// Polling automatico ogni 25 secondi per notifiche sonore in tempo reale
+setInterval(() => {
+  if (APP_STATE.isAuthenticated) {
+    loadAllData(false);
+  }
+}, 25000);
+
 // ==============================================================================
 // FORMS & EVENT DISPATCHER WRAPPERS (Collega gli eventi HTML alle funzioni JS)
 // ==============================================================================
@@ -3834,6 +4188,11 @@ window.updateSettlePreview = updateSettlePreview;
 window.copyPasswordToClipboard = copyPasswordToClipboard;
 window.renderSellers = renderSellers;
 window.toggleAccountingSubTab = toggleAccountingSubTab;
+window.openReassignModal = openReassignModal;
+window.submitReassignProduct = submitReassignProduct;
+window.showQrModal = showQrModal;
+window.openNewSaleForProduct = openNewSaleForProduct;
+window.SoundFX = SoundFX;
 
 </script>
 </body>
