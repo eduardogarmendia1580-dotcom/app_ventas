@@ -973,6 +973,80 @@
       font-size: 0.95rem;
     }
 
+  
+    /* DROPDOWN MENU FIX & ESTILOS FLOTANTES */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-menu {
+      display: none !important;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 4px;
+      background: #ffffff;
+      min-width: 220px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--gray-200);
+      border-radius: 10px;
+      z-index: 1000;
+      overflow: hidden;
+      padding: 6px 0;
+    }
+
+    .dropdown.show .dropdown-menu {
+      display: flex !important;
+      flex-direction: column;
+    }
+
+    .dropdown-menu button, .dropdown-menu a {
+      width: 100%;
+      padding: 9px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gray-800);
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      text-align: left;
+      white-space: nowrap;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .dropdown-menu button:hover, .dropdown-menu a:hover {
+      background: var(--gray-100);
+      color: var(--primary);
+    }
+
+    .dropdown-menu button.text-danger {
+      color: var(--danger);
+    }
+
+    .dropdown-menu button.text-danger:hover {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .dropdown-menu i {
+      width: 16px;
+      text-align: center;
+    }
+
+    /* Tabla compacta y sin desbordamiento */
+    .data-table th, .data-table td {
+      padding: 10px 10px;
+      font-size: 0.84rem;
+    }
+
+    .data-table td {
+      white-space: nowrap;
+    }
+
   </style>
 </head>
 <body>
@@ -1406,6 +1480,7 @@
                   <th>Teléfono</th>
                   <th>Estado</th>
                   <th>Contraseña Asignada</th>
+                  <th style="text-align:center;">Comisión %</th>
                   <th style="text-align: right;">Acciones</th>
                 </tr>
               </thead>
@@ -1572,6 +1647,14 @@
               Se ha generado automáticamente una contraseña aleatoria y segura.
             </small>
           </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-percent" style="color:var(--primary);"></i> Comisión del Vendedor (% del margen)</label>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <input type="number" id="newSellerCommissionPct" class="form-control" min="0" max="100" step="1" value="50" required style="max-width:100px;">
+              <span style="color:var(--gray-600);font-size:0.9em;">% del margen (precio venta − costo compra)</span>
+            </div>
+            <small style="color:var(--gray-500);">Ej: 50 = vendedor guarda el 50% del margen, admin el otro 50%</small>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modalAddSeller')">Cancelar</button>
@@ -1645,6 +1728,14 @@
             <input type="number" step="0.01" min="0" id="prodPurchasePrice" class="form-control" placeholder="Ej. 25.00" required>
             <small style="color: var(--gray-500);">Visible únicamente para el Administrador.</small>
           </div>
+          <div class="form-group" id="prodCommissionPctGroup">
+            <label><i class="fa-solid fa-percent" style="color:var(--primary);"></i> Comisión para este Producto (% del margen)</label>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <input type="number" id="prodCommissionPctOverride" class="form-control" min="0" max="100" step="1" style="max-width:100px;" placeholder="Ej: 50">
+              <span style="color:var(--gray-600);font-size:0.9em;">Dejar vacío = usar % del vendedor asignado</span>
+            </div>
+            <small id="prodCommissionHint" style="color:var(--gray-500);"></small>
+          </div>
           <div class="form-row">
             <div class="form-group">
               <label>Precio Mínimo de Venta (€ ) *</label>
@@ -1657,7 +1748,7 @@
           </div>
           <div class="form-group">
             <label>Destinatarios (Asignar a)</label>
-            <select id="prodAssignedTo" class="form-control">
+            <select id="prodAssignedTo" class="form-control" onchange="updateProductCommissionHint()">
               <option value="TUTTI">Todos los vendedores activos</option>
             </select>
           </div>
@@ -1778,6 +1869,34 @@
             <label>Motivo de la Devolución *</label>
             <textarea id="returnReason" class="form-control" rows="3" placeholder="Ej. Talla incorrecta, producto defectuoso, el cliente canceló el pedido..." required></textarea>
           </div>
+
+          <hr style="margin:16px 0;border-color:var(--gray-200);">
+          <p style="font-weight:700;margin-bottom:10px;color:var(--gray-700);">💸 Cargos al vendedor por esta devolución:</p>
+
+          <div class="form-group" style="background:#fff8e1;border-radius:10px;padding:12px 14px;margin-bottom:10px;">
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0;">
+              <input type="checkbox" id="returnChargeProductCost" checked style="margin-top:3px;width:17px;height:17px;cursor:pointer;">
+              <span>
+                <strong>Costo inicial del producto devuelto</strong><br>
+                <small style="color:var(--gray-600);">Se descontará de las comisiones futuras del vendedor: <strong id="returnProductCostDisplay" style="color:#c0392b;">€0.00</strong></small>
+              </span>
+            </label>
+          </div>
+
+          <div class="form-group" style="background:#fce4ec;border-radius:10px;padding:12px 14px;margin-bottom:4px;">
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0;">
+              <input type="checkbox" id="returnChargeShippingCheck" onchange="toggleReturnShippingCostField()" style="margin-top:3px;width:17px;height:17px;cursor:pointer;">
+              <span>
+                <strong>Gastos de envío del reso</strong><br>
+                <small style="color:var(--gray-600);">¿Hay costes de devolución a cargo del vendedor?</small>
+              </span>
+            </label>
+            <div id="returnShippingCostDiv" style="display:none;margin-top:10px;padding-left:27px;">
+              <label style="font-size:0.9em;margin-bottom:4px;display:block;">Importe gastos de envío (€):</label>
+              <input type="number" id="returnShippingCostInput" class="form-control" min="0" step="0.01" placeholder="Ej: 5.50" style="max-width:160px;">
+            </div>
+          </div>
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modalReturnSale')">Cancelar</button>
@@ -2091,6 +2210,29 @@ const SoundFX = {
     }
   },
   // Suono per Venditore: "Drin" campanello gradevole quando gli viene assegnato un oggetto
+  playShippedDrin() {
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      // Melodia ascendente allegra per pacco spedito: Do5 (523Hz), Mi5 (659Hz), Sol5 (784Hz), Do6 (1046Hz)
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        gain.gain.setValueAtTime(0.28, now + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.35);
+      });
+    } catch(e) {
+      console.warn('Audio non riproducibile:', e);
+    }
+  },
   playAssignDrin() {
     try {
       this.init();
@@ -2750,6 +2892,7 @@ async function loadAllData(showSpinner = false) {
       APP_STATE._previousSalesCount = incomingSales.length;
 
       if (APP_STATE.role === 'SELLER') {
+        // 1. Notifica assegnazione nuovo prodotto ("drin")
         const myAssignedIds = incomingProds
           .filter(p => p.active && (p.assignedTo === 'TUTTI' || p.assignedTo === APP_STATE.activeSellerId))
           .map(p => p.id);
@@ -2761,6 +2904,19 @@ async function loadAllData(showSpinner = false) {
           }
         }
         APP_STATE._previousAssignedIds = myAssignedIds;
+
+        // 2. Notifica prodotto spedito dall'admin ("drin spedizione")
+        const myShippedSales = incomingSales
+          .filter(s => s.sellerId === APP_STATE.activeSellerId && isSaleShipped(s))
+          .map(s => s.id);
+        if (APP_STATE._previousShippedSaleIds !== undefined && APP_STATE._previousShippedSaleIds !== null) {
+          const newlyShipped = myShippedSales.filter(id => !APP_STATE._previousShippedSaleIds.includes(id));
+          if (newlyShipped.length > 0) {
+            SoundFX.playShippedDrin();
+            showToast('📦🔔 ¡Tu venta ha sido enviada por el Administrador y entra en Contabilidad!', 'success');
+          }
+        }
+        APP_STATE._previousShippedSaleIds = myShippedSales;
       }
 
       APP_STATE.sales = incomingSales;
@@ -2852,6 +3008,13 @@ function updateRoleUI() {
   }
 }
 
+
+function isSaleShipped(sale) {
+  if (!sale) return false;
+  const st = String(sale.shippingStatus || '').trim().toLowerCase();
+  return st === 'enviada' || st === 'spedita' || st === 'enviado' || st === 'spedito';
+}
+
 function isSellerActive(seller) {
   if (!seller) return false;
   const s = String(seller.status || '').trim().toLowerCase();
@@ -2862,6 +3025,7 @@ function populateSellerDropdowns() {
   const prodAssign = document.getElementById('prodAssignedTo');
   const saleSeller = document.getElementById('saleSellerId');
   const settleSeller = document.getElementById('settleSellerSelect');
+  const accFilter = document.getElementById('accountingSellerFilter');
 
   if (prodAssign) {
     prodAssign.innerHTML = '<option value="TUTTI">Todos los Vendedores</option>';
@@ -2889,6 +3053,17 @@ function populateSellerDropdowns() {
     APP_STATE.sellers.forEach(s => {
       settleSeller.innerHTML += '<option value="' + s.id + '">' + escapeHtml(s.name) + ' (' + s.status + ')</option>';
     });
+  }
+
+  if (accFilter) {
+    const curVal = accFilter.value || 'ALL';
+    accFilter.innerHTML = '<option value="ALL">🌐 Todos los Vendedores</option>';
+    APP_STATE.sellers.filter(s => isSellerActive(s)).forEach(s => {
+      accFilter.innerHTML += '<option value="' + s.id + '">👤 ' + escapeHtml(s.name) + '</option>';
+    });
+    if ([...accFilter.options].some(o => o.value === curVal)) {
+      accFilter.value = curVal;
+    }
   }
 }
 
@@ -2956,6 +3131,28 @@ function renderTabContent(tabId) {
 // ==============================================================================
 // RIASSEGNAZIONE RAPIDA PRODOTTI E VISUALIZZAZIONE QR (REQUISITI 2 E 4)
 // ==============================================================================
+function toggleReturnShippingCostField() {
+  const checked = document.getElementById('returnChargeShippingCheck')?.checked;
+  const div = document.getElementById('returnShippingCostDiv');
+  if (div) div.style.display = checked ? 'block' : 'none';
+  if (!checked) {
+    const inp = document.getElementById('returnShippingCostInput');
+    if (inp) inp.value = '';
+  }
+}
+
+function updateProductCommissionHint() {
+  const sel = document.getElementById('prodAssignedTo');
+  const hint = document.getElementById('prodCommissionHint');
+  if (!sel || !hint) return;
+  if (!sel.value || sel.value === 'TUTTI') { hint.textContent = ''; return; }
+  const seller = (APP_STATE.sellers || []).find(s => String(s.id) === String(sel.value));
+  if (seller) {
+    const pct = seller.commissionPct !== undefined ? seller.commissionPct : 50;
+    hint.textContent = 'Comision por defecto de ' + (seller.name || '') + ': ' + pct + '%. Deja vacio para usar ese valor.';
+  }
+}
+
 function openReassignModal(prodId) {
   const p = APP_STATE.products.find(x => x.id === prodId);
   if (!p) return;
@@ -3167,7 +3364,9 @@ async function handleAddProductSubmit(e) {
     return;
   }
 
-  const prodData = { title, description, photoUrl, purchasePrice, minPrice, maxPrice, assignedTo };
+  const commissionPctVal = document.getElementById('prodCommissionPctOverride')?.value;
+  const prodCommissionPct = (commissionPctVal !== undefined && commissionPctVal !== null && commissionPctVal !== '') ? parseFloat(commissionPctVal) : null;
+  const prodData = { title, description, photoUrl, purchasePrice, minPrice, maxPrice, assignedTo, commissionPct: prodCommissionPct };
 
   try {
     const res = await callServer('addProduct', { product: prodData }, 'Salvataggio prodotto su Google Sheets...');
@@ -3323,7 +3522,16 @@ function calculateEstimatedProfit() {
   if (!product || !previewText) return;
 
   const adminCost = Number(product.purchasePrice) || 0;
-  const profit = Math.max(0, salePrice - adminCost);
+  // Use commission % from product override or assigned seller
+  let commPct = 50;
+  if (product.commissionPct !== null && product.commissionPct !== undefined && product.commissionPct !== '') {
+    commPct = Number(product.commissionPct);
+  } else {
+    const assignedSeller = (APP_STATE.sellers || []).find(s => String(s.id) === String(product.assignedTo));
+    if (assignedSeller && assignedSeller.commissionPct !== undefined) commPct = Number(assignedSeller.commissionPct);
+  }
+  const grossMargin = Math.max(0, salePrice - adminCost);
+  const profit = Math.round(grossMargin * (commPct / 100) * 100) / 100;
   previewText.textContent = formatMoney(profit);
 }
 
@@ -3338,6 +3546,15 @@ async function handleRecordSaleSubmit(e) {
   const adminPurchasePrice = product ? Number(product.purchasePrice) : 0;
   const salePrice = parseFloat(document.getElementById('salePrice').value) || 0;
   const notes = document.getElementById('saleNotes').value.trim();
+  // Commission: product override > seller default > 50%
+  let saleCommissionPct = 50;
+  if (product && product.commissionPct !== null && product.commissionPct !== undefined && product.commissionPct !== '') {
+    saleCommissionPct = Number(product.commissionPct);
+  } else {
+    const assignedSeller = (APP_STATE.sellers || []).find(s => String(s.id) === String(product ? product.assignedTo : ''));
+    if (assignedSeller && assignedSeller.commissionPct !== undefined) saleCommissionPct = Number(assignedSeller.commissionPct);
+    else if (seller && seller.commissionPct !== undefined) saleCommissionPct = Number(seller.commissionPct);
+  }
 
   if (!product) {
     showToast('Selecciona un producto válido.', 'warning');
@@ -3367,6 +3584,7 @@ async function handleRecordSaleSubmit(e) {
     productId,
     productName,
     adminPurchasePrice,
+    commissionPct: saleCommissionPct,
     salePrice,
     notes,
     shippingProofUrl,
@@ -3577,32 +3795,52 @@ function renderAccounting() {
   const isSeller = APP_STATE.role === 'SELLER';
   const isAdmin = APP_STATE.role === 'ADMIN';
 
+  // 5c. Ogni venditore vede in tempo reale SOLO la propria contabilità
   let sellerId = null;
   if (isSeller) {
     sellerId = APP_STATE.activeSellerId;
+    const filterGroup = document.getElementById('accountingSellerFilterGroup');
+    if (filterGroup) filterGroup.style.display = 'none';
   } else {
-    sellerId = document.getElementById('accountingSellerFilter') ? document.getElementById('accountingSellerFilter').value : null;
+    const filterSelect = document.getElementById('accountingSellerFilter');
+    sellerId = (filterSelect && filterSelect.value !== 'ALL') ? filterSelect.value : null;
   }
+
+  // 5a. Dinero Fuera (Capital Comprado por Admin)
+  const totalBoughtProducts = APP_STATE.products.length;
+  const totalBoughtAmount = APP_STATE.products.reduce((acc, p) => acc + (Number(p.purchasePrice) || 0), 0);
+  const kpiDinero = document.getElementById('kpiDineroFuera');
+  const kpiDineroSub = document.getElementById('kpiDineroFueraSub');
+  if (kpiDinero) kpiDinero.textContent = formatMoney(totalBoughtAmount);
+  if (kpiDineroSub) kpiDineroSub.textContent = totalBoughtProducts + ' productos en catálogo / stock';
 
   let activeSales = APP_STATE.sales.filter(s => {
     if (sellerId && s.sellerId !== sellerId) return false;
     return true;
   });
 
-  let shippedSales = activeSales.filter(s => s.status === 'Venta Confirmada' && s.shippingStatus === 'Enviada' && !s.settled);
-  let pendingShipSales = activeSales.filter(s => s.status === 'Venta Confirmada' && s.shippingStatus !== 'Enviada' && !s.settled);
-  let returnAdjustments = 0;
+  // Vendite inviate da liquidare (solo quelle effettivamente spedite e non restituite)
+  let shippedSales = activeSales.filter(s => isSaleShipped(s) && !s.settled && s.status !== 'Devuelta' && !s.returned);
+  // Vendite in attesa di spedizione (non ancora spedite)
+  let pendingShipSales = activeSales.filter(s => !isSaleShipped(s) && (s.status === 'Venta Confirmada' || s.shippingStatus === 'Vendido para enviar') && !s.settled && s.status !== 'Devuelta' && !s.returned);
+  // Prodotti restituiti (Devueltos / Resos)
+  let returnedSales = activeSales.filter(s => s.status === 'Devuelta' || s.returned);
 
-  activeSales.filter(s => (s.status === 'Devuelta' || s.returned) && s.settled).forEach(s => {
-    returnAdjustments += Number(s.sellerProfit) || 0;
+  // REQUISITO SPECIFICO UTENTE (5d):
+  // "nel caso di una restituzione, il venditore interessato dovrá pagare il costo iniziale del prodotto restituito
+  // scalando questo importo dalle sue commissioni future (non l'importo di vendita ma il solo costo del prodotto)"
+  let returnInitialCostDeduction = 0;
+  returnedSales.forEach(s => {
+    // Si deduce il costo iniziale di acquisto sostenuto dall'admin (adminPurchasePrice)
+    returnInitialCostDeduction += Number(s.adminPurchasePrice) || 0;
   });
 
   let totalBaseAdminCostShipped = 0;
-  let netSellerProfitShipped = 0;
+  let totalSellerCommissionShipped = 0;
 
   shippedSales.forEach(s => {
     totalBaseAdminCostShipped += Number(s.adminPurchasePrice) || 0;
-    netSellerProfitShipped += Number(s.sellerProfit) || 0;
+    totalSellerCommissionShipped += Number(s.sellerProfit) || 0;
   });
 
   let totalPendingShipAmount = 0;
@@ -3610,41 +3848,94 @@ function renderAccounting() {
     totalPendingShipAmount += Number(s.salePrice) || 0;
   });
 
-  let finalAmountOwedAdmin = Math.max(0, totalBaseAdminCostShipped + returnAdjustments);
+  // Commissione netta finale per il venditore (scalando il costo iniziale dei prodotti resi dalle sue commissioni)
+  let finalNetSellerProfit = Math.max(0, totalSellerCommissionShipped - returnInitialCostDeduction);
+  // Monto totale a favore dell'admin (costo delle merci spedite + recupero del costo iniziale dei prodotti resi addebitato al venditore)
+  let finalAmountOwedAdmin = totalBaseAdminCostShipped + returnInitialCostDeduction;
 
   const kpiAdmin = document.getElementById('kpiAmountOwedAdmin');
   const kpiSeller = document.getElementById('kpiSellerProfit');
   const kpiPending = document.getElementById('kpiPendingShipmentAmount');
   const kpiReturn = document.getElementById('kpiReturnAdjustments');
+  const labelDebtWho = document.getElementById('labelDebtWho');
+  const labelProfitWho = document.getElementById('labelProfitWho');
+
+  if (isSeller) {
+    if (labelDebtWho) labelDebtWho.textContent = 'Monto a Entregar al Admin (Costo Base + Resos)';
+    if (labelProfitWho) labelProfitWho.textContent = 'Tu Comisión Neta (Ventas Enviadas - Costo Resos)';
+  } else {
+    if (labelDebtWho) labelDebtWho.textContent = 'Monto a Entregar por Vendedores (Base + Resos)';
+    if (labelProfitWho) labelProfitWho.textContent = 'Comisión Neta Vendedores (Menos Costo Resos)';
+  }
 
   if (kpiAdmin) kpiAdmin.textContent = formatMoney(finalAmountOwedAdmin);
-  if (kpiSeller) kpiSeller.textContent = formatMoney(netSellerProfitShipped);
+  if (kpiSeller) kpiSeller.textContent = formatMoney(finalNetSellerProfit);
   if (kpiPending) kpiPending.textContent = formatMoney(totalPendingShipAmount);
-  if (kpiReturn) kpiReturn.textContent = formatMoney(returnAdjustments);
+  const kpiPendingCount = document.getElementById('kpiPendingShipmentCount');
+  if (kpiPendingCount) kpiPendingCount.textContent = pendingShipSales.length + ' ventas pendientes de enviar';
+  if (kpiReturn) kpiReturn.textContent = (returnInitialCostDeduction > 0 ? '-' : '') + formatMoney(returnInitialCostDeduction);
 
-  renderAccountingTables(shippedSales);
+  // 5b. Filtraggio tabella per stato contabile
+  const statusFilter = (document.getElementById('accountingStatusFilter')?.value || 'ENVIADAS').toUpperCase();
+  let displayedSales = shippedSales;
+  if (statusFilter === 'ALL') {
+    displayedSales = activeSales;
+  } else if (statusFilter === 'PENDIENTES') {
+    displayedSales = pendingShipSales;
+  } else if (statusFilter === 'DEVUELTAS') {
+    displayedSales = returnedSales;
+  } else if (statusFilter === 'LIQUIDADAS') {
+    displayedSales = activeSales.filter(s => s.settled);
+  }
+
+  renderAccountingTables(displayedSales, statusFilter);
   renderSettlementHistory(sellerId);
 }
 
-function renderAccountingTables(shippedSales) {
+function renderAccountingTables(displayedSales, statusFilter = 'ENVIADAS') {
   const tbody = document.getElementById('accountingCurrentSalesBody');
   if (!tbody) return;
   tbody.innerHTML = '';
 
-  if (shippedSales.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: var(--gray-500);">No hay ventas enviadas pendientes de liquidar en el período actual.</td></tr>';
+  if (displayedSales.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px; color: var(--gray-500);"><i class="fa-solid fa-receipt" style="font-size: 2rem; color: var(--gray-300); margin-bottom: 8px;"></i><div>No hay registros contables que coincidan con los filtros seleccionados.</div></td></tr>';
     return;
   }
 
-  shippedSales.forEach(s => {
+  displayedSales.forEach(s => {
     const tr = document.createElement('tr');
+    const isShipped = isSaleShipped(s);
+    const isReturned = s.status === 'Devuelta' || s.returned;
+
+    let statusBadge = '<span class="status-badge badge-pending-ship"><i class="fa-solid fa-clock"></i> Pendiente Envío</span>';
+    if (s.shippingStatus === 'Vendido para enviar') {
+      statusBadge = '<span class="status-badge" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; font-weight: 600;"><i class="fa-solid fa-boxes-packing"></i> Vendido para enviar</span>';
+    }
+    if (isShipped) {
+      statusBadge = '<span class="status-badge badge-shipped"><i class="fa-solid fa-truck-fast"></i> Enviada</span>';
+    }
+    if (isReturned) {
+      statusBadge = '<span class="status-badge" style="background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; font-weight: 600;"><i class="fa-solid fa-rotate-left"></i> Devuelta (Costo a cargo vendedor)</span>';
+    }
+
+    const qrBtn = s.shippingProofUrl 
+      ? '<button class="btn btn-secondary btn-sm" onclick="showQrModal(\'' + escapeHtml(s.shippingProofUrl) + '\', \'' + escapeHtml(s.id) + '\')" title="Ver QR"><i class="fa-solid fa-qrcode"></i></button>' 
+      : '-';
+
+    // Se il prodotto è restituito, il venditore paga il costo iniziale dell'articolo (mostrato in rosso negativo)
+    const commDisplay = isReturned
+      ? '<span style="color: var(--danger); font-weight: 700;">-' + formatMoney(s.adminPurchasePrice) + ' (Addebito Costo Reso)</span>'
+      : '<span style="color: var(--success); font-weight: 700;">' + formatMoney(s.sellerProfit) + '</span>';
+
     tr.innerHTML = 
       '<td>' + formatDate(s.shippingDate || s.date) + '</td>' +
       '<td>' + escapeHtml(s.sellerName) + '</td>' +
       '<td>' + escapeHtml(s.productName) + '</td>' +
       '<td>' + formatMoney(s.salePrice) + '</td>' +
       '<td style="color: var(--primary); font-weight: 700;">' + formatMoney(s.adminPurchasePrice) + '</td>' +
-      '<td style="color: var(--success); font-weight: 700;">' + formatMoney(s.sellerProfit) + '</td>';
+      '<td>' + commDisplay + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td style="text-align: center;">' + qrBtn + '</td>';
     tbody.appendChild(tr);
   });
 }
@@ -3660,7 +3951,7 @@ function renderSettlementHistory(filterSellerId) {
   });
 
   if (settlements.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--gray-500);">No hay períodos saldados archivados en el histórico.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px; color: var(--gray-500);"><i class="fa-solid fa-clock-rotate-left" style="font-size: 2rem; color: var(--gray-300); margin-bottom: 8px;"></i><div>No hay períodos saldados archivados en el histórico.</div></td></tr>';
     return;
   }
 
@@ -3683,6 +3974,21 @@ function openReturnSaleModal(saleId) {
   if (!sale) return;
 
   document.getElementById('returnSaleId').value = sale.id;
+  // Reset charge options
+  const chkProduct = document.getElementById('returnChargeProductCost');
+  const chkShip = document.getElementById('returnChargeShippingCheck');
+  const shipDiv = document.getElementById('returnShippingCostDiv');
+  const shipInput = document.getElementById('returnShippingCostInput');
+  if (chkProduct) chkProduct.checked = true;
+  if (chkShip) chkShip.checked = false;
+  if (shipDiv) shipDiv.style.display = 'none';
+  if (shipInput) shipInput.value = '';
+  // Show product cost
+  const costDisplay = document.getElementById('returnProductCostDisplay');
+  if (costDisplay) {
+    const cost = Number(sale.adminPurchasePrice || sale.purchasePrice || 0);
+    costDisplay.textContent = '€' + cost.toFixed(2);
+  }
   document.getElementById('returnSaleInfo').textContent = sale.productName + ' (' + formatMoney(sale.salePrice) + ') - Vendedor: ' + sale.sellerName;
   const profitText = document.getElementById('returnProfitAmountText');
   if (profitText) profitText.textContent = formatMoney(sale.sellerProfit);
@@ -3699,9 +4005,12 @@ async function handleReturnSaleSubmit(e) {
   e.preventDefault();
   const saleId = document.getElementById('returnSaleId').value;
   const reason = document.getElementById('returnReason').value.trim();
+  const chargeProductCost = document.getElementById('returnChargeProductCost')?.checked !== false;
+  const chargeShipping = document.getElementById('returnChargeShippingCheck')?.checked === true;
+  const returnShippingCost = chargeShipping ? (parseFloat(document.getElementById('returnShippingCostInput')?.value) || 0) : 0;
 
   try {
-    const res = await callServer('processReturnSale', { saleId, reason }, 'Registrazione reso su Google Sheets...');
+    const res = await callServer('processReturnSale', { saleId, reason, chargeProductCost, chargeShipping, returnShippingCost }, 'Registrazione reso su Google Sheets...');
     showToast(res.message || 'Devolución registrada con éxito en Google Sheets.', res.wasSettled ? 'warning' : 'success');
     closeModal('modalReturnSale');
     await loadAllData(true);
@@ -3739,7 +4048,7 @@ function calculateSettlePeriodSummary() {
     return;
   }
 
-  const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId && s.status === 'Venta Confirmada' && s.shippingStatus === 'Enviada' && !s.settled);
+  const sellerSales = APP_STATE.sales.filter(s => s.sellerId === sellerId && isSaleShipped(s) && !s.settled && s.status !== 'Devuelta' && !s.returned);
 
   let totalSales = 0;
   let totalAdminCost = 0;
@@ -3750,12 +4059,14 @@ function calculateSettlePeriodSummary() {
     netProfit += Number(s.sellerProfit);
   });
 
+  // Regola Reso: il venditore paga il costo iniziale del prodotto restituito (adminPurchasePrice)
   let returnAdjustments = 0;
-  APP_STATE.sales.filter(s => s.sellerId === sellerId && (s.status === 'Devuelta' || s.returned) && s.settled).forEach(s => {
-    returnAdjustments += Number(s.sellerProfit) || 0;
+  APP_STATE.sales.filter(s => s.sellerId === sellerId && (s.status === 'Devuelta' || s.returned)).forEach(s => {
+    returnAdjustments += Number(s.adminPurchasePrice) || 0;
   });
 
-  let finalOwedAdmin = Math.max(0, totalAdminCost + returnAdjustments);
+  let finalSellerComm = Math.max(0, netProfit - returnAdjustments);
+  let finalOwedAdmin = totalAdminCost + returnAdjustments;
 
   container.innerHTML = 
     '• Ventas enviadas a liquidar: <strong>' + sellerSales.length + '</strong> (Total: ' + formatMoney(totalSales) + ')<br>' +
@@ -3823,7 +4134,7 @@ function renderSellersTable() {
   }
 
   if (sellers.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-500);"><i class="fa-solid fa-users" style="font-size: 2.2rem; color: var(--gray-300); margin-bottom: 8px;"></i><div>No hay vendedores que coincidan con el filtro.</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: var(--gray-500);"><i class="fa-solid fa-users" style="font-size: 2.2rem; color: var(--gray-300); margin-bottom: 8px;"></i><div>No hay vendedores que coincidan con el filtro.</div></td></tr>';
     return;
   }
 
@@ -3846,6 +4157,7 @@ function renderSellersTable() {
           '<button class="btn btn-secondary btn-sm" onclick="togglePasswordVisibility(\'pwd_field_' + s.id + '\', this)" title="Ver contraseña"><i class="fa-solid fa-eye"></i></button>' +
         '</div>' +
       '</td>' +
+      '<td style="text-align:center;"><span style="font-weight:700;color:var(--primary);font-size:1.05em;">' + (s.commissionPct !== undefined ? s.commissionPct : 50) + '%</span></td>' +
       '<td><small style="color: var(--gray-500);">' + formatDate(s.createdAt) + '</small></td>' +
       '<td>' +
         '<div class="dropdown">' +
@@ -3879,7 +4191,8 @@ async function submitAddSeller(e) {
   const phone = document.getElementById('newSellerPhone').value.trim();
   const password = document.getElementById('newSellerPassword').value.trim() || generateRandomPassword(8);
 
-  const sellerData = { name, email, phone, password };
+  const commissionPct = parseFloat(document.getElementById('newSellerCommissionPct')?.value) || 50;
+  const sellerData = { name, email, phone, password, commissionPct };
 
   try {
     const res = await callServer('addSeller', { seller: sellerData }, 'Registrazione venditore su Google Sheets...');
