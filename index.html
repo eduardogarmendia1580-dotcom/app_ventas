@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <base target="_top">
-  <title>Gestione Vendite, Spedizioni e Contabilità</title>
+  <title>Gestión de Ventas, Envíos y Contabilidad</title>
 
   <!-- PWA & MOBILE META TAGS -->
   <link rel="manifest" href="manifest.json">
@@ -12,7 +12,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Vendite App">
+  <meta name="apple-mobile-web-app-title" content="App de Ventas">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
@@ -1073,16 +1073,16 @@
       <form id="formLoginAdmin" class="login-form" onsubmit="handleAdminLogin(event)">
         <div class="login-hint-box" style="background: rgba(37, 99, 235, 0.08); border-color: var(--primary);">
           <i class="fa-solid fa-shield-halved" style="color: var(--primary);"></i>
-          <div style="color: var(--gray-700);">Inserisci la tua email e la password di amministratore per accedere al pannello.</div>
+          <div style="color: var(--gray-700);">Introduce tu correo y contraseña de administrador para acceder al panel.</div>
         </div>
 
         <div class="form-group">
-          <label><i class="fa-solid fa-envelope"></i> Email Amministratore *</label>
+          <label><i class="fa-solid fa-envelope"></i> Correo Administrador *</label>
           <input type="email" id="adminEmailInput" class="form-control" placeholder="admin@gestione.com" required autocomplete="username" value="admin@gestione.com">
         </div>
 
         <div class="form-group">
-          <label><i class="fa-solid fa-lock"></i> Password Amministratore *</label>
+          <label><i class="fa-solid fa-lock"></i> Contraseña Administrador *</label>
           <div class="input-password-wrapper">
             <input type="password" id="adminPasswordInput" class="form-control" placeholder="Inserisci la password di Admin" required autocomplete="current-password" value="admin2026">
             <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('adminPasswordInput', this)" title="Mostra/Nascondi password">
@@ -1135,7 +1135,7 @@
 
       <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--gray-200); text-align: center;">
         <button type="button" onclick="openAdminSettingsModal()" style="background: none; border: none; color: var(--primary); font-size: 0.82rem; cursor: pointer; text-decoration: underline; display: inline-flex; align-items: center; gap: 6px;">
-          <i class="fa-solid fa-gear"></i> Configura URL Google Apps Script / Impostazioni
+          <i class="fa-solid fa-gear"></i> Configurar URL Google Apps Script / Ajustes
         </button>
       </div>
     </div>
@@ -1162,8 +1162,8 @@
       </span>
 
       <!-- Bottone Impostazioni Admin -->
-      <button id="btnAdminSettings" class="btn admin-only" onclick="openAdminSettingsModal()" title="Impostazioni Amministratore (Cambia Password, Cambia Email, Sincronizzazione Google Sheets)" style="display: none; padding: 6px 12px; font-size: 0.82rem; border-radius: 8px; border: 1px solid var(--gray-300); background: #ffffff; color: var(--gray-800); cursor: pointer; align-items: center; gap: 6px; font-weight: 500;">
-        <i class="fa-solid fa-gear" style="color: var(--primary);"></i> <span class="hide-mobile">Impostazioni</span>
+      <button id="btnAdminSettings" class="btn admin-only" onclick="openAdminSettingsModal()" title="Ajustes del Administrador (Cambiar Contraseña, Cambiar Correo, Sincronización Google Sheets)" style="display: none; padding: 6px 12px; font-size: 0.82rem; border-radius: 8px; border: 1px solid var(--gray-300); background: #ffffff; color: var(--gray-800); cursor: pointer; align-items: center; gap: 6px; font-weight: 500;">
+        <i class="fa-solid fa-gear" style="color: var(--primary);"></i> <span class="hide-mobile">Ajustes</span>
       </button>
 
       <!-- Usuario Autenticado -->
@@ -1195,7 +1195,7 @@
       <span class="badge-counter" id="badgeShipping">0</span>
     </button>
     <button class="nav-tab-btn" onclick="switchTab('shipped')">
-      <i class="fa-solid fa-box-archive"></i> 📦 Spediti
+      <i class="fa-solid fa-box-archive"></i> 📦 Enviados
       <span class="badge-counter" id="badgeShipped">0</span>
     </button>
     <button class="nav-tab-btn" onclick="switchTab('accounting')">
@@ -1214,16 +1214,28 @@
     <!-- ======================================================== -->
     <div id="tab-catalog" class="tab-pane active">
       <div class="card">
-        <div class="card-header">
-          <div class="card-title">
-            <i class="fa-solid fa-boxes-stacked" style="color: var(--primary);"></i> Catálogo de Productos
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button id="btnCatAvailable" class="btn btn-primary btn-sm" onclick="switchCatalogSubTab('available')">
+              <i class="fa-solid fa-box-open"></i> Activos / En Venta (<span id="countCatAvailable">0</span>)
+            </button>
+            <button id="btnCatSold" class="btn btn-secondary btn-sm" onclick="switchCatalogSubTab('sold')">
+              <i class="fa-solid fa-tag"></i> 🏷️ Productos Vendidos (<span id="countCatSold">0</span>)
+            </button>
           </div>
           <button class="btn btn-primary admin-only" onclick="openAddProductModal()">
             <i class="fa-solid fa-paper-plane"></i> Enviar Producto a Vendedores
           </button>
         </div>
         <div class="card-body">
-          <div id="productsGrid" class="products-grid"></div>
+          <!-- SUB-PESTAÑA 1: PRODUCTOS DISPONIBLES / ACTIVOS -->
+          <div id="catViewAvailable">
+            <div id="productsGrid" class="products-grid"></div>
+          </div>
+          <!-- SUB-PESTAÑA 2: PRODUCTOS YA VENDIDOS -->
+          <div id="catViewSold" style="display: none;">
+            <div id="productsGridSold" class="products-grid"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1391,10 +1403,10 @@
               <div>
                 <select id="accountingStatusFilter" class="form-control" style="width: auto; padding: 6px 12px; font-weight: 600;" onchange="renderAccounting()">
                   <option value="ALL">📋 Todas las Ventas</option>
-                  <option value="ENVIADAS" selected>✅ Solo Spedite (Maturate in Contabilità)</option>
-                  <option value="PENDIENTES">⏳ Vendute NON Spedite (In Sospeso)</option>
-                  <option value="DEVUELTAS">↩️ Solo Resi / Devoluciones</option>
-                  <option value="LIQUIDADAS">📜 Solo Saldate / Liquidate</option>
+                  <option value="ENVIADAS" selected>✅ Solo Enviadas (Maduradas en Contabilidad)</option>
+                  <option value="PENDIENTES">⏳ Vendidas NO Enviadas (En Espera)</option>
+                  <option value="DEVUELTAS">↩️ Solo Devoluciones</option>
+                  <option value="LIQUIDADAS">📜 Solo Saldadas / Liquidadas</option>
                 </select>
               </div>
               <div id="accountingSellerFilterGroup">
@@ -1984,7 +1996,7 @@
             <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin:0;">
               <input type="checkbox" id="returnChargeShippingCheck" onchange="toggleReturnShippingCostField()" style="margin-top:3px;width:17px;height:17px;cursor:pointer;">
               <span>
-                <strong>Gastos de envío del reso</strong><br>
+                <strong>Gastos de envío de la devolución</strong><br>
                 <small style="color:var(--gray-600);">¿Hay costes de devolución a cargo del vendedor?</small>
               </span>
             </label>
@@ -2107,7 +2119,7 @@
     <div class="install-banner-header">
       <img src="icon-192.png" alt="Icona App" style="width: 52px; height: 52px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
       <div>
-        <div class="install-banner-title">Installa Gestione Vendite</div>
+        <div class="install-banner-title">Instalar App de Ventas</div>
         <div class="install-banner-desc">Installa l'app sul tuo dispositivo per usarla a schermo intero e accedere in un clic!</div>
       </div>
     </div>
@@ -2133,7 +2145,7 @@
     <div class="modal" style="max-width: 580px;">
       <div class="modal-header">
         <div class="modal-title" style="color: var(--primary);">
-          <i class="fa-solid fa-gear"></i> Impostazioni Amministratore
+          <i class="fa-solid fa-gear"></i> Ajustes del Administrador
         </div>
         <button class="modal-close" onclick="closeModal('modalAdminSettings')">&times;</button>
       </div>
@@ -2142,7 +2154,7 @@
         <!-- CAMBIO PASSWORD ADMIN -->
         <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
           <h4 style="color: var(--gray-900); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-key" style="color: var(--primary);"></i> Cambia Password Amministratore
+            <i class="fa-solid fa-key" style="color: var(--primary);"></i> Cambiar Contraseña del Administrador
           </h4>
           <form id="formChangeAdminPassword" onsubmit="submitChangeAdminPassword(event)">
             <div class="form-group">
@@ -2183,7 +2195,7 @@
         <!-- CAMBIO EMAIL ADMIN -->
         <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
           <h4 style="color: var(--gray-900); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-envelope" style="color: var(--primary);"></i> Cambia Email Amministratore
+            <i class="fa-solid fa-envelope" style="color: var(--primary);"></i> Cambiar Correo del Administrador
           </h4>
           <form id="formChangeAdminEmail" onsubmit="submitChangeAdminEmail(event)">
             <div class="form-group">
@@ -2219,7 +2231,7 @@
           </div>
           <div style="display: flex; gap: 8px;">
             <button type="button" class="btn btn-purple btn-sm" onclick="saveAndTestGoogleScriptUrl()">
-              <i class="fa-solid fa-plug"></i> Salva e Testa Connessione
+              <i class="fa-solid fa-plug"></i> Guardar y Probar Conexión
             </button>
             <button type="button" class="btn btn-secondary btn-sm" onclick="clearGoogleScriptUrl()">
               Ripristina Default
@@ -2229,7 +2241,7 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="closeModal('modalAdminSettings')">Chiudi</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalAdminSettings')">Cerrar</button>
       </div>
     </div>
   </div>
@@ -2531,7 +2543,7 @@ async function callServer(action, payload = {}, loadingMsg = null) {
           .withFailureHandler(err => reject(new Error(err && err.message ? err.message : String(err))));
 
         switch (action) {
-          case 'ping': resolve({ success: true, message: 'Google Apps Script Nativo Connesso' }); break;
+          case 'ping': resolve({ success: true, message: 'Google Apps Script Nativo Conectado' }); break;
           case 'verifyAdminLogin': runner.verifyAdminLogin(payload.email, payload.password); break;
           case 'changeAdminPassword': runner.changeAdminPassword(payload.currentPassword, payload.newPassword); break;
           case 'changeAdminEmail': runner.changeAdminEmail(payload.currentPassword, payload.newEmail); break;
@@ -2572,7 +2584,7 @@ async function callServer(action, payload = {}, loadingMsg = null) {
       });
 
       if (!response.ok) {
-        throw new Error('Errore di comunicazione HTTP ' + response.status + ' dal server Google Script');
+        throw new Error('Error de comunicación HTTP ' + response.status + ' dal server Google Script');
       }
 
       const rawText = await response.text();
@@ -2760,7 +2772,7 @@ function updateConnectionStatusBadge() {
     badge.style.background = '#ecfdf5';
     badge.style.color = '#065f46';
     badge.style.borderColor = '#a7f3d0';
-    text.innerHTML = '<i class="fa-solid fa-circle-check"></i> Google Sheets Connesso';
+    text.innerHTML = '<i class="fa-solid fa-circle-check"></i> Google Sheets Conectado';
   } else {
     badge.className = 'sync-status-badge local';
     badge.style.background = '#fef3c7';
@@ -2835,7 +2847,7 @@ async function handleAdminLogin(e) {
     if (success) {
       APP_STATE.isAuthenticated = true;
       APP_STATE.role = 'ADMIN';
-      APP_STATE.currentUserDisplayName = 'Amministratore (' + email + ')';
+      APP_STATE.currentUserDisplayName = 'Administrador (' + email + ')';
       APP_STATE.currentUserEmail = email;
 
       const sessionData = JSON.stringify({ 
@@ -2848,21 +2860,21 @@ async function handleAdminLogin(e) {
 
       hideLoginOverlay();
       loadAllData(true);
-      showToast('Accesso Amministratore confermato!', 'success');
+      showToast('¡Acceso de Administrador confirmado!', 'success');
     } else {
-      showToast((res && res.error) ? res.error : 'Email o password Amministratore errati.', 'error');
+      showToast((res && res.error) ? res.error : 'Correo o contraseña de Administrador incorrectos.', 'error');
     }
   };
 
   try {
-    const res = await callServer('verifyAdminLogin', { email, password: pass }, 'Verifica credenziali Amministratore...');
+    const res = await callServer('verifyAdminLogin', { email, password: pass }, 'Verificando credenciales de Administrador...');
     performLogin(res && (res.success || res.ok), res);
   } catch (err) {
     const localAdminEmail = localStorage.getItem('ADMIN_EMAIL') || 'admin@gestione.com';
     const localAdminPass  = localStorage.getItem('ADMIN_PASSWORD') || 'admin2026';
     if (email === localAdminEmail.toLowerCase() && pass === localAdminPass) {
       performLogin(true, {});
-      showToast('Accesso Admin locale. Configura l\'URL Google Script in Impostazioni per salvare su Sheets!', 'warning');
+      showToast('Acceso Admin local. ¡Configura la URL de Google Script en Ajustes para sincronizar con Sheets!', 'warning');
     } else {
       showToast('Accesso non riuscito: ' + err.message, 'error');
     }
@@ -2901,19 +2913,19 @@ async function handleSellerLogin(e) {
       loadAllData(true);
       showToast('Benvenuto, ' + res.seller.name + '!', 'success');
     } else {
-      showToast((res && res.error) ? res.error : 'Credenziali venditore non corrette.', 'error');
+      showToast((res && res.error) ? res.error : 'Credenciales de vendedor incorrectas.', 'error');
     }
   };
 
   try {
-    const res = await callServer('verifySellerLogin', { email, password: pass }, 'Verifica credenziali Venditore...');
+    const res = await callServer('verifySellerLogin', { email, password: pass }, 'Verificando credenciales de Vendedor...');
     performSellerLogin(res);
   } catch (err) {
     const cleanEmail = email.toLowerCase();
     const seller = APP_STATE.sellers.find(s => s.email.toLowerCase() === cleanEmail || (cleanEmail === 'mario.rossi@esempio.com' && s.email.toLowerCase() === 'mario.rossi@ejemplo.com'));
     if (seller && seller.password === pass) {
       if (seller.status === 'Archivado') {
-        showToast('Account venditore archiviato. Contatta l\'Amministratore.', 'warning');
+        showToast('Cuenta de vendedor archivada. Contacta al Administrador.', 'warning');
         return;
       }
       performSellerLogin({ success: true, seller: seller });
@@ -2975,7 +2987,7 @@ async function submitChangeAdminPassword(e) {
         closeModal('modalAdminSettings');
       }
     } else {
-      showToast('Errore cambio password: ' + err.message, 'error');
+      showToast('Error al cambiar contraseña: ' + err.message, 'error');
     }
   }
 }
@@ -3000,7 +3012,7 @@ async function submitChangeAdminEmail(e) {
     const emailInput = document.getElementById('adminEmailInput');
     if (emailInput) emailInput.value = newEmail;
 
-    showToast(res.message || ('Email amministratore aggiornata a: ' + newEmail), 'success');
+    showToast(res.message || ('Correo de administrador actualizado a: ' + newEmail), 'success');
     document.getElementById('adminEmailVerifyPasswordInput').value = '';
     document.getElementById('adminNewEmailInput').value = '';
     closeModal('modalAdminSettings');
@@ -3019,7 +3031,7 @@ async function submitChangeAdminEmail(e) {
         closeModal('modalAdminSettings');
       }
     } else {
-      showToast('Errore cambio email: ' + err.message, 'error');
+      showToast('Error al cambiar correo: ' + err.message, 'error');
     }
   }
 }
@@ -3044,7 +3056,7 @@ async function saveAndTestGoogleScriptUrl() {
       APP_STATE.googleWebAppUrl = url;
       localStorage.setItem('GOOGLE_WEB_APP_URL', url);
       updateConnectionStatusBadge();
-      showToast('Connessione a Google Sheets riuscita e salvata!', 'success');
+      showToast('¡Conexión a Google Sheets exitosa y guardada!', 'success');
       await loadAllData(true);
     } else {
       showToast('Google Script ha risposto con errore: ' + (json ? json.error : ''), 'warning');
@@ -3452,15 +3464,51 @@ function showQrModal(imgUrl, saleId) {
 }
 
 
+let currentCatalogSubTab = 'available';
+
+function switchCatalogSubTab(subTab) {
+  currentCatalogSubTab = subTab;
+  const btnAvail = document.getElementById('btnCatAvailable');
+  const btnSold = document.getElementById('btnCatSold');
+  const viewAvail = document.getElementById('catViewAvailable');
+  const viewSold = document.getElementById('catViewSold');
+
+  if (btnAvail && btnSold) {
+    if (subTab === 'available') {
+      btnAvail.className = 'btn btn-primary btn-sm';
+      btnSold.className = 'btn btn-secondary btn-sm';
+      if (viewAvail) viewAvail.style.display = 'block';
+      if (viewSold) viewSold.style.display = 'none';
+    } else {
+      btnAvail.className = 'btn btn-secondary btn-sm';
+      btnSold.className = 'btn btn-primary btn-sm';
+      if (viewAvail) viewAvail.style.display = 'none';
+      if (viewSold) viewSold.style.display = 'block';
+    }
+  }
+  renderCatalog();
+}
+
+function isProductSold(p) {
+  if (!p) return false;
+  return (APP_STATE.sales || []).some(s => String(s.productId) === String(p.id) && s.status !== 'Devuelta' && !s.returned);
+}
+
+function getProductSale(p) {
+  if (!p) return null;
+  return (APP_STATE.sales || []).find(s => String(s.productId) === String(p.id) && s.status !== 'Devuelta' && !s.returned) || null;
+}
+
 function renderCatalog() {
-  const grid = document.getElementById('productsGrid');
-  if (!grid) return;
-  grid.innerHTML = '';
+  const gridAvailable = document.getElementById('productsGrid');
+  const gridSold = document.getElementById('productsGridSold');
+  if (!gridAvailable) return;
 
   const isSeller = APP_STATE.role === 'SELLER';
   const isAdmin = APP_STATE.role === 'ADMIN';
 
-  const visible = APP_STATE.products.filter(p => {
+  // Productos visibles según rol
+  const visible = (APP_STATE.products || []).filter(p => {
     if (!p.active) return false;
     if (isSeller && p.assignedTo !== 'TUTTI' && p.assignedTo !== APP_STATE.activeSellerId) {
       return false;
@@ -3468,45 +3516,109 @@ function renderCatalog() {
     return true;
   });
 
-  if (visible.length === 0) {
-    grid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><i class="fa-solid fa-box-open"></i><h3>No hay productos disponibles</h3><p>' + (isSeller ? 'El administrador no te ha asignado ningún producto aún.' : 'Pulsa "Enviar Producto a Vendedores" para añadir el primer artículo.') + '</p></div>';
-    return;
+  // División neta: Productos disponibles vs Productos vendidos
+  const availableProducts = visible.filter(p => !isProductSold(p));
+  const soldProducts = visible.filter(p => isProductSold(p));
+
+  // Actualizar contadores
+  const countAvail = document.getElementById('countCatAvailable');
+  const countSold = document.getElementById('countCatSold');
+  if (countAvail) countAvail.textContent = availableProducts.length;
+  if (countSold) countSold.textContent = soldProducts.length;
+
+  const badgeCat = document.getElementById('badgeCatalog');
+  if (badgeCat) badgeCat.textContent = availableProducts.length;
+
+  // 1. RENDERIZAR PRODUCTOS ACTIVOS / DISPONIBLES
+  gridAvailable.innerHTML = '';
+  if (availableProducts.length === 0) {
+    gridAvailable.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><i class="fa-solid fa-box-open"></i><h3>No hay productos disponibles</h3><p>' + (isSeller ? 'No tienes productos activos pendientes de venta.' : 'Todos los productos han sido vendidos o el catálogo está vacío. Pulsa "Enviar Producto a Vendedores" para añadir artículos.') + '</p></div>';
+  } else {
+    availableProducts.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+
+      let targetBadge = '';
+      if (isAdmin) {
+        if (p.assignedTo === 'TUTTI') {
+          targetBadge = '<span class="status-badge badge-all"><i class="fa-solid fa-earth-americas"></i> Todos los Vendedores</span>';
+        } else {
+          const assignedSeller = (APP_STATE.sellers || []).find(s => s.id === p.assignedTo);
+          const sellerName = assignedSeller ? assignedSeller.name : p.assignedTo;
+          targetBadge = '<span class="status-badge badge-specific"><i class="fa-solid fa-user-tag"></i> ' + escapeHtml(sellerName) + '</span>';
+        }
+      }
+
+      card.innerHTML = 
+        '<img src="' + (p.photoUrl || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500') + '" class="product-image" alt="' + escapeHtml(p.title) + '" onerror="this.src=\'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500\'">' +
+        '<div class="product-body">' +
+          '<div class="product-title">' + escapeHtml(p.title) + '</div>' +
+          '<div class="product-desc">' + escapeHtml(p.description || 'Sin descripción') + '</div>' +
+          '<div class="product-prices">' +
+            (isAdmin ? '<div class="price-row admin-only"><span class="price-label">Costo Admin (Base):</span><strong style="color: var(--primary);">' + formatMoney(p.purchasePrice) + '</strong></div>' : '') +
+            '<div class="price-row"><span class="price-label">Precio Permitido:</span><strong style="color: var(--success);">' + formatMoney(p.minPrice) + ' - ' + formatMoney(p.maxPrice) + '</strong></div>' +
+            (targetBadge ? '<div style="margin-top: 8px;">' + targetBadge + '</div>' : '') +
+          '</div>' +
+          '<div class="product-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">' +
+            '<button class="btn btn-success btn-sm" style="flex: 1; min-width: 120px;" onclick="openNewSaleForProduct(\'' + p.id + '\')"><i class="fa-solid fa-cart-plus"></i> Registrar Venta</button>' +
+            (isAdmin ? '<button class="btn btn-warning btn-sm" onclick="openEditProductModal(\'' + p.id + '\')" title="Modificar Producto"><i class="fa-solid fa-pen-to-square"></i> Editar</button>' : '') +
+            (isAdmin ? '<button class="btn btn-secondary btn-sm" onclick="openReassignModal(\'' + p.id + '\')" title="Reasignar a otro vendedor"><i class="fa-solid fa-arrows-rotate"></i> Reasignar</button>' : '') +
+            (isAdmin ? '<button class="btn btn-danger btn-sm" onclick="handleDeleteProduct(\'' + p.id + '\')" title="Eliminar producto"><i class="fa-solid fa-trash"></i></button>' : '') +
+          '</div>' +
+        '</div>';
+      gridAvailable.appendChild(card);
+    });
   }
 
-  visible.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'product-card';
+  // 2. RENDERIZAR PRODUCTOS VENDIDOS
+  if (gridSold) {
+    gridSold.innerHTML = '';
+    if (soldProducts.length === 0) {
+      gridSold.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><i class="fa-solid fa-tag"></i><h3>No hay productos vendidos</h3><p>Ningún producto ha sido vendido todavía.</p></div>';
+    } else {
+      soldProducts.forEach(p => {
+        const sale = getProductSale(p);
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.style.border = '1px solid #fed7aa';
+        card.style.background = '#fffdfa';
 
-    let targetBadge = '';
-    if (isAdmin) {
-      if (p.assignedTo === 'TUTTI') {
-        targetBadge = '<span class="status-badge badge-all"><i class="fa-solid fa-earth-americas"></i> Todos los Vendedores</span>';
-      } else {
-        const assignedSeller = APP_STATE.sellers.find(s => s.id === p.assignedTo);
-        const sellerName = assignedSeller ? assignedSeller.name : p.assignedTo;
-        targetBadge = '<span class="status-badge badge-specific"><i class="fa-solid fa-user-tag"></i> ' + escapeHtml(sellerName) + '</span>';
-      }
+        let shipStatusBadge = '';
+        if (sale) {
+          if (isSaleShipped(sale)) {
+            shipStatusBadge = '<span class="status-badge badge-shipped"><i class="fa-solid fa-truck-fast"></i> Enviado por Admin</span>';
+          } else {
+            shipStatusBadge = '<span class="status-badge" style="background:#fff3cd; color:#856404; border:1px solid #ffeeba;"><i class="fa-solid fa-boxes-packing"></i> Vendido para enviar</span>';
+          }
+        }
+
+        const qrBtn = (sale && sale.shippingProofUrl)
+          ? '<button class="btn btn-secondary btn-sm" onclick="showQrModal(\'' + escapeHtml(sale.shippingProofUrl) + '\', \'' + escapeHtml(sale.id) + '\')" title="Ver QR de envío"><i class="fa-solid fa-qrcode"></i> Ver QR</button>'
+          : '';
+
+        card.innerHTML = 
+          '<div style="position: relative;">' +
+            '<img src="' + (p.photoUrl || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500') + '" class="product-image" alt="' + escapeHtml(p.title) + '" onerror="this.src=\'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500\'">' +
+            '<span style="position: absolute; top: 10px; right: 10px; background: #dc2626; color: #ffffff; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.8rem; box-shadow: var(--shadow-sm);"><i class="fa-solid fa-tag"></i> VENDIDO</span>' +
+          '</div>' +
+          '<div class="product-body">' +
+            '<div class="product-title">' + escapeHtml(p.title) + '</div>' +
+            '<div style="background: #f8fafc; border: 1px solid var(--gray-200); border-radius: 8px; padding: 10px; margin: 8px 0; font-size: 0.85rem;">' +
+              (sale ? '<div style="margin-bottom: 4px;">👤 Vendido por: <strong>' + escapeHtml(sale.sellerName) + '</strong></div>' : '') +
+              (sale ? '<div style="margin-bottom: 4px;">💰 Precio de Venta: <strong style="color: var(--gray-900);">' + formatMoney(sale.salePrice) + '</strong></div>' : '') +
+              (sale ? '<div style="margin-bottom: 4px;">🏆 Ganancia Vendedor: <strong style="color: var(--success);">' + formatMoney(sale.sellerProfit) + '</strong></div>' : '') +
+              (isAdmin && sale ? '<div style="margin-bottom: 6px;">💼 Costo Admin: <strong style="color: var(--primary);">' + formatMoney(sale.adminPurchasePrice) + '</strong></div>' : '') +
+              '<div style="margin-top: 6px;">' + shipStatusBadge + '</div>' +
+            '</div>' +
+            '<div class="product-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">' +
+              qrBtn +
+              (isAdmin ? '<button class="btn btn-warning btn-sm" onclick="openEditProductModal(\'' + p.id + '\')" title="Modificar Datos del Producto"><i class="fa-solid fa-pen-to-square"></i> Editar</button>' : '') +
+            '</div>' +
+          '</div>';
+        gridSold.appendChild(card);
+      });
     }
-
-    card.innerHTML = 
-      '<img src="' + (p.photoUrl || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500') + '" class="product-image" alt="' + escapeHtml(p.title) + '" onerror="this.src=\'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500\'">' +
-      '<div class="product-body">' +
-        '<div class="product-title">' + escapeHtml(p.title) + '</div>' +
-        '<div class="product-desc">' + escapeHtml(p.description || 'Sin descripción') + '</div>' +
-        '<div class="product-prices">' +
-          (isAdmin ? '<div class="price-row admin-only"><span class="price-label">Costo Admin (Base):</span><strong style="color: var(--primary);">' + formatMoney(p.purchasePrice) + '</strong></div>' : '') +
-          '<div class="price-row"><span class="price-label">Precio Permitido:</span><strong style="color: var(--success);">' + formatMoney(p.minPrice) + ' - ' + formatMoney(p.maxPrice) + '</strong></div>' +
-          (targetBadge ? '<div style="margin-top: 8px;">' + targetBadge + '</div>' : '') +
-        '</div>' +
-        '<div class="product-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">' +
-          '<button class="btn btn-success btn-sm" style="flex: 1; min-width: 120px;" onclick="openNewSaleForProduct(\'' + p.id + '\')"><i class="fa-solid fa-cart-plus"></i> Registrar Venta</button>' +
-          (isAdmin ? '<button class="btn btn-warning btn-sm" onclick="openEditProductModal(\'' + p.id + '\')" title="Modificar Producto"><i class="fa-solid fa-pen-to-square"></i> Editar</button>' : '') +
-          (isAdmin ? '<button class="btn btn-secondary btn-sm" onclick="openReassignModal(\'' + p.id + '\')" title="Reasignar a otro vendedor"><i class="fa-solid fa-arrows-rotate"></i> Reasignar</button>' : '') +
-          (isAdmin ? '<button class="btn btn-danger btn-sm" onclick="handleDeleteProduct(\'' + p.id + '\')" title="Eliminar producto"><i class="fa-solid fa-trash"></i></button>' : '') +
-        '</div>' +
-      '</div>';
-    grid.appendChild(card);
-  });
+  }
 }
 
 function openAddProductModal() {
@@ -3597,7 +3709,7 @@ async function handleAddProductSubmit(e) {
   const prodData = { title, description, photoUrl, purchasePrice, minPrice, maxPrice, assignedTo, commissionPct: prodCommissionPct };
 
   try {
-    const res = await callServer('addProduct', { product: prodData }, 'Salvataggio prodotto su Google Sheets...');
+    const res = await callServer('addProduct', { product: prodData }, 'Guardando producto en Google Sheets...');
     showToast(res.message || '¡Producto guardado en Google Sheets con éxito!', 'success');
     closeModal('modalAddProduct');
     await loadAllData(true);
@@ -3606,11 +3718,11 @@ async function handleAddProductSubmit(e) {
       const id = 'PROD-' + Math.random().toString(36).substring(2, 8).toUpperCase();
       APP_STATE.products.unshift({ id, ...prodData, active: true, createdAt: new Date().toISOString() });
       saveLocalData();
-      showToast('¡Producto añadido en modo locale! Configura Google Script per salvare su Sheets.', 'warning');
+      showToast('¡Producto añadido en modo local! Configura Google Script para sincronizar con Sheets.', 'warning');
       closeModal('modalAddProduct');
       renderAll();
     } else {
-      showToast('Errore salvataggio prodotto su Google Sheets: ' + err.message, 'error');
+      showToast('Error al guardar producto en Google Sheets: ' + err.message, 'error');
     }
   }
 }
@@ -3629,7 +3741,7 @@ async function handleDeleteProduct(productId) {
       showToast('Producto eliminado (Locale)', 'warning');
       renderAll();
     } else {
-      showToast('Errore eliminazione prodotto: ' + err.message, 'error');
+      showToast('Error al eliminar producto: ' + err.message, 'error');
     }
   }
 }
@@ -3782,7 +3894,7 @@ function renderSalesTable() {
         '<button class="btn btn-secondary btn-sm" onclick="toggleDropdown(event, this)"><i class="fa-solid fa-ellipsis-vertical"></i> Opciones</button>' +
         '<div class="dropdown-menu">' +
           (!isShipped && !isReturned ? '<button onclick="openRegisterShippingModal(\'' + s.id + '\')"><i class="fa-solid fa-truck"></i> Registrar Envío</button>' : '') +
-          (!isReturned ? '<button onclick="openReturnSaleModal(\'' + s.id + '\')"><i class="fa-solid fa-rotate-left"></i> Marcar Devolución (Reso)</button>' : '') +
+          (!isReturned ? '<button onclick="openReturnSaleModal(\'' + s.id + '\')"><i class="fa-solid fa-rotate-left"></i> Marcar Devolución</button>' : '') +
           (s.shippingProofUrl ? '<button onclick="showQrModal(\'' + escapeHtml(s.shippingProofUrl) + '\', \'' + escapeHtml(s.id) + '\')"><i class="fa-solid fa-qrcode"></i> Ver QR / Etiqueta Envío</button>' : '') +
           '<button class="text-danger" onclick="openDoubleConfirmDeleteSaleModal(\'' + s.id + '\')"><i class="fa-solid fa-trash-can"></i> Eliminar Venta (Admin)</button>' +
         '</div>' +
@@ -3913,7 +4025,7 @@ async function handleRecordSaleSubmit(e) {
   };
 
   try {
-    const res = await callServer('recordSale', { sale: saleData }, 'Registrazione vendita su Google Sheets...');
+    const res = await callServer('recordSale', { sale: saleData }, 'Registrando venta en Google Sheets...');
     showToast(res.message || '¡Venta registrada y lista para enviar en Google Sheets!', 'success');
     SoundFX.playSaleChime();
     closeModal('modalNewSale');
@@ -3936,11 +4048,11 @@ async function handleRecordSaleSubmit(e) {
         date: new Date().toISOString()
       });
       saveLocalData();
-      showToast('¡Venta registrada (Locale)! Configura Google Script per salvare su Sheets.', 'warning');
+      showToast('¡Venta registrada (Local)! Configura Google Script para sincronizar con Sheets.', 'warning');
       closeModal('modalNewSale');
       renderAll();
     } else {
-      showToast('Errore registrazione vendita: ' + err.message, 'error');
+      showToast('Error al registrar venta: ' + err.message, 'error');
     }
   }
 }
@@ -3970,7 +4082,7 @@ async function executeDeleteSaleConfirmed() {
       showToast('Venta eliminada (Locale).', 'warning');
       renderAll();
     } else {
-      showToast('Errore cancellazione: ' + err.message, 'error');
+      showToast('Error al cancelar venta: ' + err.message, 'error');
     }
   }
 }
@@ -4052,7 +4164,7 @@ function renderShippedTable() {
 
     let actionBtn = '-';
     if (isAdmin) {
-      actionBtn = '<button class="btn btn-danger btn-sm" onclick="openReturnSaleModal(\'' + s.id + '\')" title="Marcar como Devolución / Reso"><i class="fa-solid fa-rotate-left"></i> Devolución</button>';
+      actionBtn = '<button class="btn btn-danger btn-sm" onclick="openReturnSaleModal(\'' + s.id + '\')" title="Marcar como Devolución"><i class="fa-solid fa-rotate-left"></i> Devolución</button>';
     }
 
     tr.innerHTML =
@@ -4156,7 +4268,7 @@ async function handleRegisterShippingSubmit(e) {
   };
 
   try {
-    const res = await callServer('registerSaleShipping', { saleId, shippingData }, 'Registrazione spedizione su Google Sheets...');
+    const res = await callServer('registerSaleShipping', { saleId, shippingData }, 'Registrando envío en Google Sheets...');
     showToast(res.message || '¡Envío registrado con éxito en Google Sheets!', 'success');
     closeModal('modalRegisterShipping');
     await loadAllData(true);
@@ -4175,7 +4287,7 @@ async function handleRegisterShippingSubmit(e) {
         renderAll();
       }
     } else {
-      showToast('Errore registrazione spedizione: ' + err.message, 'error');
+      showToast('Error al registrar envío: ' + err.message, 'error');
     }
   }
 }
@@ -4509,7 +4621,7 @@ function renderAccountingTables(displayedSales, statusFilter = 'ENVIADAS') {
       : '<span style="color:var(--gray-400);">-</span>';
 
     const commDisplay = isReturned
-      ? '<span style="color: var(--danger); font-weight: 700;">-' + formatMoney(s.adminPurchasePrice) + ' (Addebito Reso)</span>'
+      ? '<span style="color: var(--danger); font-weight: 700;">-' + formatMoney(s.adminPurchasePrice) + ' (Cargo Devolución)</span>'
       : '<span style="color: var(--success); font-weight: 700;">' + formatMoney(s.sellerProfit) + '</span>';
 
     tr.innerHTML = 
@@ -4597,7 +4709,7 @@ async function handleReturnSaleSubmit(e) {
   const returnShippingCost = chargeShipping ? (parseFloat(document.getElementById('returnShippingCostInput')?.value) || 0) : 0;
 
   try {
-    const res = await callServer('processReturnSale', { saleId, reason, chargeProductCost, chargeShipping, returnShippingCost }, 'Registrazione reso su Google Sheets...');
+    const res = await callServer('processReturnSale', { saleId, reason, chargeProductCost, chargeShipping, returnShippingCost }, 'Registrando devolución en Google Sheets...');
     showToast(res.message || 'Devolución registrada con éxito en Google Sheets.', res.wasSettled ? 'warning' : 'success');
     closeModal('modalReturnSale');
     await loadAllData(true);
@@ -4614,7 +4726,7 @@ async function handleReturnSaleSubmit(e) {
         renderAll();
       }
     } else {
-      showToast('Errore registrazione reso: ' + err.message, 'error');
+      showToast('Error al registrar devolución: ' + err.message, 'error');
     }
   }
 }
@@ -4681,10 +4793,10 @@ async function handleSettlePeriodSubmit(e) {
     await loadAllData(true);
   } catch (err) {
     if (err.message === 'CONFIG_URL_MISSING') {
-      showToast('Errore: Devi collegare Google Apps Script per registrare i saldi contabili storici.', 'error');
+      showToast('Error: Debes conectar Google Apps Script para registrar los saldos contables históricos.', 'error');
       openAdminSettingsModal();
     } else {
-      showToast('Errore liquidazione periodo: ' + err.message, 'error');
+      showToast('Error al liquidar período: ' + err.message, 'error');
     }
   }
 }
@@ -4783,8 +4895,8 @@ async function submitAddSeller(e) {
   const sellerData = { name, email, phone, password, commissionPct };
 
   try {
-    const res = await callServer('addSeller', { seller: sellerData }, 'Registrazione venditore su Google Sheets...');
-    showToast(res.message || 'Venditore ' + name + ' aggiunto con successo a Google Sheets!', 'success');
+    const res = await callServer('addSeller', { seller: sellerData }, 'Registrando vendedor en Google Sheets...');
+    showToast(res.message || '¡Vendedor ' + name + ' añadido con éxito a Google Sheets!', 'success');
     closeModal('modalAddSeller');
     await loadAllData(true);
   } catch (err) {
@@ -4796,7 +4908,7 @@ async function submitAddSeller(e) {
       closeModal('modalAddSeller');
       renderAll();
     } else {
-      showToast('Errore nel salvataggio del venditore su Google Sheets: ' + err.message, 'error');
+      showToast('Error al guardar el vendedor en Google Sheets: ' + err.message, 'error');
     }
   }
 }
@@ -4832,7 +4944,7 @@ async function executeGenerateRandomPasswordForSeller() {
         renderAll();
       }
     } else {
-      showToast('Errore aggiornamento password su Google Sheets: ' + err.message, 'error');
+      showToast('Error al actualizar contraseña en Google Sheets: ' + err.message, 'error');
     }
   }
 }
@@ -4863,7 +4975,7 @@ async function submitChangeSellerStatus(e) {
 
   try {
     const res = await callServer('updateSellerStatus', { sellerId, newStatus }, 'Aggiornamento stato su Google Sheets...');
-    showToast(res.message || 'Stato venditore aggiornato con successo.', 'success');
+    showToast(res.message || 'Estado del vendedor actualizado con éxito.', 'success');
     closeModal('modalChangeSellerStatus');
     await loadAllData(true);
   } catch (err) {
@@ -4877,7 +4989,7 @@ async function submitChangeSellerStatus(e) {
         renderAll();
       }
     } else {
-      showToast('Errore aggiornamento stato: ' + err.message, 'error');
+      showToast('Error al actualizar estado: ' + err.message, 'error');
     }
   }
 }
@@ -4889,8 +5001,8 @@ async function executeDeleteSeller(sellerId) {
   if (!confirm('¿Deseas eliminar al vendedor "' + seller.name + '"?')) return;
 
   try {
-    const res = await callServer('deleteSeller', { sellerId }, 'Eliminazione venditore da Google Sheets...');
-    showToast(res.message || 'Venditore eliminato da Google Sheets.', res.archived ? 'warning' : 'success');
+    const res = await callServer('deleteSeller', { sellerId }, 'Eliminando vendedor de Google Sheets...');
+    showToast(res.message || 'Vendedor eliminado de Google Sheets.', res.archived ? 'warning' : 'success');
     await loadAllData(true);
   } catch (err) {
     if (err.message === 'CONFIG_URL_MISSING') {
@@ -4899,7 +5011,7 @@ async function executeDeleteSeller(sellerId) {
       showToast('Vendedor ' + seller.name + ' eliminado (Locale).', 'warning');
       renderAll();
     } else {
-      showToast('Errore eliminazione: ' + err.message, 'error');
+      showToast('Error al eliminar: ' + err.message, 'error');
     }
   }
 }
@@ -4912,7 +5024,7 @@ async function executeForceDeleteSeller(sellerId) {
 
   try {
     const res = await callServer('deleteSellerForce', { sellerId }, 'Eliminazione forzata da Google Sheets...');
-    showToast(res.message || 'Venditore ' + name + ' eliminato definitivamente da Google Sheets.', 'success');
+    showToast(res.message || 'Vendedor ' + name + ' eliminado definitivamente de Google Sheets.', 'success');
     await loadAllData(true);
   } catch (err) {
     if (err.message === 'CONFIG_URL_MISSING') {
@@ -4921,7 +5033,7 @@ async function executeForceDeleteSeller(sellerId) {
       showToast('Vendedor ' + name + ' eliminado de la base de datos (Locale).', 'warning');
       renderAll();
     } else {
-      showToast('Errore eliminazione forzata: ' + err.message, 'error');
+      showToast('Error al forzar eliminación: ' + err.message, 'error');
     }
   }
 }
@@ -5282,6 +5394,8 @@ window.openEditSellerModal = openEditSellerModal;
 window.openSettlePeriodForSeller = openSettlePeriodForSeller;
 window.renderShippedTable = renderShippedTable;
 
+window.switchCatalogSubTab = switchCatalogSubTab;
+window.isProductSold = isProductSold;
 window.submitAddProduct = submitAddProduct;
 window.handleAddProductSubmit = handleAddProductSubmit;
 window.submitNewSale = submitNewSale;
