@@ -94,6 +94,9 @@ function handleApiRequest(action, data) {
       case 'deleteProduct':
         result = deleteProduct(data.productId || data.id);
         break;
+      case 'reassignProduct':
+        result = reassignProduct(data.productId || data.id, data.newAssignedTo || data.assignedTo);
+        break;
       case 'addSeller':
         result = addSeller(data.seller || data);
         break;
@@ -102,6 +105,12 @@ function handleApiRequest(action, data) {
         break;
       case 'updateSellerStatus':
         result = updateSellerStatus(data.sellerId || data.id, data.newStatus || data.status);
+        break;
+      case 'updateSellerCommission':
+        result = updateSellerCommission(data.sellerId || data.id, data.commissionPct);
+        break;
+      case 'updateProductCommission':
+        result = updateProductCommission(data.productId || data.id, data.commissionPct);
         break;
       case 'deleteSeller':
         result = deleteSeller(data.sellerId || data.id);
@@ -125,7 +134,7 @@ function handleApiRequest(action, data) {
         result = deleteSaleBySeller(data.saleId, data.sellerId);
         break;
       case 'processReturnSale':
-        result = processReturnSale(data.saleId, data.reason || data.returnReason);
+        result = processReturnSale(data.saleId, data.reason || data.returnReason, { chargeProductCost: data.chargeProductCost, chargeShipping: data.chargeShipping, returnShippingCost: data.returnShippingCost });
         break;
       case 'closeAndSettlePeriod':
         result = closeAndSettlePeriod(data.sellerId, data.periodLabel, data.customNote);
@@ -449,7 +458,8 @@ function getAllProducts(ss) {
       maxPrice:      Number(row[6] || 0),
       assignedTo:    String(row[7] || "TUTTI"),
       createdAt:     row[8] ? new Date(row[8]).toISOString() : "",
-      active:        row[9] !== false && String(row[9]).toLowerCase() !== "false"
+      active:        row[9] !== false && String(row[9]).toLowerCase() !== "false",
+      commissionPct: (row[10] !== undefined && row[10] !== "" && row[10] !== null) ? Number(row[10]) : null
     });
   }
   return list;
@@ -472,7 +482,8 @@ function addProduct(data) {
       Number(data.maxPrice || 0),
       data.assignedTo || "TUTTI",
       createdAt,
-      true
+      true,
+      (data.commissionPct !== undefined && data.commissionPct !== null && data.commissionPct !== "") ? Number(data.commissionPct) : ""
     ]);
 
     return { success: true, id: id, message: "Prodotto inviato ai venditori con successo" };
@@ -502,6 +513,29 @@ function deleteProduct(productId) {
 // ==========================================
 // VENDITORI (PASSWORD CASUALE, STATI E CANCELLAZIONE)
 // ==========================================
+
+
+/**
+ * Riassegna un prodotto a un venditore specifico o a tutti (TUTTI)
+ */
+function reassignProduct(productId, newAssignedTo) {
+  try {
+    const ss    = getSpreadsheet();
+    const sheet = ss.getSheetByName(SHEET_PRODUCTS);
+    const rows  = sheet.getDataRange().getValues();
+
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][0]) === String(productId)) {
+        // Colonna H (indice 8, 1-based) = AssegnatoA
+        sheet.getRange(i + 1, 8).setValue(newAssignedTo || "TUTTI");
+        return { success: true, ok: true, message: "Prodotto riassegnato con successo a " + (newAssignedTo || "TUTTI") };
+      }
+    }
+    return { success: false, ok: false, error: "Prodotto non trovato (" + productId + ")" };
+  } catch (err) {
+    return { success: false, ok: false, error: err.toString() };
+  }
+}
 
 function getAllSellers(ss) {
   if (!ss) ss = getSpreadsheet();
@@ -538,8 +572,9 @@ function getAllSellers(ss) {
       phone:     phone,
       createdAt: row[4] ? new Date(row[4]).toISOString() : "",
       status:    status,
-      password:  String(row[6] || "12345678"),
-      active:    status === "Activo"
+      password:      String(row[6] || "12345678"),
+      commissionPct: (row[7] !== undefined && row[7] !== "" && row[7] !== null) ? Number(row[7]) : 50,
+      active:        status === "Activo"
     });
   }
   return list;
@@ -560,7 +595,8 @@ function addSeller(data) {
       data.phone || "",
       createdAt,
       "Activo",
-      password
+      password,
+      (data.commissionPct !== undefined && data.commissionPct !== null && data.commissionPct !== "") ? Number(data.commissionPct) : 50
     ]);
 
     return {
@@ -597,6 +633,41 @@ function resetSellerPassword(sellerId, newPassword) {
     }
     return { success: false, error: "Venditore non trovato" };
   } catch (err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
+function updateSellerCommission(sellerId, commissionPct) {
+  try {
+    const ss    = getSpreadsheet();
+    const sheet = ss.getSheetByName(SHEET_SELLERS);
+    const data  = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(sellerId)) {
+        sheet.getRange(i + 1, 8).setValue(Number(commissionPct) || 50);
+        return { success: true };
+      }
+    }
+    return { success: false, error: "Vendedor no encontrado" };
+  } catch(err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
+function updateProductCommission(productId, commissionPct) {
+  try {
+    const ss    = getSpreadsheet();
+    const sheet = ss.getSheetByName(SHEET_PRODUCTS);
+    const data  = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(productId)) {
+        const val = (commissionPct !== null && commissionPct !== "" && commissionPct !== undefined) ? Number(commissionPct) : "";
+        sheet.getRange(i + 1, 11).setValue(val);
+        return { success: true };
+      }
+    }
+    return { success: false, error: "Producto no encontrado" };
+  } catch(err) {
     return { success: false, error: err.toString() };
   }
 }
@@ -748,12 +819,18 @@ function getAllSales(ss, filterSellerId) {
       settlementPeriod:  String(row[12] || ""),
       notes:             String(row[13] || ""),
       returned:          row[14] === true || String(row[14]).toLowerCase() === "true",
-      shippingStatus:    String(row[15] || "In Attesa di Spedizione"),
+      shippingStatus:    (function(raw) {
+        const s = String(raw || "Pendiente de Envío").trim().toLowerCase();
+        if (s === "enviada" || s === "spedita" || s === "enviado" || s === "spedito") return "Enviada";
+        if (s === "vendido para enviar" || s === "para enviar") return "Vendido para enviar";
+        return String(raw || "Pendiente de Envío");
+      })(row[15]),
       shippingDate:      row[16] ? new Date(row[16]).toISOString() : "",
       shippingTracking:  String(row[17] || ""),
       shippingNotes:     String(row[18] || ""),
       acceptanceStatus:  String(row[19] || "ACEPTADA"),
-      acceptedDate:      row[20] ? new Date(row[20]).toISOString() : ""
+      acceptedDate:      row[20] ? new Date(row[20]).toISOString() : "",
+      shippingProofUrl:  String(row[21] || (String(row[13] || "").includes('[COMPROBANTE QR: ') ? String(row[13]).split('[COMPROBANTE QR: ')[1].split(']')[0] : ""))
     });
   }
   return list;
@@ -769,9 +846,15 @@ function recordSale(data) {
     const id    = "VENDITA-" + Utilities.getUuid().substring(0, 8).toUpperCase();
     const date  = data.date ? new Date(data.date).toISOString() : new Date().toISOString();
 
-    const salePrice    = Number(data.salePrice || 0);
-    const adminCost    = Number(data.adminPurchasePrice || 0);
-    const sellerProfit = Math.max(0, salePrice - adminCost);
+    const salePrice      = Number(data.salePrice || 0);
+    const adminCost      = Number(data.adminPurchasePrice || 0);
+    const commissionPct  = (data.commissionPct !== undefined && data.commissionPct !== null) ? Number(data.commissionPct) : 50;
+    const grossMargin    = Math.max(0, salePrice - adminCost);
+    const sellerProfit   = Math.round(grossMargin * (commissionPct / 100) * 100) / 100;
+
+    // Se allegata foto QR / codice spedizione, stato diventa "Vendido para enviar"
+    const shippingStatus = data.shippingStatus || (data.shippingProofUrl ? "Vendido para enviar" : "In Attesa di Spedizione");
+    const notesText = data.shippingProofUrl ? ((data.notes ? data.notes + " | " : "") + "[COMPROBANTE QR: " + data.shippingProofUrl + "]") : (data.notes || "");
 
     sheet.appendRow([
       id,
@@ -787,14 +870,15 @@ function recordSale(data) {
       false,
       "",
       "",
-      data.notes || "",
+      notesText,
       false,
-      "In Attesa di Spedizione",
+      shippingStatus,
       "",
       "",
       "",
       data.proposedByAdmin ? "PENDIENTE" : "ACEPTADA",
-      data.proposedByAdmin ? "" : new Date().toISOString()
+      data.proposedByAdmin ? "" : new Date().toISOString(),
+      data.shippingProofUrl || ""
     ]);
 
     return { success: true, id: id, message: "Vendita registrata e confermata con successo!" };
@@ -811,25 +895,35 @@ function registerSaleShipping(saleId, shippingData) {
     const ss     = getSpreadsheet();
     const sheet  = ss.getSheetByName(SHEET_SALES);
     const rows   = sheet.getDataRange().getValues();
-    const nowIso = shippingData.date ? new Date(shippingData.date).toISOString() : new Date().toISOString();
+    const dateVal = shippingData.shippingDate || shippingData.date || new Date().toISOString();
+    const nowIso  = dateVal ? new Date(dateVal).toISOString() : new Date().toISOString();
+    const tracking = shippingData.trackingNumber || shippingData.tracking || "";
+    const carrier  = shippingData.carrier || "";
+    const notes    = shippingData.shippingNotes || shippingData.notes || "";
+    const fullTracking = carrier ? (carrier + (tracking ? " - " + tracking : "")) : tracking;
 
     for (let i = 1; i < rows.length; i++) {
       if (String(rows[i][0]) === String(saleId)) {
         const rowIdx = i + 1;
-        sheet.getRange(rowIdx, 16).setValue("Spedita");
+        // Colonna P (16) = SpedizioneStato (Enviada)
+        sheet.getRange(rowIdx, 16).setValue("Enviada");
+        // Colonna Q (17) = DataSpedizione
         sheet.getRange(rowIdx, 17).setValue(nowIso);
-        sheet.getRange(rowIdx, 18).setValue(shippingData.tracking || "");
-        sheet.getRange(rowIdx, 19).setValue(shippingData.notes || "");
+        // Colonna R (18) = TrackingSpedizione
+        sheet.getRange(rowIdx, 18).setValue(fullTracking);
+        // Colonna S (19) = NoteSpedizione
+        sheet.getRange(rowIdx, 19).setValue(notes);
 
         return {
           success: true,
-          message: "Spedizione registrata con successo per la vendita " + saleId + ". Il venditore può vederla in tempo reale."
+          ok: true,
+          message: "Envío registrado con éxito para la venta " + saleId + ". El producto ha pasado a estado Enviada y entra en la contabilidad."
         };
       }
     }
-    return { success: false, error: "Vendita non trovata" };
+    return { success: false, ok: false, error: "Venta no encontrada (" + saleId + ")" };
   } catch (err) {
-    return { success: false, error: err.toString() };
+    return { success: false, ok: false, error: err.toString() };
   }
 }
 
@@ -891,7 +985,7 @@ function deleteSaleBySeller(saleId, sellerId) {
 /**
  * Reso del prodotto (conservando aggiustamento negativo se già liquidata)
  */
-function processReturnSale(saleId, returnReason) {
+function processReturnSale(saleId, returnReason, returnOptions) {
   try {
     const ss    = getSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_SALES);
@@ -902,25 +996,44 @@ function processReturnSale(saleId, returnReason) {
         const rowIdx  = i + 1;
         const current = rows[i];
 
-        const productName           = String(current[5] || "Prodotto");
-        const wasSettled            = current[10] === true || String(current[10]).toLowerCase() === "true";
+        const productName            = String(current[5] || "Prodotto");
+        const wasSettled             = current[10] === true || String(current[10]).toLowerCase() === "true";
         const previouslyEarnedProfit = Number(current[8] || 0);
+        const adminPurchaseCost      = Number(current[6] || 0);
+
+        // Parse return charge options
+        const chargeProductCost  = returnOptions ? (returnOptions.chargeProductCost !== false) : true;
+        const chargeShipping     = returnOptions ? (returnOptions.chargeShipping === true) : false;
+        const returnShippingCost = (chargeShipping && returnOptions) ? (Number(returnOptions.returnShippingCost) || 0) : 0;
 
         let notePrefix = "[RESO PRODOTTO: " + productName + "]";
         if (returnReason) notePrefix += " Motivo: " + returnReason + ".";
 
+        let chargeNote = "";
+        if (chargeProductCost) chargeNote += " Costo producto addebitado al vendedor: " + adminPurchaseCost.toFixed(2) + " EUR.";
+        if (chargeShipping && returnShippingCost > 0) chargeNote += " Gastos envio reso: " + returnShippingCost.toFixed(2) + " EUR.";
+        if (!chargeProductCost && !chargeShipping) chargeNote += " Nessun addebito al vendedor.";
+
+        // Store return meta for accounting
+        const returnMeta = JSON.stringify({
+          chargeProductCost: chargeProductCost,
+          returnShippingCost: chargeShipping ? returnShippingCost : 0,
+          chargeShipping: chargeShipping
+        });
+
         let explanatoryNote = "";
         if (wasSettled) {
-          explanatoryNote = notePrefix + " ATTENZIONE: La vendita era già liquidata (Commissione già percepita: €" +
-            previouslyEarnedProfit.toFixed(2) + "). Tale importo costituisce un debito del venditore verso l'amministratore nel periodo successivo come saldo negativo.";
+          explanatoryNote = notePrefix + " ATTENZIONE: La vendita era gia liquidata (Commissione gia percepita: " +
+            previouslyEarnedProfit.toFixed(2) + " EUR). Tale importo costituisce un debito nel periodo successivo." + chargeNote;
         } else {
-          explanatoryNote = notePrefix + " Vendita annullata prima della liquidazione. Rapporto economico risolto a zero.";
+          explanatoryNote = notePrefix + " Vendita annullata prima della liquidazione." + chargeNote;
         }
+        explanatoryNote += " [RETURN_META:" + returnMeta + "]";
 
         const existingNote  = String(current[13] || "");
         const combinedNote  = existingNote ? existingNote + "\n" + explanatoryNote : explanatoryNote;
 
-        sheet.getRange(rowIdx, 10).setValue("Restituita");
+        sheet.getRange(rowIdx, 10).setValue("Devuelta");
         sheet.getRange(rowIdx, 14).setValue(combinedNote);
         sheet.getRange(rowIdx, 15).setValue(true);
 
@@ -929,9 +1042,11 @@ function processReturnSale(saleId, returnReason) {
           wasSettled: wasSettled,
           profitToRecover: wasSettled ? previouslyEarnedProfit : 0,
           productName: productName,
+          chargeProductCost: chargeProductCost,
+          returnShippingCost: chargeShipping ? returnShippingCost : 0,
           message: wasSettled
-            ? "Reso elaborato: la commissione di €" + previouslyEarnedProfit.toFixed(2) + " sarà addebitata al venditore nel prossimo periodo."
-            : "Reso completato: vendita annullata e saldo risolto a zero con successo."
+            ? "Reso elaborato: la commissione di " + previouslyEarnedProfit.toFixed(2) + " EUR sara addebitata al venditore." + chargeNote
+            : "Reso completato: vendita annullata." + chargeNote
         };
       }
     }
@@ -997,37 +1112,62 @@ function calculateSellerAccounting(sellerId) {
     let adjustmentNotes                   = [];
 
     allSales.forEach(sale => {
-      if (sale.status === "Restituita" || sale.returned) {
-        if (sale.settled) {
-          totalNegativeAdjustments += sale.sellerProfit;
+      const isReturned = sale.status === "Restituita" || sale.status === "Devuelta" || sale.returned;
+      const isShipped = String(sale.shippingStatus || "").toLowerCase() === "enviada" || String(sale.shippingStatus || "").toLowerCase() === "spedita";
+
+      if (isReturned) {
+        // Parse RETURN_META from notes to determine actual charges
+        const notesStr = String(sale.notes || "");
+        const metaStartIdx = notesStr.indexOf('[RETURN_META:');
+        let metaMatch = null;
+        if (metaStartIdx > -1) {
+          const metaEndIdx = notesStr.indexOf(']', metaStartIdx + 13);
+          if (metaEndIdx > -1) metaMatch = [null, notesStr.substring(metaStartIdx + 13, metaEndIdx)];
+        }
+        let chargeProductCost = true;
+        let returnShippingCostCharged = 0;
+        if (metaMatch) {
+          try {
+            const meta = JSON.parse(metaMatch[1]);
+            chargeProductCost = meta.chargeProductCost !== false;
+            returnShippingCostCharged = Number(meta.returnShippingCost) || 0;
+          } catch(e) {}
+        }
+        const productCost = chargeProductCost ? (Number(sale.adminPurchasePrice) || 0) : 0;
+        const totalDeduction = productCost + returnShippingCostCharged;
+        if (totalDeduction > 0) {
+          totalNegativeAdjustments += totalDeduction;
+          let noteText = "Reso di '" + sale.productName + "' (Vendita " + sale.id + "):";
+          if (chargeProductCost) noteText += " costo producto €" + productCost.toFixed(2);
+          if (returnShippingCostCharged > 0) noteText += " + gastos envío €" + returnShippingCostCharged.toFixed(2);
+          noteText += " = -€" + totalDeduction.toFixed(2) + " scalato dalle commissioni future.";
           adjustmentNotes.push({
             saleId:      sale.id,
             productName: sale.productName,
-            amount:      -sale.sellerProfit,
-            note:        "Reso di '" + sale.productName + "' (Vendita " + sale.id + "): commissione già liquidata di €" +
-                         sale.sellerProfit.toFixed(2) + " dovuta di ritorno dal venditore all'amministratore."
+            amount:      -totalDeduction,
+            note:        noteText
           });
         }
-      } else if (sale.status === "Vendita Confermata") {
+      } else {
         if (sale.settled) {
           settledSales.push(sale);
         } else {
-          if (sale.shippingStatus === "Spedita") {
+          if (isShipped) {
             shippedSales.push(sale);
-            totalShippedSalesAmount          += sale.salePrice;
-            totalOwedAdminShipped            += sale.adminPurchasePrice;
-            totalSellerCommissionShipped     += sale.sellerProfit;
+            totalShippedSalesAmount          += Number(sale.salePrice) || 0;
+            totalOwedAdminShipped            += Number(sale.adminPurchasePrice) || 0;
+            totalSellerCommissionShipped     += Number(sale.sellerProfit) || 0;
           } else {
             notShippedSales.push(sale);
-            totalNotShippedAmount            += sale.salePrice;
-            totalSellerCommissionNotShipped  += sale.sellerProfit;
+            totalNotShippedAmount            += Number(sale.salePrice) || 0;
+            totalSellerCommissionNotShipped  += Number(sale.sellerProfit) || 0;
           }
         }
       }
     });
 
     const finalAmountOwedToAdmin     = totalOwedAdminShipped + totalNegativeAdjustments;
-    const netSellerCommissionShipped = totalSellerCommissionShipped - totalNegativeAdjustments;
+    const netSellerCommissionShipped = Math.max(0, totalSellerCommissionShipped - totalNegativeAdjustments);
 
     return {
       success:  true,
