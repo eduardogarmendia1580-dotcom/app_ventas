@@ -1078,14 +1078,14 @@
 
         <div class="form-group">
           <label><i class="fa-solid fa-envelope"></i> Correo Administrador *</label>
-          <input type="email" id="adminEmailInput" class="form-control" placeholder="admin@gestione.com" required autocomplete="username" value="admin@gestione.com">
+          <input type="email" id="adminEmailInput" class="form-control" placeholder="admin@correo.com" required autocomplete="username" value="">
         </div>
 
         <div class="form-group">
           <label><i class="fa-solid fa-lock"></i> Contraseña Administrador *</label>
           <div class="input-password-wrapper">
-            <input type="password" id="adminPasswordInput" class="form-control" placeholder="Inserisci la password di Admin" required autocomplete="current-password" value="admin2026">
-            <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('adminPasswordInput', this)" title="Mostra/Nascondi password">
+            <input type="password" id="adminPasswordInput" class="form-control" placeholder="Introduce tu contraseña" required autocomplete="current-password" value="">
+            <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('adminPasswordInput', this)" title="Mostrar / Ocultar contraseña">
               <i class="fa-solid fa-eye"></i>
             </button>
           </div>
@@ -1117,7 +1117,7 @@
           <label><i class="fa-solid fa-key"></i> Contraseña Asignada</label>
           <div class="input-password-wrapper">
             <input type="password" id="loginSellerPassword" class="form-control" placeholder="Introduce tu contraseña" required autocomplete="current-password">
-            <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('loginSellerPassword', this)" title="Mostra/Nascondi password">
+            <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('loginSellerPassword', this)" title="Mostrar / Ocultar contraseña">
               <i class="fa-solid fa-eye"></i>
             </button>
           </div>
@@ -1439,6 +1439,19 @@
 
       <!-- Métricas KPI -->
       <div class="stats-grid">
+        <!-- Tarjeta Dinero Fuera (Solo Admin) -->
+        <div class="stat-card admin-only" style="background: #eff6ff; border: 1px solid #bfdbfe; box-shadow: var(--shadow-sm);">
+          <div class="stat-label">
+            <span style="color: #1e40af; font-weight: 700;">
+              <i class="fa-solid fa-money-bill-trend-up"></i> Dinero Invertido Fuera (Admin)
+            </span>
+          </div>
+          <div class="stat-value" id="kpiDineroFuera" style="color: #1e3a8a; font-size: 1.8rem; font-weight: 800;">€ 0.00</div>
+          <div class="stat-subtext" id="kpiDineroFueraSub" style="color: #3b82f6; font-size: 0.8rem; font-weight: 500;">
+            Capital en productos aún no recuperado / saldado
+          </div>
+        </div>
+
         <!-- Requisito 3: Monto a entregar por ventas efectivamente enviadas -->
         <div class="stat-card debt">
           <div class="stat-label">
@@ -2805,6 +2818,10 @@ function checkSavedSession() {
 function showLoginOverlay() {
   const overlay = document.getElementById('loginScreenOverlay');
   if (overlay) overlay.style.display = 'flex';
+  const p1 = document.getElementById('adminPasswordInput');
+  if (p1) p1.value = '';
+  const p2 = document.getElementById('loginSellerPassword');
+  if (p2) p2.value = '';
   switchLoginMode('ADMIN');
 }
 
@@ -3491,7 +3508,8 @@ function switchCatalogSubTab(subTab) {
 
 function isProductSold(p) {
   if (!p) return false;
-  return (APP_STATE.sales || []).some(s => String(s.productId) === String(p.id) && s.status !== 'Devuelta' && !s.returned);
+  // Un producto se considera vendido o retirado si tiene al menos un registro de venta
+  return (APP_STATE.sales || []).some(s => String(s.productId) === String(p.id));
 }
 
 function getProductSale(p) {
@@ -4375,13 +4393,34 @@ function renderAccounting() {
     if (summaryBox) summaryBox.style.display = 'block';
   }
 
-  // 1. DINERO FUERA (Total capital invertido en productos por Admin)
-  const totalBoughtProducts = APP_STATE.products.length;
-  const totalBoughtAmount = APP_STATE.products.reduce((acc, p) => acc + (Number(p.purchasePrice) || 0), 0);
+  // 1. DINERO INVERTIDO FUERA (Solo Admin)
+  // Al crear un producto, su costo se suma al dinero fuera.
+  // Cuando el producto es vendido, enviado y el vendedor salda / paga a admin, el costo sale del dinero fuera.
+  let totalBoughtAmount = 0;
+  let totalCostRecoveredFromSettled = 0;
+  let unrecoveredCount = 0;
+
+  (APP_STATE.products || []).forEach(p => {
+    const cost = Number(p.purchasePrice) || 0;
+    totalBoughtAmount += cost;
+
+    // ¿Este producto tiene una venta ya liquidada / saldada (admin ya recuperó el costo del producto)?
+    const isSettled = (APP_STATE.sales || []).some(s => String(s.productId) === String(p.id) && s.settled === true);
+    if (isSettled) {
+      totalCostRecoveredFromSettled += cost;
+    } else {
+      unrecoveredCount++;
+    }
+  });
+
+  const dineroFueraTotal = Math.max(0, totalBoughtAmount - totalCostRecoveredFromSettled);
+
   const kpiDinero = document.getElementById('kpiDineroFuera');
   const kpiDineroSub = document.getElementById('kpiDineroFueraSub');
-  if (kpiDinero) kpiDinero.textContent = formatMoney(totalBoughtAmount);
-  if (kpiDineroSub) kpiDineroSub.textContent = totalBoughtProducts + ' productos activos en catálogo';
+  if (kpiDinero) kpiDinero.textContent = formatMoney(dineroFueraTotal);
+  if (kpiDineroSub) {
+    kpiDineroSub.textContent = unrecoveredCount + ' productos pendientes de recuperar (Total invertido histórico: ' + formatMoney(totalBoughtAmount) + ')';
+  }
 
   // 2. VENTAS ACTIVAS PARA EL CONTEXTO SELECCIONADO
   let contextSales = APP_STATE.sales.filter(s => {
@@ -4787,14 +4826,28 @@ async function handleSettlePeriodSubmit(e) {
   }
 
   try {
-    const res = await callServer('closeAndSettlePeriod', { sellerId, periodLabel, customNote }, 'Chiusura periodo contabile su Google Sheets...');
+    const res = await callServer('closeAndSettlePeriod', { sellerId, periodLabel, customNote }, 'Cerrando período contable en Google Sheets...');
     showToast(res.message || '¡Período saldado con éxito en Google Sheets!', 'success');
     closeModal('modalSettlePeriod');
     await loadAllData(true);
   } catch (err) {
     if (err.message === 'CONFIG_URL_MISSING') {
-      showToast('Error: Debes conectar Google Apps Script para registrar los saldos contables históricos.', 'error');
-      openAdminSettingsModal();
+      // Modo local: marcar ventas enviadas de este vendedor como saldadas
+      const nowIso = new Date().toISOString();
+      const period = periodLabel || 'Período Actual';
+      let count = 0;
+      (APP_STATE.sales || []).forEach(s => {
+        if (s.sellerId === sellerId && isSaleShipped(s) && !s.settled) {
+          s.settled = true;
+          s.settlementDate = nowIso;
+          s.settlementPeriod = period;
+          count++;
+        }
+      });
+      saveLocalData();
+      showToast('Período saldado localmente (' + count + ' ventas liquidadas).', 'success');
+      closeModal('modalSettlePeriod');
+      renderAll();
     } else {
       showToast('Error al liquidar período: ' + err.message, 'error');
     }
