@@ -1194,6 +1194,10 @@
       <i class="fa-solid fa-truck-fast"></i> Envíos
       <span class="badge-counter" id="badgeShipping">0</span>
     </button>
+    <button class="nav-tab-btn" onclick="switchTab('shipped')">
+      <i class="fa-solid fa-box-archive"></i> 📦 Spediti
+      <span class="badge-counter" id="badgeShipped">0</span>
+    </button>
     <button class="nav-tab-btn" onclick="switchTab('accounting')">
       <i class="fa-solid fa-scale-balanced"></i> Contabilidad y Saldos
     </button>
@@ -1320,6 +1324,54 @@
       </div>
     </div>
 
+    
+    <!-- ======================================================== -->
+    <!-- NUEVA PESTAÑA: PRODUCTOS YA ENVIADOS (EXPEDIDOS) -->
+    <!-- ======================================================== -->
+    <div id="tab-shipped" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="fa-solid fa-box-archive" style="color: var(--success);"></i> 📦 Productos Ya Enviados (Expedidos)
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <select id="filterShippedSeller" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderShippedTable()">
+              <option value="ALL">Todos los Vendedores</option>
+            </select>
+            <input type="text" id="searchShippedInput" class="form-control" placeholder="Buscar por producto, tracking..." style="max-width: 200px; padding: 6px 12px;" oninput="renderShippedTable()">
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="alert-box success" style="margin-bottom: 16px;">
+            <i class="fa-solid fa-circle-check" style="font-size: 1.4rem;"></i>
+            <div>
+              <strong>Historial de Envíos Realizados:</strong> Aquí se archivan todos los productos que el Administrador ya ha enviado físicamente. Estas ventas ya han madurado contablemente y no aparecen en la pestaña de envíos pendientes.
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID Venta</th>
+                  <th>Fecha Venta</th>
+                  <th>Fecha Envío</th>
+                  <th>Vendedor</th>
+                  <th>Producto</th>
+                  <th>Precio Venta</th>
+                  <th>Costo Admin (Base)</th>
+                  <th>Ganancia Vendedor</th>
+                  <th>Transportista / Tracking</th>
+                  <th style="text-align: center;">Comprobante QR</th>
+                  <th style="text-align: right;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="shippedTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ======================================================== -->
     <!-- 4. CONTABILIDAD Y SALDOS (REQUISITO 3: DISTINGUE ENVIADAS) -->
     <!-- ======================================================== -->
@@ -1327,6 +1379,51 @@
       
       <!-- Contenedor de Alertas de Devoluciones / Saldos Negativos -->
       <div id="returnAdjustmentAlertsContainer"></div>
+
+      <!-- Barra de Filtros Intuitivos Contables (Admin) -->
+      <div class="card admin-only" style="margin-bottom: 16px; background: #ffffff;">
+        <div class="card-body" style="padding: 14px 18px;">
+          <div style="display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <div style="font-weight: 700; color: var(--gray-700); font-size: 0.95rem;">
+                <i class="fa-solid fa-filter" style="color: var(--primary);"></i> Filtros Contables:
+              </div>
+              <div>
+                <select id="accountingStatusFilter" class="form-control" style="width: auto; padding: 6px 12px; font-weight: 600;" onchange="renderAccounting()">
+                  <option value="ALL">📋 Todas las Ventas</option>
+                  <option value="ENVIADAS" selected>✅ Solo Spedite (Maturate in Contabilità)</option>
+                  <option value="PENDIENTES">⏳ Vendute NON Spedite (In Sospeso)</option>
+                  <option value="DEVUELTAS">↩️ Solo Resi / Devoluciones</option>
+                  <option value="LIQUIDADAS">📜 Solo Saldate / Liquidate</option>
+                </select>
+              </div>
+              <div id="accountingSellerFilterGroup">
+                <select id="accountingSellerFilter" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderAccounting()">
+                  <option value="ALL">👤 Todos los Vendedores</option>
+                </select>
+              </div>
+              <div>
+                <select id="accountingMonthFilter" class="form-control" style="width: auto; padding: 6px 12px;" onchange="renderAccounting()">
+                  <option value="ALL">📅 Todos los Meses</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <button class="btn btn-warning btn-sm" onclick="openSettlePeriodModal()">
+                <i class="fa-solid fa-hand-holding-dollar"></i> Cierre / Liquidar Período
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN ADMIN: RESUMEN DEUDA POR VENDEDOR (QUANTO DEVE AD ADMIN OGNI VENDITORE) -->
+      <div id="adminSellersAccountingSummaryBox" class="admin-only" style="margin-bottom: 20px;">
+        <h4 style="margin-bottom: 12px; color: var(--gray-800); display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-users-viewfinder" style="color: var(--primary);"></i> Situación de Cobros por Vendedor (Ventas Enviadas Pendientes de Saldar)
+        </h4>
+        <div id="adminSellersSummaryGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;"></div>
+      </div>
 
       <!-- Métricas KPI -->
       <div class="stats-grid">
@@ -2150,6 +2247,129 @@
   <!-- ======================================================== -->
   <!-- JAVASCRIPT: LÓGICA COMPLETA DE NEGOCIO -->
   <!-- ======================================================== -->
+  
+  <!-- MODAL: MODIFICAR PRODUCTO (ADMIN) -->
+  <div id="modalEditProduct" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-pen-to-square" style="color: var(--warning);"></i> Modificar Producto en Catálogo
+        </div>
+        <button class="modal-close" onclick="closeModal('modalEditProduct')">&times;</button>
+      </div>
+      <form id="formEditProduct" onsubmit="submitEditProduct(event)">
+        <input type="hidden" id="editProdId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Título del Producto *</label>
+            <input type="text" id="editProdTitle" class="form-control" placeholder="Ej. Zapatillas Running Air" required>
+          </div>
+          <div class="form-group">
+            <label>Descripción / Detalles</label>
+            <textarea id="editProdDesc" class="form-control" rows="2" placeholder="Tallas, colores, material..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>URL de la Foto o Imagen del Producto</label>
+            <input type="url" id="editProdPhotoUrl" class="form-control" placeholder="https://ejemplo.com/foto.jpg">
+            <small style="color: var(--gray-500); display: block; margin-top: 4px;">O sube una nueva imagen de tu dispositivo:</small>
+            <input type="file" id="editProdPhotoFile" accept="image/*" class="form-control" style="margin-top: 4px;" onchange="handleImageUpload(event, 'editProdPhotoUrl')">
+          </div>
+          <div class="form-group">
+            <label style="color: var(--primary);">Precio de Compra Admin (€) *</label>
+            <input type="number" step="0.01" min="0" id="editProdPurchasePrice" class="form-control" placeholder="Ej. 25.00" required>
+            <small style="color: var(--gray-500);">Visible únicamente para el Administrador.</small>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Precio Mínimo de Venta (€) *</label>
+              <input type="number" step="0.01" min="0" id="editProdMinPrice" class="form-control" placeholder="Ej. 35.00" required>
+            </div>
+            <div class="form-group">
+              <label>Precio Máximo de Venta (€) *</label>
+              <input type="number" step="0.01" min="0" id="editProdMaxPrice" class="form-control" placeholder="Ej. 60.00" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Asignar a Vendedor</label>
+            <select id="editProdAssignedTo" class="form-control" onchange="updateEditProductCommissionHint()">
+              <option value="TUTTI">Todos los vendedores activos</option>
+            </select>
+          </div>
+          <div class="form-group" id="editProdCommissionPctGroup">
+            <label><i class="fa-solid fa-percent" style="color:var(--primary);"></i> Comisión Específica para este Producto (% del margen)</label>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <input type="number" id="editProdCommissionPctOverride" class="form-control" min="0" max="100" step="1" style="max-width:100px;" placeholder="Ej: 50">
+              <span style="color:var(--gray-600);font-size:0.9em;">Dejar vacío = usar la comisión por defecto del vendedor</span>
+            </div>
+            <small id="editProdCommissionHint" style="color:var(--gray-500);"></small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalEditProduct')">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: MODIFICAR FICHA COMPLETA DEL VENDEDOR (ADMIN) -->
+  <div id="modalEditSeller" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fa-solid fa-user-pen" style="color: var(--primary);"></i> Modificar Ficha Completa del Vendedor
+        </div>
+        <button class="modal-close" onclick="closeModal('modalEditSeller')">&times;</button>
+      </div>
+      <form id="formEditSeller" onsubmit="submitEditSeller(event)">
+        <input type="hidden" id="editSellerId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Nombre Completo *</label>
+            <input type="text" id="editSellerName" class="form-control" placeholder="Ej. Juan Pérez" required>
+          </div>
+          <div class="form-group">
+            <label>Correo Electrónico (Login) *</label>
+            <input type="email" id="editSellerEmail" class="form-control" placeholder="juan.perez@ejemplo.com" required>
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" id="editSellerPhone" class="form-control" placeholder="+34 600 000 000">
+          </div>
+          <div class="form-group">
+            <label>Contraseña Asignada *</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="editSellerPassword" class="form-control" required style="font-weight: 700; letter-spacing: 1px;">
+              <button class="btn btn-secondary" type="button" onclick="regenerateEditSellerPassword()">
+                <i class="fa-solid fa-dice"></i> Nueva
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label><i class="fa-solid fa-percent" style="color:var(--primary);"></i> Comisión del Vendedor (% del margen) *</label>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <input type="number" id="editSellerCommissionPct" class="form-control" min="0" max="100" step="1" required style="max-width:100px;">
+              <span style="color:var(--gray-600);font-size:0.9em;">% del margen (precio venta − costo compra)</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Estado del Vendedor</label>
+            <select id="editSellerStatus" class="form-control">
+              <option value="Activo">🟢 Activo (Puede vender)</option>
+              <option value="En Vacaciones">🟡 En Vacaciones (Temporal)</option>
+              <option value="De Baja">🟠 De Baja Médica / Temporal</option>
+              <option value="Archivado">🔴 Archivado (Sin acceso)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalEditSeller')">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar Ficha Vendedor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
 // ==============================================================================
 // CONFIGURAZIONE CONDIVISA GOOGLE APPS SCRIPT (PER TUTTI I DISPOSITIVI)
@@ -3108,9 +3328,15 @@ function updateBadges() {
   const badgeSal = document.getElementById('badgeSales');
   if (badgeSal) badgeSal.textContent = filteredSales.length;
 
-  const pendingShip = filteredSales.filter(s => s.shippingStatus === 'Pendiente de Envío' || !s.shippingStatus);
+  // Envíos pendientes (NO aún enviados y no resos)
+  const pendingShip = filteredSales.filter(s => !isSaleShipped(s) && s.status !== 'Devuelta' && !s.returned);
   const badgeShip = document.getElementById('badgeShipping');
   if (badgeShip) badgeShip.textContent = pendingShip.length;
+
+  // Envíos ya realizados (Enviadas)
+  const shippedSales = filteredSales.filter(s => isSaleShipped(s) && s.status !== 'Devuelta' && !s.returned);
+  const badgeShipped = document.getElementById('badgeShipped');
+  if (badgeShipped) badgeShipped.textContent = shippedSales.length;
 }
 
 function renderTabContent(tabId) {
@@ -3118,6 +3344,7 @@ function renderTabContent(tabId) {
     case 'catalog': renderCatalog(); break;
     case 'sales': renderSalesTable(); break;
     case 'shipping': renderShippingTable(); break;
+    case 'shipped': renderShippedTable(); break;
     case 'accounting': renderAccounting(); break;
     case 'sellers': renderSellersTable(); break;
   }
@@ -3273,6 +3500,7 @@ function renderCatalog() {
         '</div>' +
         '<div class="product-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">' +
           '<button class="btn btn-success btn-sm" style="flex: 1; min-width: 120px;" onclick="openNewSaleForProduct(\'' + p.id + '\')"><i class="fa-solid fa-cart-plus"></i> Registrar Venta</button>' +
+          (isAdmin ? '<button class="btn btn-warning btn-sm" onclick="openEditProductModal(\'' + p.id + '\')" title="Modificar Producto"><i class="fa-solid fa-pen-to-square"></i> Editar</button>' : '') +
           (isAdmin ? '<button class="btn btn-secondary btn-sm" onclick="openReassignModal(\'' + p.id + '\')" title="Reasignar a otro vendedor"><i class="fa-solid fa-arrows-rotate"></i> Reasignar</button>' : '') +
           (isAdmin ? '<button class="btn btn-danger btn-sm" onclick="handleDeleteProduct(\'' + p.id + '\')" title="Eliminar producto"><i class="fa-solid fa-trash"></i></button>' : '') +
         '</div>' +
@@ -3435,9 +3663,107 @@ function renderSalesTable() {
     return;
   }
 
+  // VISTA PARA VENDEDOR: RAGRUPPATA PER MESE SOLARE CON TOTALI DEL MESE
+  if (isSeller) {
+    // Raggruppa vendite per mese
+    const monthGroups = {};
+    sales.forEach(s => {
+      const monthKey = getMonthKey(s.date);
+      if (!monthGroups[monthKey]) {
+        monthGroups[monthKey] = {
+          monthKey: monthKey,
+          label: getMonthLabel(s.date),
+          sales: [],
+          totalSalesAmount: 0,
+          totalEarnedProfit: 0,
+          totalToAdmin: 0,
+          shippedCount: 0,
+          pendingCount: 0
+        };
+      }
+      monthGroups[monthKey].sales.push(s);
+      monthGroups[monthKey].totalSalesAmount += Number(s.salePrice) || 0;
+      if (isSaleShipped(s) && s.status !== 'Devuelta' && !s.returned) {
+        monthGroups[monthKey].totalEarnedProfit += Number(s.sellerProfit) || 0;
+        monthGroups[monthKey].totalToAdmin += Number(s.adminPurchasePrice) || 0;
+        monthGroups[monthKey].shippedCount++;
+      } else {
+        monthGroups[monthKey].pendingCount++;
+      }
+    });
+
+    const sortedMonthKeys = Object.keys(monthGroups).sort().reverse();
+
+    sortedMonthKeys.forEach(mKey => {
+      const g = monthGroups[mKey];
+      // Intestazione Mese
+      const headerTr = document.createElement('tr');
+      headerTr.style.background = 'linear-gradient(90deg, #f8fafc, #f1f5f9)';
+      headerTr.style.borderTop = '2px solid var(--primary)';
+      headerTr.innerHTML = 
+        '<td colspan="9" style="padding: 12px 16px;">' +
+          '<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">' +
+            '<div style="font-size: 1.05rem; font-weight: 800; color: var(--gray-900);">' +
+              '<i class="fa-solid fa-calendar-days" style="color: var(--primary); margin-right: 6px;"></i>' + escapeHtml(g.label) +
+              ' <span style="font-size: 0.82rem; font-weight: 600; color: var(--gray-500); margin-left: 8px;">(' + g.sales.length + ' ventas en el mes)</span>' +
+            '</div>' +
+            '<div style="display: flex; gap: 14px; font-size: 0.88rem; flex-wrap: wrap;">' +
+              '<span style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 4px 10px; border-radius: 6px; color: #065f46; font-weight: 700;">' +
+                '🏆 Tu Ganancia Madurada: ' + formatMoney(g.totalEarnedProfit) +
+              '</span>' +
+              '<span style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 6px; color: #1e40af; font-weight: 700;">' +
+                '💸 A Entregar al Admin: ' + formatMoney(g.totalToAdmin) +
+              '</span>' +
+              (g.pendingCount > 0 ? '<span style="background: #fffbeb; border: 1px solid #fde68a; padding: 4px 10px; border-radius: 6px; color: #92400e; font-weight: 600;">⏳ ' + g.pendingCount + ' por despachar</span>' : '') +
+            '</div>' +
+          '</div>' +
+        '</td>';
+      tbody.appendChild(headerTr);
+
+      // Righe delle vendite di questo mese
+      g.sales.forEach(s => {
+        const tr = document.createElement('tr');
+        const isShipped = isSaleShipped(s);
+        const isReturned = s.status === 'Devuelta' || s.returned;
+
+        let statusBadge = '';
+        if (isReturned) {
+          statusBadge = '<span class="status-badge" style="background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; font-weight: 600;"><i class="fa-solid fa-rotate-left"></i> Devuelta (Reso)</span>';
+        } else if (isShipped) {
+          statusBadge = '<span class="status-badge badge-shipped" title="' + escapeHtml(s.carrier || '') + ' - ' + escapeHtml(s.trackingNumber || '') + '"><i class="fa-solid fa-circle-check"></i> Enviado por Admin (Madurado)</span>';
+        } else {
+          statusBadge = '<span class="status-badge" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; font-weight: 600;"><i class="fa-solid fa-hourglass-half"></i> Vendido (Pendiente de Envío)</span>';
+        }
+
+        let actionHtml = '';
+        if (!isShipped && !isReturned) {
+          actionHtml = '<button class="btn btn-danger btn-sm" onclick="executeDeleteSaleDirect(\'' + s.id + '\')" title="Cancelar antes de que admin envíe"><i class="fa-solid fa-xmark"></i> Cancelar</button>';
+        } else if (s.shippingProofUrl) {
+          actionHtml = '<button class="btn btn-secondary btn-sm" onclick="showQrModal(\'' + escapeHtml(s.shippingProofUrl) + '\', \'' + escapeHtml(s.id) + '\')" title="Ver QR"><i class="fa-solid fa-qrcode"></i> QR</button>';
+        } else {
+          actionHtml = '<span style="color:var(--gray-400); font-size:0.8rem;"><i class="fa-solid fa-lock"></i> Procesada</span>';
+        }
+
+        tr.innerHTML = 
+          '<td><small style="color: var(--gray-500); font-weight: 600;">' + formatDate(s.date) + '</small></td>' +
+          '<td class="admin-only"><strong>' + escapeHtml(s.sellerName) + '</strong></td>' +
+          '<td><strong>' + escapeHtml(s.productName) + '</strong></td>' +
+          '<td><strong>' + formatMoney(s.salePrice) + '</strong></td>' +
+          '<td class="admin-only" style="color: var(--primary);">' + formatMoney(s.adminPurchasePrice) + '</td>' +
+          '<td style="color: var(--success); font-weight: 800; font-size: 1.05rem;">' + (isReturned ? '<span style="color:var(--danger);">-</span>' : formatMoney(s.sellerProfit)) + '</td>' +
+          '<td>' + statusBadge + '</td>' +
+          '<td>' + (s.settled ? '<span class="status-badge badge-settled"><i class="fa-solid fa-check-double"></i> Saldada</span>' : '<span class="status-badge badge-pending">Sin Saldar</span>') + '</td>' +
+          '<td>' + actionHtml + '</td>';
+        tbody.appendChild(tr);
+      });
+    });
+    return;
+  }
+
+  // VISTA PARA ADMINISTRADOR: TABELLA COMPLETA
   sales.forEach(s => {
     const tr = document.createElement('tr');
-    const isShipped = s.shippingStatus === 'Enviada';
+    const isShipped = isSaleShipped(s);
     const isReturned = s.status === 'Devuelta' || s.returned;
 
     let shipBadge = '<span class="status-badge badge-pending-ship"><i class="fa-solid fa-clock"></i> Pendiente Envío</span>';
@@ -3447,31 +3773,25 @@ function renderSalesTable() {
     if (isShipped) {
       shipBadge = '<span class="status-badge badge-shipped" title="' + escapeHtml(s.carrier || '') + ' - ' + escapeHtml(s.trackingNumber || '') + '"><i class="fa-solid fa-truck-fast"></i> Enviada (' + escapeHtml(s.trackingNumber || 'S/N') + ')</span>';
     }
-
-    let actionsMenu = '';
-    if (isAdmin) {
-      actionsMenu = 
-        '<div class="dropdown">' +
-          '<button class="btn btn-secondary btn-sm" onclick="toggleDropdown(event, this)"><i class="fa-solid fa-ellipsis-vertical"></i> Opciones</button>' +
-          '<div class="dropdown-menu">' +
-            (!isShipped ? '<button onclick="openRegisterShippingModal(\'' + s.id + '\')"><i class="fa-solid fa-truck"></i> Registrar Envío</button>' : '') +
-            (!isReturned ? '<button onclick="openReturnSaleModal(\'' + s.id + '\')"><i class="fa-solid fa-rotate-left"></i> Marcar Devolución (Reso)</button>' : '') +
-            (s.shippingProofUrl ? '<button onclick="showQrModal(\'' + escapeHtml(s.shippingProofUrl) + '\', \'' + escapeHtml(s.id) + '\')"><i class="fa-solid fa-qrcode"></i> Ver QR / Etiqueta Envío</button>' : '') +
-            '<button class="text-danger" onclick="openDoubleConfirmDeleteSaleModal(\'' + s.id + '\')"><i class="fa-solid fa-trash-can"></i> Eliminar Venta (Admin)</button>' +
-          '</div>' +
-        '</div>';
-    } else {
-      if (!isShipped && !isReturned) {
-        actionsMenu = '<button class="btn btn-danger btn-sm" onclick="executeDeleteSaleDirect(\'' + s.id + '\')" title="Cancelar antes del envío"><i class="fa-solid fa-xmark"></i> Cancelar</button>';
-      } else {
-        actionsMenu = '<span style="font-size: 0.78rem; color: var(--gray-500);"><i class="fa-solid fa-lock"></i> Bloqueada</span>';
-      }
+    if (isReturned) {
+      shipBadge = '<span class="status-badge" style="background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; font-weight: 600;"><i class="fa-solid fa-rotate-left"></i> Devuelta</span>';
     }
+
+    let actionsMenu = 
+      '<div class="dropdown">' +
+        '<button class="btn btn-secondary btn-sm" onclick="toggleDropdown(event, this)"><i class="fa-solid fa-ellipsis-vertical"></i> Opciones</button>' +
+        '<div class="dropdown-menu">' +
+          (!isShipped && !isReturned ? '<button onclick="openRegisterShippingModal(\'' + s.id + '\')"><i class="fa-solid fa-truck"></i> Registrar Envío</button>' : '') +
+          (!isReturned ? '<button onclick="openReturnSaleModal(\'' + s.id + '\')"><i class="fa-solid fa-rotate-left"></i> Marcar Devolución (Reso)</button>' : '') +
+          (s.shippingProofUrl ? '<button onclick="showQrModal(\'' + escapeHtml(s.shippingProofUrl) + '\', \'' + escapeHtml(s.id) + '\')"><i class="fa-solid fa-qrcode"></i> Ver QR / Etiqueta Envío</button>' : '') +
+          '<button class="text-danger" onclick="openDoubleConfirmDeleteSaleModal(\'' + s.id + '\')"><i class="fa-solid fa-trash-can"></i> Eliminar Venta (Admin)</button>' +
+        '</div>' +
+      '</div>';
 
     tr.innerHTML = 
       '<td><small style="color: var(--gray-500); font-weight: 600;">' + formatDate(s.date) + '</small></td>' +
       '<td class="admin-only"><strong>' + escapeHtml(s.sellerName) + '</strong></td>' +
-      '<td><strong>' + escapeHtml(s.productName) + '</strong>' + (isReturned ? '<br><small style="color: var(--danger); font-weight: 700;">(Relación económica anulada)</small>' : '') + '</td>' +
+      '<td><strong>' + escapeHtml(s.productName) + '</strong>' + (isReturned ? '<br><small style="color: var(--danger); font-weight: 700;">(Devuelta)</small>' : '') + '</td>' +
       '<td><strong>' + formatMoney(s.salePrice) + '</strong></td>' +
       '<td class="admin-only" style="color: var(--primary);">' + formatMoney(s.adminPurchasePrice) + '</td>' +
       '<td style="color: var(--success); font-weight: 700;">' + formatMoney(s.sellerProfit) + '</td>' +
@@ -3481,6 +3801,7 @@ function renderSalesTable() {
     tbody.appendChild(tr);
   });
 }
+
 
 function openNewSaleModal() {
   document.getElementById('formNewSale').reset();
@@ -3675,6 +3996,82 @@ async function executeDeleteSaleDirect(saleId) {
 // 3. SPEDIZIONI E TRACCIAMENTO
 // ==========================================
 
+
+// ==============================================================================
+// GESTIÓN DE PRODUCTOS YA ENVIADOS (PESTAÑA "📦 SPEDITI")
+// ==============================================================================
+function renderShippedTable() {
+  const tbody = document.getElementById('shippedTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const isSeller = APP_STATE.role === 'SELLER';
+  const isAdmin = APP_STATE.role === 'ADMIN';
+
+  // Población dinámica de filtro de vendedores para la pestaña de enviados
+  const filterSellerEl = document.getElementById('filterShippedSeller');
+  if (filterSellerEl) {
+    const curVal = filterSellerEl.value || 'ALL';
+    filterSellerEl.innerHTML = '<option value="ALL">👤 Todos los Vendedores</option>';
+    (APP_STATE.sellers || []).forEach(s => {
+      filterSellerEl.innerHTML += '<option value="' + s.id + '"' + (s.id === curVal ? ' selected' : '') + '>' + escapeHtml(s.name) + '</option>';
+    });
+  }
+
+  const selectedSeller = (filterSellerEl && filterSellerEl.value) ? filterSellerEl.value : 'ALL';
+  const searchQuery = (document.getElementById('searchShippedInput')?.value || '').trim().toLowerCase();
+
+  let shippedSales = APP_STATE.sales.filter(s => {
+    if (isSeller && s.sellerId !== APP_STATE.activeSellerId) return false;
+    if (s.status === 'Devuelta' || s.returned) return false;
+    if (!isSaleShipped(s)) return false; // Solo enviados
+    if (isAdmin && selectedSeller !== 'ALL' && s.sellerId !== selectedSeller) return false;
+    if (searchQuery) {
+      const matchText = (s.productName + ' ' + s.sellerName + ' ' + (s.trackingNumber || '') + ' ' + (s.carrier || '') + ' ' + s.id).toLowerCase();
+      if (!matchText.includes(searchQuery)) return false;
+    }
+    return true;
+  });
+
+  shippedSales.sort((a, b) => new Date(b.shippingDate || b.date || 0) - new Date(a.shippingDate || a.date || 0));
+
+  if (shippedSales.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px; color: var(--gray-500);"><i class="fa-solid fa-box-archive" style="font-size: 2.2rem; color: var(--gray-300); margin-bottom: 8px;"></i><div>No hay productos enviados archivados con los filtros actuales.</div></td></tr>';
+    return;
+  }
+
+  shippedSales.forEach(s => {
+    const tr = document.createElement('tr');
+    const qrBtn = s.shippingProofUrl
+      ? '<button class="btn btn-secondary btn-sm" onclick="showQrModal(\'' + escapeHtml(s.shippingProofUrl) + '\', \'' + escapeHtml(s.id) + '\')" title="Ver QR"><i class="fa-solid fa-qrcode"></i> Ver QR</button>'
+      : '<span style="color:var(--gray-400);">-</span>';
+
+    const trackingDisplay = (s.trackingNumber || s.carrier)
+      ? '<span class="status-badge badge-shipped"><i class="fa-solid fa-truck-fast"></i> ' + escapeHtml((s.carrier ? s.carrier + ': ' : '') + (s.trackingNumber || 'S/N')) + '</span>'
+      : '<span class="status-badge badge-shipped"><i class="fa-solid fa-check"></i> Enviada</span>';
+
+    let actionBtn = '-';
+    if (isAdmin) {
+      actionBtn = '<button class="btn btn-danger btn-sm" onclick="openReturnSaleModal(\'' + s.id + '\')" title="Marcar como Devolución / Reso"><i class="fa-solid fa-rotate-left"></i> Devolución</button>';
+    }
+
+    tr.innerHTML =
+      '<td><strong>' + escapeHtml(s.id) + '</strong></td>' +
+      '<td>' + formatDate(s.date) + '</td>' +
+      '<td>' + formatDate(s.shippingDate || s.date) + '</td>' +
+      '<td>' + escapeHtml(s.sellerName || 'Vendedor') + '</td>' +
+      '<td><strong>' + escapeHtml(s.productName || 'Producto') + '</strong></td>' +
+      '<td>' + formatMoney(s.salePrice) + '</td>' +
+      '<td style="color: var(--primary); font-weight: 700;">' + formatMoney(s.adminPurchasePrice) + '</td>' +
+      '<td style="color: var(--success); font-weight: 700;">' + formatMoney(s.sellerProfit) + '</td>' +
+      '<td>' + trackingDisplay + '</td>' +
+      '<td style="text-align: center;">' + qrBtn + '</td>' +
+      '<td style="text-align: right;">' + actionBtn + '</td>';
+
+    tbody.appendChild(tr);
+  });
+}
+
 function renderShippingTable() {
   const tbody = document.getElementById('shippingTableBody');
   if (!tbody) return;
@@ -3683,15 +4080,11 @@ function renderShippingTable() {
   const isSeller = APP_STATE.role === 'SELLER';
   const isAdmin = APP_STATE.role === 'ADMIN';
 
-  const filterShip = document.getElementById('filterShippingStatus') ? document.getElementById('filterShippingStatus').value : 'TODOS';
-
+  // REQUISITO: Los productos ya enviados desaparecen de esta pestaña y pasan a la nueva pestaña "📦 Spediti"
   let sales = APP_STATE.sales.filter(s => {
     if (isSeller && s.sellerId !== APP_STATE.activeSellerId) return false;
     if (s.status === 'Devuelta' || s.returned) return false;
-
-    const isShipped = s.shippingStatus === 'Enviada';
-    if (filterShip === 'PENDIENTE' && isShipped) return false;
-    if (filterShip === 'ENVIADA' && !isShipped) return false;
+    if (isSaleShipped(s)) return false; // Ya enviado -> mostrar en tab "Spediti"
     return true;
   });
 
@@ -3791,68 +4184,147 @@ async function handleRegisterShippingSubmit(e) {
 // 4. CONTABILITÀ, SALDI E RESI
 // ==========================================
 
+
+// ==============================================================================
+// HELPERS FORMATO MESI CALENDARIO
+// ==============================================================================
+function getMonthKey(dateStr) {
+  if (!dateStr) return '0000-00';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '0000-00';
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  return d.getFullYear() + '-' + m;
+}
+
+function getMonthLabel(dateStr) {
+  if (!dateStr) return 'Fecha no especificada';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return 'Fecha no especificada';
+  const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  return months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function getMonthNameFromKey(monthKey) {
+  if (!monthKey || monthKey === 'ALL') return 'Todos los Meses';
+  const parts = monthKey.split('-');
+  if (parts.length < 2) return monthKey;
+  const m = parseInt(parts[1], 10) - 1;
+  const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  return (months[m] || parts[1]) + ' ' + parts[0];
+}
+
+// ==============================================================================
+// 4. CONTABILIDAD Y SALDOS (REDESIGN COMPLETO CON DIVISIÓN NETA)
+// ==============================================================================
 function renderAccounting() {
   const isSeller = APP_STATE.role === 'SELLER';
   const isAdmin = APP_STATE.role === 'ADMIN';
 
-  // 5c. Ogni venditore vede in tempo reale SOLO la propria contabilità
-  let sellerId = null;
-  if (isSeller) {
-    sellerId = APP_STATE.activeSellerId;
-    const filterGroup = document.getElementById('accountingSellerFilterGroup');
-    if (filterGroup) filterGroup.style.display = 'none';
-  } else {
-    const filterSelect = document.getElementById('accountingSellerFilter');
-    sellerId = (filterSelect && filterSelect.value !== 'ALL') ? filterSelect.value : null;
+  // Población dinámica del filtro de vendedores (si es admin)
+  const filterSellerEl = document.getElementById('accountingSellerFilter');
+  if (isAdmin && filterSellerEl) {
+    const curVal = filterSellerEl.value || 'ALL';
+    filterSellerEl.innerHTML = '<option value="ALL">👤 Todos los Vendedores</option>';
+    (APP_STATE.sellers || []).forEach(s => {
+      filterSellerEl.innerHTML += '<option value="' + s.id + '"' + (s.id === curVal ? ' selected' : '') + '>' + escapeHtml(s.name) + '</option>';
+    });
   }
 
-  // 5a. Dinero Fuera (Capital Comprado por Admin)
+  // Población dinámica del filtro de meses
+  const filterMonthEl = document.getElementById('accountingMonthFilter');
+  if (filterMonthEl) {
+    const curMonthVal = filterMonthEl.value || 'ALL';
+    const monthKeysSet = new Set();
+    APP_STATE.sales.forEach(s => {
+      const mk = getMonthKey(s.date);
+      if (mk && mk !== '0000-00') monthKeysSet.add(mk);
+    });
+    // Aggiungi anche mese corrente
+    monthKeysSet.add(getMonthKey(new Date().toISOString()));
+
+    const sortedMonths = Array.from(monthKeysSet).sort().reverse();
+    filterMonthEl.innerHTML = '<option value="ALL">📅 Todos los Meses</option>';
+    sortedMonths.forEach(mk => {
+      filterMonthEl.innerHTML += '<option value="' + mk + '"' + (mk === curMonthVal ? ' selected' : '') + '>' + escapeHtml(getMonthNameFromKey(mk)) + '</option>';
+    });
+  }
+
+  // Filtro venditore attivo
+  let filterSellerId = null;
+  if (isSeller) {
+    filterSellerId = APP_STATE.activeSellerId;
+    const filterGroup = document.getElementById('accountingSellerFilterGroup');
+    if (filterGroup) filterGroup.style.display = 'none';
+    const summaryBox = document.getElementById('adminSellersAccountingSummaryBox');
+    if (summaryBox) summaryBox.style.display = 'none';
+  } else {
+    filterSellerId = (filterSellerEl && filterSellerEl.value !== 'ALL') ? filterSellerEl.value : null;
+    const summaryBox = document.getElementById('adminSellersAccountingSummaryBox');
+    if (summaryBox) summaryBox.style.display = 'block';
+  }
+
+  // 1. DINERO FUERA (Total capital invertido en productos por Admin)
   const totalBoughtProducts = APP_STATE.products.length;
   const totalBoughtAmount = APP_STATE.products.reduce((acc, p) => acc + (Number(p.purchasePrice) || 0), 0);
   const kpiDinero = document.getElementById('kpiDineroFuera');
   const kpiDineroSub = document.getElementById('kpiDineroFueraSub');
   if (kpiDinero) kpiDinero.textContent = formatMoney(totalBoughtAmount);
-  if (kpiDineroSub) kpiDineroSub.textContent = totalBoughtProducts + ' productos en catálogo / stock';
+  if (kpiDineroSub) kpiDineroSub.textContent = totalBoughtProducts + ' productos activos en catálogo';
 
-  let activeSales = APP_STATE.sales.filter(s => {
-    if (sellerId && s.sellerId !== sellerId) return false;
+  // 2. VENTAS ACTIVAS PARA EL CONTEXTO SELECCIONADO
+  let contextSales = APP_STATE.sales.filter(s => {
+    if (filterSellerId && s.sellerId !== filterSellerId) return false;
     return true;
   });
 
-  // Vendite inviate da liquidare (solo quelle effettivamente spedite e non restituite)
-  let shippedSales = activeSales.filter(s => isSaleShipped(s) && !s.settled && s.status !== 'Devuelta' && !s.returned);
-  // Vendite in attesa di spedizione (non ancora spedite)
-  let pendingShipSales = activeSales.filter(s => !isSaleShipped(s) && (s.status === 'Venta Confirmada' || s.shippingStatus === 'Vendido para enviar') && !s.settled && s.status !== 'Devuelta' && !s.returned);
-  // Prodotti restituiti (Devueltos / Resos)
-  let returnedSales = activeSales.filter(s => s.status === 'Devuelta' || s.returned);
+  // Ventas ENVIADAS NO liquidadas (¡Las únicas que han madurado contabilidad!)
+  let shippedSales = contextSales.filter(s => isSaleShipped(s) && !s.settled && s.status !== 'Devuelta' && !s.returned);
+  // Ventas VENDIDAS PERO NO ENVIADAS (Aún no maduran contabilidad, en espera)
+  let pendingShipSales = contextSales.filter(s => !isSaleShipped(s) && (s.status === 'Venta Confirmada' || s.shippingStatus === 'Vendido para enviar') && !s.settled && s.status !== 'Devuelta' && !s.returned);
+  // Productos devueltos (Devueltas / Resos)
+  let returnedSales = contextSales.filter(s => s.status === 'Devuelta' || s.returned);
 
-  // REQUISITO SPECIFICO UTENTE (5d):
-  // "nel caso di una restituzione, il venditore interessato dovrá pagare il costo iniziale del prodotto restituito
-  // scalando questo importo dalle sue commissioni future (non l'importo di vendita ma il solo costo del prodotto)"
-  let returnInitialCostDeduction = 0;
+  // CÁLCULO DE DEDUCCIONES POR RESOS SEGÚN RETURN_META O REGLA DE NEGOCIO
+  let totalReturnDeductions = 0;
   returnedSales.forEach(s => {
-    // Si deduce il costo iniziale di acquisto sostenuto dall'admin (adminPurchasePrice)
-    returnInitialCostDeduction += Number(s.adminPurchasePrice) || 0;
+    let chargeProductCost = true;
+    let returnShippingCost = 0;
+    const notesStr = String(s.notes || '');
+    const metaIdx = notesStr.indexOf('[RETURN_META:');
+    if (metaIdx > -1) {
+      const metaEnd = notesStr.indexOf(']', metaIdx);
+      if (metaEnd > -1) {
+        try {
+          const meta = JSON.parse(notesStr.substring(metaIdx + 13, metaEnd));
+          chargeProductCost = meta.chargeProductCost !== false;
+          returnShippingCost = Number(meta.returnShippingCost) || 0;
+        } catch(e) {}
+      }
+    }
+    if (chargeProductCost) totalReturnDeductions += Number(s.adminPurchasePrice) || 0;
+    totalReturnDeductions += returnShippingCost;
   });
 
+  // Totales de ventas enviadas
   let totalBaseAdminCostShipped = 0;
   let totalSellerCommissionShipped = 0;
-
   shippedSales.forEach(s => {
     totalBaseAdminCostShipped += Number(s.adminPurchasePrice) || 0;
     totalSellerCommissionShipped += Number(s.sellerProfit) || 0;
   });
 
+  // Total de ventas pendientes de enviar (In sospeso)
   let totalPendingShipAmount = 0;
   pendingShipSales.forEach(s => {
     totalPendingShipAmount += Number(s.salePrice) || 0;
   });
 
-  // Commissione netta finale per il venditore (scalando il costo iniziale dei prodotti resi dalle sue commissioni)
-  let finalNetSellerProfit = Math.max(0, totalSellerCommissionShipped - returnInitialCostDeduction);
-  // Monto totale a favore dell'admin (costo delle merci spedite + recupero del costo iniziale dei prodotti resi addebitato al venditore)
-  let finalAmountOwedAdmin = totalBaseAdminCostShipped + returnInitialCostDeduction;
+  // Comisión neta final para vendedores (restando resos)
+  let finalNetSellerProfit = Math.max(0, totalSellerCommissionShipped - totalReturnDeductions);
+  // Monto a entregar al Admin (Costo base productos enviados + recupero de resos cargados al vendedor)
+  let finalAmountOwedAdmin = totalBaseAdminCostShipped + totalReturnDeductions;
 
+  // Actualización de KPIs
   const kpiAdmin = document.getElementById('kpiAmountOwedAdmin');
   const kpiSeller = document.getElementById('kpiSellerProfit');
   const kpiPending = document.getElementById('kpiPendingShipmentAmount');
@@ -3861,44 +4333,158 @@ function renderAccounting() {
   const labelProfitWho = document.getElementById('labelProfitWho');
 
   if (isSeller) {
-    if (labelDebtWho) labelDebtWho.textContent = 'Monto a Entregar al Admin (Costo Base + Resos)';
-    if (labelProfitWho) labelProfitWho.textContent = 'Tu Comisión Neta (Ventas Enviadas - Costo Resos)';
+    if (labelDebtWho) labelDebtWho.textContent = 'Monto a Entregar al Admin (Enviadas + Resos)';
+    if (labelProfitWho) labelProfitWho.textContent = 'Tu Comisión Neta Madurada (Enviadas - Resos)';
   } else {
-    if (labelDebtWho) labelDebtWho.textContent = 'Monto a Entregar por Vendedores (Base + Resos)';
-    if (labelProfitWho) labelProfitWho.textContent = 'Comisión Neta Vendedores (Menos Costo Resos)';
+    if (labelDebtWho) labelDebtWho.textContent = 'Monto Total a Cobrar de Vendedores (Enviadas)';
+    if (labelProfitWho) labelProfitWho.textContent = 'Comisiones Netas a Pagar a Vendedores';
   }
 
   if (kpiAdmin) kpiAdmin.textContent = formatMoney(finalAmountOwedAdmin);
   if (kpiSeller) kpiSeller.textContent = formatMoney(finalNetSellerProfit);
   if (kpiPending) kpiPending.textContent = formatMoney(totalPendingShipAmount);
   const kpiPendingCount = document.getElementById('kpiPendingShipmentCount');
-  if (kpiPendingCount) kpiPendingCount.textContent = pendingShipSales.length + ' ventas pendientes de enviar';
-  if (kpiReturn) kpiReturn.textContent = (returnInitialCostDeduction > 0 ? '-' : '') + formatMoney(returnInitialCostDeduction);
+  if (kpiPendingCount) kpiPendingCount.textContent = pendingShipSales.length + ' ventas vendidas aún no despachadas';
+  if (kpiReturn) kpiReturn.textContent = (totalReturnDeductions > 0 ? '-' : '') + formatMoney(totalReturnDeductions);
 
-  // 5b. Filtraggio tabella per stato contabile
-  const statusFilter = (document.getElementById('accountingStatusFilter')?.value || 'ENVIADAS').toUpperCase();
-  let displayedSales = shippedSales;
-  if (statusFilter === 'ALL') {
-    displayedSales = activeSales;
-  } else if (statusFilter === 'PENDIENTES') {
-    displayedSales = pendingShipSales;
-  } else if (statusFilter === 'DEVUELTAS') {
-    displayedSales = returnedSales;
-  } else if (statusFilter === 'LIQUIDADAS') {
-    displayedSales = activeSales.filter(s => s.settled);
+  // 3. RENDERIZADO DEL RESUMEN DE COBROS POR VENDEDOR (ADMIN ONLY)
+  if (isAdmin) {
+    renderAdminSellersSummaryGrid();
   }
 
-  renderAccountingTables(displayedSales, statusFilter);
-  renderSettlementHistory(sellerId);
+  // 4. APLICACIÓN DE FILTROS A LA TABLA CONTABLE DETALLADA
+  const statusFilter = (document.getElementById('accountingStatusFilter')?.value || 'ENVIADAS').toUpperCase();
+  const selectedMonth = (document.getElementById('accountingMonthFilter')?.value || 'ALL');
+
+  let filteredTableSales = contextSales.filter(s => {
+    // Filtro mese
+    if (selectedMonth !== 'ALL') {
+      const sMonth = getMonthKey(s.shippingDate || s.date);
+      if (sMonth !== selectedMonth) return false;
+    }
+    // Filtro stato
+    if (statusFilter === 'ENVIADAS') {
+      return isSaleShipped(s) && !s.settled && s.status !== 'Devuelta' && !s.returned;
+    } else if (statusFilter === 'PENDIENTES') {
+      return !isSaleShipped(s) && (s.status === 'Venta Confirmada' || s.shippingStatus === 'Vendido para enviar') && !s.settled && s.status !== 'Devuelta' && !s.returned;
+    } else if (statusFilter === 'DEVUELTAS') {
+      return s.status === 'Devuelta' || s.returned;
+    } else if (statusFilter === 'LIQUIDADAS') {
+      return s.settled === true;
+    }
+    return true; // ALL
+  });
+
+  renderAccountingTables(filteredTableSales, statusFilter);
+  renderSettlementHistory(filterSellerId);
+}
+
+/**
+ * Renderiza el cuadro de situación financiera desglosado por cada vendedor (Admin)
+ */
+function renderAdminSellersSummaryGrid() {
+  const container = document.getElementById('adminSellersSummaryGrid');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const activeSellers = (APP_STATE.sellers || []).filter(s => isSellerActive(s));
+  if (activeSellers.length === 0) {
+    container.innerHTML = '<div style="color:var(--gray-500); grid-column:1/-1;">No hay vendedores activos registrados.</div>';
+    return;
+  }
+
+  activeSellers.forEach(seller => {
+    const sSales = APP_STATE.sales.filter(s => s.sellerId === seller.id);
+    const sShipped = sSales.filter(s => isSaleShipped(s) && !s.settled && s.status !== 'Devuelta' && !s.returned);
+    const sPending = sSales.filter(s => !isSaleShipped(s) && s.status !== 'Devuelta' && !s.returned);
+    const sReturned = sSales.filter(s => s.status === 'Devuelta' || s.returned);
+
+    let baseAdminCost = 0;
+    let sellerProfit = 0;
+    sShipped.forEach(s => {
+      baseAdminCost += Number(s.adminPurchasePrice) || 0;
+      sellerProfit += Number(s.sellerProfit) || 0;
+    });
+
+    let returnDeductions = 0;
+    sReturned.forEach(s => {
+      let chargeProduct = true;
+      let shipCost = 0;
+      const notes = String(s.notes || '');
+      const idx = notes.indexOf('[RETURN_META:');
+      if (idx > -1) {
+        const end = notes.indexOf(']', idx);
+        if (end > -1) {
+          try {
+            const meta = JSON.parse(notes.substring(idx + 13, end));
+            chargeProduct = meta.chargeProductCost !== false;
+            shipCost = Number(meta.returnShippingCost) || 0;
+          } catch(e) {}
+        }
+      }
+      if (chargeProduct) returnDeductions += Number(s.adminPurchasePrice) || 0;
+      returnDeductions += shipCost;
+    });
+
+    const owedToAdmin = baseAdminCost + returnDeductions;
+    const netSellerProfit = Math.max(0, sellerProfit - returnDeductions);
+
+    const card = document.createElement('div');
+    card.style.background = '#ffffff';
+    card.style.border = '1px solid var(--gray-200)';
+    card.style.borderRadius = '12px';
+    card.style.padding = '16px';
+    card.style.boxShadow = 'var(--shadow-sm)';
+    card.style.display = 'flex';
+    card.style.flexDirection = 'column';
+    card.style.justifyContent = 'space-between';
+
+    card.innerHTML = 
+      '<div>' +
+        '<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">' +
+          '<div>' +
+            '<strong style="font-size: 1.05rem; color: var(--gray-900); display: block;">' + escapeHtml(seller.name) + '</strong>' +
+            '<small style="color: var(--gray-500);">' + escapeHtml(seller.email) + '</small>' +
+          '</div>' +
+          '<span class="status-badge badge-active" style="font-size: 0.75rem;">' + (seller.commissionPct || 50) + '% comisión</span>' +
+        '</div>' +
+        '<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 12px; margin: 10px 0;">' +
+          '<div style="font-size: 0.75rem; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px;">💰 Debe entregar al Admin:</div>' +
+          '<div style="font-size: 1.45rem; font-weight: 800; color: #15803d; line-height: 1.2;">' + formatMoney(owedToAdmin) + '</div>' +
+          '<div style="font-size: 0.78rem; color: #166534; margin-top: 3px;">' + sShipped.length + ' envíos ya realizados sin saldar</div>' +
+        '</div>' +
+        '<div style="font-size: 0.85rem; color: var(--gray-700); margin-bottom: 6px; display: flex; justify-content: space-between;">' +
+          '<span>Comisión neta vendedor:</span>' +
+          '<strong style="color: var(--primary);">' + formatMoney(netSellerProfit) + '</strong>' +
+        '</div>' +
+        (returnDeductions > 0 ? '<div style="font-size: 0.82rem; color: var(--danger); margin-bottom: 6px; display: flex; justify-content: space-between;"><span>Resos deducidos:</span><strong>-' + formatMoney(returnDeductions) + '</strong></div>' : '') +
+        (sPending.length > 0 ? '<div style="font-size: 0.8rem; color: var(--warning); margin-bottom: 8px;">⏳ ' + sPending.length + ' ventas pendientes de enviar</div>' : '') +
+      '</div>' +
+      '<div style="margin-top: 12px; border-top: 1px solid var(--gray-100); pt: 10px;">' +
+        '<button class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;" onclick="openSettlePeriodForSeller(\'' + seller.id + '\')">' +
+          '<i class="fa-solid fa-file-invoice-dollar"></i> Liquidar Período con ' + escapeHtml(seller.name.split(' ')[0]) +
+        '</button>' +
+      '</div>';
+    container.appendChild(card);
+  });
+}
+
+function openSettlePeriodForSeller(sellerId) {
+  openSettlePeriodModal();
+  const sel = document.getElementById('settleSellerSelect');
+  if (sel) {
+    sel.value = sellerId;
+    calculateSettlePeriodSummary();
+  }
 }
 
 function renderAccountingTables(displayedSales, statusFilter = 'ENVIADAS') {
-  const tbody = document.getElementById('accountingCurrentSalesBody');
+  const tbody = document.getElementById('accountingCurrentTableBody') || document.getElementById('accountingCurrentSalesBody');
   if (!tbody) return;
   tbody.innerHTML = '';
 
   if (displayedSales.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px; color: var(--gray-500);"><i class="fa-solid fa-receipt" style="font-size: 2rem; color: var(--gray-300); margin-bottom: 8px;"></i><div>No hay registros contables que coincidan con los filtros seleccionados.</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 30px; color: var(--gray-500);"><i class="fa-solid fa-receipt" style="font-size: 2rem; color: var(--gray-300); margin-bottom: 8px;"></i><div>No hay registros contables que coincidan con los filtros seleccionados.</div></td></tr>';
     return;
   }
 
@@ -3907,38 +4493,39 @@ function renderAccountingTables(displayedSales, statusFilter = 'ENVIADAS') {
     const isShipped = isSaleShipped(s);
     const isReturned = s.status === 'Devuelta' || s.returned;
 
-    let statusBadge = '<span class="status-badge badge-pending-ship"><i class="fa-solid fa-clock"></i> Pendiente Envío</span>';
-    if (s.shippingStatus === 'Vendido para enviar') {
-      statusBadge = '<span class="status-badge" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; font-weight: 600;"><i class="fa-solid fa-boxes-packing"></i> Vendido para enviar</span>';
-    }
-    if (isShipped) {
-      statusBadge = '<span class="status-badge badge-shipped"><i class="fa-solid fa-truck-fast"></i> Enviada</span>';
-    }
-    if (isReturned) {
+    let statusBadge = '';
+    if (s.settled) {
+      statusBadge = '<span class="status-badge badge-settled"><i class="fa-solid fa-check-double"></i> Saldada / Liquidada</span>';
+    } else if (isReturned) {
       statusBadge = '<span class="status-badge" style="background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; font-weight: 600;"><i class="fa-solid fa-rotate-left"></i> Devuelta (Costo a cargo vendedor)</span>';
+    } else if (isShipped) {
+      statusBadge = '<span class="status-badge badge-shipped"><i class="fa-solid fa-truck-fast"></i> Enviada (Madurada)</span>';
+    } else {
+      statusBadge = '<span class="status-badge" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; font-weight: 600;"><i class="fa-solid fa-hourglass-half"></i> Vendida (In Sospeso / No Enviada)</span>';
     }
 
     const qrBtn = s.shippingProofUrl 
       ? '<button class="btn btn-secondary btn-sm" onclick="showQrModal(\'' + escapeHtml(s.shippingProofUrl) + '\', \'' + escapeHtml(s.id) + '\')" title="Ver QR"><i class="fa-solid fa-qrcode"></i></button>' 
-      : '-';
+      : '<span style="color:var(--gray-400);">-</span>';
 
-    // Se il prodotto è restituito, il venditore paga il costo iniziale dell'articolo (mostrato in rosso negativo)
     const commDisplay = isReturned
-      ? '<span style="color: var(--danger); font-weight: 700;">-' + formatMoney(s.adminPurchasePrice) + ' (Addebito Costo Reso)</span>'
+      ? '<span style="color: var(--danger); font-weight: 700;">-' + formatMoney(s.adminPurchasePrice) + ' (Addebito Reso)</span>'
       : '<span style="color: var(--success); font-weight: 700;">' + formatMoney(s.sellerProfit) + '</span>';
 
     tr.innerHTML = 
+      '<td><strong>' + escapeHtml(s.id) + '</strong></td>' +
+      '<td>' + formatDate(s.date) + '</td>' +
       '<td>' + formatDate(s.shippingDate || s.date) + '</td>' +
-      '<td>' + escapeHtml(s.sellerName) + '</td>' +
+      '<td><strong>' + escapeHtml(s.sellerName) + '</strong></td>' +
       '<td>' + escapeHtml(s.productName) + '</td>' +
       '<td>' + formatMoney(s.salePrice) + '</td>' +
       '<td style="color: var(--primary); font-weight: 700;">' + formatMoney(s.adminPurchasePrice) + '</td>' +
       '<td>' + commDisplay + '</td>' +
-      '<td>' + statusBadge + '</td>' +
-      '<td style="text-align: center;">' + qrBtn + '</td>';
+      '<td>' + statusBadge + '</td>';
     tbody.appendChild(tr);
   });
 }
+
 
 function renderSettlementHistory(filterSellerId) {
   const tbody = document.getElementById('settlementHistoryBody');
@@ -4163,6 +4750,7 @@ function renderSellersTable() {
         '<div class="dropdown">' +
           '<button class="btn btn-secondary btn-sm" onclick="toggleDropdown(event, this)"><i class="fa-solid fa-gear"></i> Acciones</button>' +
           '<div class="dropdown-menu">' +
+            '<button onclick="openEditSellerModal(\'' + s.id + '\')"><i class="fa-solid fa-user-pen" style="color: var(--primary);"></i> Modificar Ficha Completa</button>' +
             '<button onclick="openResetPasswordModal(\'' + s.id + '\')"><i class="fa-solid fa-key" style="color: var(--primary);"></i> Cambiar / Reset Contraseña</button>' +
             '<button onclick="openChangeSellerStatusModal(\'' + s.id + '\')"><i class="fa-solid fa-user-pen" style="color: var(--warning);"></i> Cambiar Estado (Baja / Vacaciones)</button>' +
             '<button class="text-danger" onclick="executeDeleteSeller(\'' + s.id + '\')"><i class="fa-solid fa-user-xmark"></i> Eliminar o Archivar</button>' +
@@ -4485,6 +5073,215 @@ function toggleAccountingSubTab(subTab) {
 }
 
 // Registrazione globale su window
+
+// ==============================================================================
+// MODIFICA PRODOTTI IN CATALOGO (ADMIN)
+// ==============================================================================
+function openEditProductModal(prodId) {
+  const p = (APP_STATE.products || []).find(x => x.id === prodId);
+  if (!p) {
+    showToast('Producto no encontrado', 'error');
+    return;
+  }
+
+  document.getElementById('editProdId').value = p.id;
+  document.getElementById('editProdTitle').value = p.title || '';
+  document.getElementById('editProdDesc').value = p.description || '';
+  document.getElementById('editProdPhotoUrl').value = p.photoUrl || '';
+  document.getElementById('editProdPurchasePrice').value = p.purchasePrice || 0;
+  document.getElementById('editProdMinPrice').value = p.minPrice || 0;
+  document.getElementById('editProdMaxPrice').value = p.maxPrice || 0;
+
+  // Popola select venditori
+  const sel = document.getElementById('editProdAssignedTo');
+  if (sel) {
+    sel.innerHTML = '<option value="TUTTI">🌐 Todos los Vendedores (Visible para todos)</option>';
+    (APP_STATE.sellers || []).filter(s => isSellerActive(s)).forEach(s => {
+      sel.innerHTML += '<option value="' + s.id + '">' + escapeHtml(s.name) + ' (' + escapeHtml(s.email) + ')</option>';
+    });
+    sel.value = p.assignedTo || 'TUTTI';
+  }
+
+  // Override commissione
+  const commInp = document.getElementById('editProdCommissionPctOverride');
+  if (commInp) {
+    commInp.value = (p.commissionPct !== undefined && p.commissionPct !== null && p.commissionPct !== '') ? p.commissionPct : '';
+  }
+  updateEditProductCommissionHint();
+
+  openModal('modalEditProduct');
+}
+
+function updateEditProductCommissionHint() {
+  const sel = document.getElementById('editProdAssignedTo');
+  const hint = document.getElementById('editProdCommissionHint');
+  if (!sel || !hint) return;
+  if (!sel.value || sel.value === 'TUTTI') {
+    hint.textContent = 'Sin vendedor específico: la comisión aplicará según la tasa del vendedor que registre la venta.';
+    return;
+  }
+  const seller = (APP_STATE.sellers || []).find(s => String(s.id) === String(sel.value));
+  if (seller) {
+    const pct = seller.commissionPct !== undefined ? seller.commissionPct : 50;
+    hint.textContent = 'Comisión por defecto de ' + escapeHtml(seller.name) + ': ' + pct + '%. Deja vacío para usar ese valor.';
+  }
+}
+
+async function handleEditProductSubmit(e) {
+  e.preventDefault();
+  const prodId = document.getElementById('editProdId').value;
+  const title = (document.getElementById('editProdTitle')?.value || '').trim();
+  const description = (document.getElementById('editProdDesc')?.value || '').trim();
+  const photoUrl = (document.getElementById('editProdPhotoUrl')?.value || '').trim();
+  const purchasePrice = parseFloat(document.getElementById('editProdPurchasePrice').value) || 0;
+  const minPrice = parseFloat(document.getElementById('editProdMinPrice').value) || 0;
+  const maxPrice = parseFloat(document.getElementById('editProdMaxPrice').value) || 0;
+  const assignedTo = document.getElementById('editProdAssignedTo')?.value || 'TUTTI';
+
+  const commVal = document.getElementById('editProdCommissionPctOverride')?.value;
+  const commissionPct = (commVal !== '' && commVal !== undefined && commVal !== null) ? parseFloat(commVal) : null;
+
+  if (minPrice > maxPrice) {
+    showToast('El precio mínimo no puede ser mayor que el precio máximo.', 'warning');
+    return;
+  }
+
+  const prodData = {
+    id: prodId,
+    title,
+    description,
+    photoUrl,
+    purchasePrice,
+    minPrice,
+    maxPrice,
+    assignedTo,
+    commissionPct
+  };
+
+  try {
+    const res = await callServer('updateProduct', { product: prodData }, 'Guardando cambios del producto en Google Sheets...');
+    showToast(res.message || 'Producto actualizado con éxito', 'success');
+
+    // Actualiza en memoria local
+    const p = (APP_STATE.products || []).find(x => x.id === prodId);
+    if (p) {
+      Object.assign(p, prodData);
+      saveLocalData();
+    }
+    closeModal('modalEditProduct');
+    renderAll();
+  } catch (err) {
+    if (err.message === 'CONFIG_URL_MISSING') {
+      const p = (APP_STATE.products || []).find(x => x.id === prodId);
+      if (p) {
+        Object.assign(p, prodData);
+        saveLocalData();
+      }
+      showToast('Producto actualizado localmente.', 'warning');
+      closeModal('modalEditProduct');
+      renderAll();
+    } else {
+      showToast('Error al actualizar producto: ' + err.message, 'error');
+    }
+  }
+}
+
+async function submitEditProduct(e) {
+  return await handleEditProductSubmit(e);
+}
+
+// ==============================================================================
+// MODIFICA FICHA COMPLETA DEL VENDEDOR (ADMIN)
+// ==============================================================================
+function openEditSellerModal(sellerId) {
+  const s = (APP_STATE.sellers || []).find(x => x.id === sellerId);
+  if (!s) {
+    showToast('Vendedor no encontrado', 'error');
+    return;
+  }
+
+  document.getElementById('editSellerId').value = s.id;
+  document.getElementById('editSellerName').value = s.name || '';
+  document.getElementById('editSellerEmail').value = s.email || '';
+  document.getElementById('editSellerPhone').value = s.phone || '';
+  document.getElementById('editSellerPassword').value = s.password || '';
+  document.getElementById('editSellerCommissionPct').value = (s.commissionPct !== undefined) ? s.commissionPct : 50;
+  document.getElementById('editSellerStatus').value = s.status || 'Activo';
+
+  openModal('modalEditSeller');
+}
+
+function regenerateEditSellerPassword() {
+  const p = generateRandomPassword(8);
+  const input = document.getElementById('editSellerPassword');
+  if (input) input.value = p;
+}
+
+async function handleEditSellerSubmit(e) {
+  e.preventDefault();
+  const sellerId = document.getElementById('editSellerId').value;
+  const name = document.getElementById('editSellerName').value.trim();
+  const email = document.getElementById('editSellerEmail').value.trim().toLowerCase();
+  const phone = document.getElementById('editSellerPhone').value.trim();
+  const password = document.getElementById('editSellerPassword').value.trim();
+  const commissionPct = parseFloat(document.getElementById('editSellerCommissionPct').value) || 50;
+  const status = document.getElementById('editSellerStatus').value;
+
+  const sellerData = {
+    id: sellerId,
+    name,
+    email,
+    phone,
+    password,
+    commissionPct,
+    status
+  };
+
+  try {
+    const res = await callServer('updateSellerFull', { seller: sellerData }, 'Guardando ficha completa en Google Sheets...');
+    showToast(res.message || 'Ficha del vendedor actualizada con éxito', 'success');
+
+    // Actualiza en memoria local
+    const s = (APP_STATE.sellers || []).find(x => x.id === sellerId);
+    if (s) {
+      Object.assign(s, sellerData);
+      s.active = isSellerActive(s);
+      saveLocalData();
+    }
+    closeModal('modalEditSeller');
+    renderAll();
+  } catch (err) {
+    if (err.message === 'CONFIG_URL_MISSING') {
+      const s = (APP_STATE.sellers || []).find(x => x.id === sellerId);
+      if (s) {
+        Object.assign(s, sellerData);
+        s.active = isSellerActive(s);
+        saveLocalData();
+      }
+      showToast('Ficha de vendedor actualizada localmente.', 'warning');
+      closeModal('modalEditSeller');
+      renderAll();
+    } else {
+      showToast('Error al actualizar vendedor: ' + err.message, 'error');
+    }
+  }
+}
+
+async function submitEditSeller(e) {
+  return await handleEditSellerSubmit(e);
+}
+
+
+// Nuevos registros globales
+window.submitEditProduct = submitEditProduct;
+window.handleEditProductSubmit = handleEditProductSubmit;
+window.submitEditSeller = submitEditSeller;
+window.handleEditSellerSubmit = handleEditSellerSubmit;
+window.openEditProductModal = openEditProductModal;
+window.openEditSellerModal = openEditSellerModal;
+window.openSettlePeriodForSeller = openSettlePeriodForSeller;
+window.renderShippedTable = renderShippedTable;
+
 window.submitAddProduct = submitAddProduct;
 window.handleAddProductSubmit = handleAddProductSubmit;
 window.submitNewSale = submitNewSale;
