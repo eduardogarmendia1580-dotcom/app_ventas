@@ -1219,8 +1219,11 @@
             <button id="btnCatAvailable" class="btn btn-primary btn-sm" onclick="switchCatalogSubTab('available')">
               <i class="fa-solid fa-box-open"></i> Activos / En Venta (<span id="countCatAvailable">0</span>)
             </button>
-            <button id="btnCatSold" class="btn btn-secondary btn-sm" onclick="switchCatalogSubTab('sold')">
+            <button id="btnCatSold" class="btn btn-secondary btn-sm admin-only" onclick="switchCatalogSubTab('sold')">
               <i class="fa-solid fa-tag"></i> 🏷️ Productos Vendidos (<span id="countCatSold">0</span>)
+            </button>
+            <button id="btnCatReturned" class="btn btn-secondary btn-sm admin-only" onclick="switchCatalogSubTab('returned')">
+              <i class="fa-solid fa-rotate-left"></i> 🔄 Productos Devueltos (<span id="countCatReturned">0</span>)
             </button>
           </div>
           <button class="btn btn-primary admin-only" onclick="openAddProductModal()">
@@ -1389,8 +1392,12 @@
     <!-- ======================================================== -->
     <div id="tab-accounting" class="tab-pane">
       
-      <!-- Contenedor de Alertas de Devoluciones / Saldos Negativos -->
-      <div id="returnAdjustmentAlertsContainer"></div>
+      <!-- ============================================== -->
+      <!-- VISTA 1: CONTABILIDAD DEL ADMINISTRADOR (ADMIN) -->
+      <!-- ============================================== -->
+      <div id="adminAccountingContainer">
+        <!-- Contenedor de Alertas de Devoluciones / Saldos Negativos -->
+        <div id="returnAdjustmentAlertsContainer"></div>
 
       <!-- Barra de Filtros Intuitivos Contables (Admin) -->
       <div class="card admin-only" style="margin-bottom: 16px; background: #ffffff;">
@@ -1566,6 +1573,69 @@
           </div>
         </div>
       </div>
+      </div><!-- /adminAccountingContainer -->
+
+      <!-- ======================================================== -->
+      <!-- VISTA 2: CONTABILIDAD DEDICADA PARA VENDEDORES (REQUISITO 2) -->
+      <!-- ======================================================== -->
+      <div id="sellerAccountingContainer" style="display: none;">
+        
+        <!-- 1. HERO CARD: DINERO QUE DEBES ENTREGAR A ADMIN -->
+        <div id="sellerDebtHeroCard" class="card" style="margin-bottom: 20px; box-shadow: var(--shadow-sm);"></div>
+
+        <!-- 2. RESUMEN DE VENTAS REALIZADAS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div class="stat-card" style="background: #ffffff; border: 1px solid var(--gray-200);">
+            <div class="stat-label"><i class="fa-solid fa-receipt" style="color: var(--primary);"></i> Total Ventas Realizadas</div>
+            <div class="stat-value" id="sellerKpiTotalSalesCount" style="color: var(--gray-900); font-size: 1.8rem; font-weight: 800;">0</div>
+            <div class="stat-subtext" id="sellerKpiTotalSalesAmount">€ 0.00 en volumen vendido</div>
+          </div>
+          <div class="stat-card" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+            <div class="stat-label" style="color: #166534;"><i class="fa-solid fa-truck-fast"></i> Ventas Enviadas (Maduradas)</div>
+            <div class="stat-value" id="sellerKpiShippedSalesCount" style="color: #15803d; font-size: 1.8rem; font-weight: 800;">0</div>
+            <div class="stat-subtext" style="color: #16a34a;">Entregadas al cliente / en contabilidad</div>
+          </div>
+          <div class="stat-card" style="background: #fffbeb; border: 1px solid #fde68a;">
+            <div class="stat-label" style="color: #92400e;"><i class="fa-solid fa-boxes-packing"></i> En Trámite (Por Enviar)</div>
+            <div class="stat-value" id="sellerKpiPendingShipSalesCount" style="color: #b45309; font-size: 1.8rem; font-weight: 800;">0</div>
+            <div class="stat-subtext" style="color: #d97706;">Pendientes de despacho por Admin</div>
+          </div>
+          <div class="stat-card" style="background: #fef2f2; border: 1px solid #fecaca;">
+            <div class="stat-label" style="color: #991b1b;"><i class="fa-solid fa-rotate-left"></i> Devoluciones</div>
+            <div class="stat-value" id="sellerKpiReturnedCount" style="color: #b91c1c; font-size: 1.8rem; font-weight: 800;">0</div>
+            <div class="stat-subtext" style="color: #dc2626;">Pedidos devueltos o cancelados</div>
+          </div>
+        </div>
+
+        <!-- 3. POTENCIAL DE GANANCIA EN TU CATÁLOGO ACTUAL -->
+        <div id="sellerCatalogPotentialBox" class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%); border: 1px solid #a7f3d0; box-shadow: var(--shadow-sm);"></div>
+
+        <!-- 4. TUS GANANCIAS EN COMISIONES POR MES (CALENDARIO SOLAR) -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div class="card-title">
+              <i class="fa-solid fa-calendar-days" style="color: var(--primary);"></i> Tus Ganancias en Comisiones (Desglose por Mes)
+            </div>
+            <span style="font-size: 0.85rem; color: var(--gray-500); font-weight: 600;">Agrupado por mes natural</span>
+          </div>
+          <div class="card-body">
+            <div id="sellerMonthlyAccountingList"></div>
+          </div>
+        </div>
+
+        <!-- 5. DETALLE DE VENTAS ENVIADAS PENDIENTES DE SALDAR CON ADMIN -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fa-solid fa-file-invoice-dollar" style="color: var(--warning);"></i> Detalle de Ventas Enviadas Pendientes de Saldar con Admin
+            </div>
+          </div>
+          <div class="card-body" style="padding: 0; overflow-x: auto;">
+            <div id="sellerPendingSettlementTableContainer"></div>
+          </div>
+        </div>
+
+      </div><!-- /sellerAccountingContainer -->
 
     </div>
 
@@ -2096,6 +2166,18 @@
               Selecciona el nuevo vendedor responsable o "Todos los Vendedores".
             </small>
           </div>
+          <div id="reassignReactivateNotice" style="display: none; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px; margin-top: 10px;">
+            <div style="display: flex; gap: 8px; align-items: center; color: #92400e; font-weight: 700;">
+              <i class="fa-solid fa-rotate-left"></i> Producto Devuelto / Inactivo
+            </div>
+            <p style="font-size: 0.85rem; color: #78350f; margin: 4px 0 8px 0;">
+              Al reasignar este producto devuelto, se reactivará automáticamente y volverá a estar disponible en el catálogo del vendedor seleccionado.
+            </p>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.88rem; font-weight: 600; color: #92400e;">
+              <input type="checkbox" id="reassignReactivateCheck" checked style="width: 16px; height: 16px;">
+              Reactivar inmediatamente y poner a la venta
+            </label>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modalReassignProduct')">Cancelar</button>
@@ -2327,6 +2409,15 @@
               <span style="color:var(--gray-600);font-size:0.9em;">Dejar vacío = usar la comisión por defecto del vendedor</span>
             </div>
             <small id="editProdCommissionHint" style="color:var(--gray-500);"></small>
+          </div>
+          <div class="form-group" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--gray-200); margin-top: 10px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 0;">
+              <input type="checkbox" id="editProdActive" style="width: 18px; height: 18px; cursor: pointer;">
+              <span style="font-weight: 700; color: var(--gray-800);">¿Producto Activo en Catálogo (En Venta)?</span>
+            </label>
+            <small style="color: var(--gray-500); display: block; margin-top: 4px; margin-left: 26px;">
+              Márcalo para activar el producto y que vuelva a aparecer a la venta. Desmárcalo si quieres mantenerlo inactivo o devuelto.
+            </small>
           </div>
         </div>
         <div class="modal-footer">
@@ -3249,6 +3340,26 @@ function updateRoleUI() {
     switchTab('catalog');
   }
 
+  // Garantizar que la subpestaña de productos vendidos no se muestre a vendedores
+  const btnCatSold = document.getElementById('btnCatSold');
+  const viewCatSold = document.getElementById('catViewSold');
+  const btnCatAvail = document.getElementById('btnCatAvailable');
+  const viewCatAvail = document.getElementById('catViewAvailable');
+
+  if (!isAdmin) {
+    if (btnCatSold) btnCatSold.style.display = 'none';
+    if (viewCatSold) viewCatSold.style.display = 'none';
+    if (btnCatAvail) {
+      btnCatAvail.style.display = 'inline-flex';
+      btnCatAvail.className = 'btn btn-primary btn-sm';
+    }
+    if (viewCatAvail) viewCatAvail.style.display = 'block';
+    currentCatalogSubTab = 'available';
+  } else {
+    if (btnCatSold) btnCatSold.style.display = 'inline-flex';
+    if (btnCatAvail) btnCatAvail.style.display = 'inline-flex';
+  }
+
   const shipNotice = document.getElementById('shippingNoticeText');
   if (shipNotice) {
     shipNotice.innerHTML = isAdmin 
@@ -3436,6 +3547,14 @@ function openReassignModal(prodId) {
     select.value = p.assignedTo || 'TUTTI';
   }
 
+  // Mostrar aviso de reactivación si el producto está inactivo (devuelto)
+  const reassignNotice = document.getElementById('reassignReactivateNotice');
+  const reassignReactivateCheck = document.getElementById('reassignReactivateCheck');
+  if (reassignNotice) {
+    reassignNotice.style.display = (p.active === false) ? 'block' : 'none';
+  }
+  if (reassignReactivateCheck) reassignReactivateCheck.checked = true;
+
   openModal('modalReassignProduct');
 }
 
@@ -3448,8 +3567,10 @@ async function submitReassignProduct(e) {
   if (!p) return;
 
   try {
-    const res = await callServer('reassignProduct', { productId: prodId, newAssignedTo }, 'Reasignando producto en Google Sheets...');
+    const reactivate = document.getElementById('reassignReactivateCheck')?.checked !== false;
+    const res = await callServer('reassignProduct', { productId: prodId, newAssignedTo, reactivate }, 'Reasignando producto en Google Sheets...');
     p.assignedTo = newAssignedTo;
+    if (reactivate) { p.active = true; }
     saveLocalData();
     closeModal('modalReassignProduct');
     renderCatalog();
@@ -3457,7 +3578,9 @@ async function submitReassignProduct(e) {
     SoundFX.playAssignDrin();
   } catch (err) {
     if (err.message === 'CONFIG_URL_MISSING') {
+      const reactivateLocal = document.getElementById('reassignReactivateCheck')?.checked !== false;
       p.assignedTo = newAssignedTo;
+      if (reactivateLocal) { p.active = true; }
       saveLocalData();
       closeModal('modalReassignProduct');
       renderCatalog();
@@ -3487,21 +3610,28 @@ function switchCatalogSubTab(subTab) {
   currentCatalogSubTab = subTab;
   const btnAvail = document.getElementById('btnCatAvailable');
   const btnSold = document.getElementById('btnCatSold');
+  const btnReturned = document.getElementById('btnCatReturned');
   const viewAvail = document.getElementById('catViewAvailable');
   const viewSold = document.getElementById('catViewSold');
+  const viewReturned = document.getElementById('catViewReturned');
 
-  if (btnAvail && btnSold) {
-    if (subTab === 'available') {
-      btnAvail.className = 'btn btn-primary btn-sm';
-      btnSold.className = 'btn btn-secondary btn-sm';
-      if (viewAvail) viewAvail.style.display = 'block';
-      if (viewSold) viewSold.style.display = 'none';
-    } else {
-      btnAvail.className = 'btn btn-secondary btn-sm';
-      btnSold.className = 'btn btn-primary btn-sm';
-      if (viewAvail) viewAvail.style.display = 'none';
-      if (viewSold) viewSold.style.display = 'block';
-    }
+  // Reset all
+  if (btnAvail) btnAvail.className = 'btn btn-secondary btn-sm';
+  if (btnSold) btnSold.className = 'btn btn-secondary btn-sm admin-only';
+  if (btnReturned) btnReturned.className = 'btn btn-secondary btn-sm admin-only';
+  if (viewAvail) viewAvail.style.display = 'none';
+  if (viewSold) viewSold.style.display = 'none';
+  if (viewReturned) viewReturned.style.display = 'none';
+
+  if (subTab === 'available') {
+    if (btnAvail) btnAvail.className = 'btn btn-primary btn-sm';
+    if (viewAvail) viewAvail.style.display = 'block';
+  } else if (subTab === 'sold') {
+    if (btnSold) btnSold.className = 'btn btn-primary btn-sm admin-only';
+    if (viewSold) viewSold.style.display = 'block';
+  } else if (subTab === 'returned') {
+    if (btnReturned) btnReturned.className = 'btn btn-primary btn-sm admin-only';
+    if (viewReturned) viewReturned.style.display = 'block';
   }
   renderCatalog();
 }
@@ -3588,7 +3718,56 @@ function renderCatalog() {
     });
   }
 
-  // 2. RENDERIZAR PRODUCTOS VENDIDOS
+  // 2. RENDERIZAR PRODUCTOS DEVUELTOS (admin only)
+  const gridReturned = document.getElementById('productsGridReturned');
+  if (gridReturned && isAdmin) {
+    // Returned = products inactive AND have at least one sale with status Devuelta
+    const returnedProductIds = new Set(
+      (APP_STATE.sales || [])
+        .filter(s => s.returned === true || s.status === 'Devuelta')
+        .map(s => String(s.productId))
+    );
+    const returnedProducts = (APP_STATE.products || []).filter(p =>
+      p.active === false && returnedProductIds.has(String(p.id))
+    );
+    const countReturned = document.getElementById('countCatReturned');
+    if (countReturned) countReturned.textContent = returnedProducts.length;
+
+    gridReturned.innerHTML = '';
+    if (returnedProducts.length === 0) {
+      gridReturned.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><i class="fa-solid fa-rotate-left"></i><h3>No hay productos devueltos</h3><p>Ningún producto ha sido devuelto todavía.</p></div>';
+    } else {
+      returnedProducts.forEach(p => {
+        const returnedSale = (APP_STATE.sales || []).find(s =>
+          (s.returned === true || s.status === 'Devuelta') && String(s.productId) === String(p.id)
+        );
+        const sellerName = returnedSale ? (returnedSale.sellerName || '—') : '—';
+        const saleDate = returnedSale && returnedSale.date ? new Date(returnedSale.date).toLocaleDateString('es-ES') : '—';
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML =
+          '<div style="position: relative;">' +
+            '<img src="' + (p.photoUrl || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500') + '" class="product-image" alt="' + escapeHtml(p.title) + '" onerror="this.src=\'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500\'">' +
+            '<span style="position: absolute; top: 10px; right: 10px; background: #7c3aed; color: #ffffff; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.8rem; box-shadow: var(--shadow-sm);"><i class="fa-solid fa-rotate-left"></i> DEVUELTA</span>' +
+          '</div>' +
+          '<div class="product-body">' +
+            '<div class="product-title">' + escapeHtml(p.title) + '</div>' +
+            '<div style="background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 10px; margin: 8px 0; font-size: 0.85rem;">' +
+              '<div style="margin-bottom: 4px;">🏷️ Costo Admin: <strong>' + formatMoney(p.purchasePrice) + '</strong></div>' +
+              '<div style="margin-bottom: 4px;">👤 Vendedor: <strong>' + escapeHtml(sellerName) + '</strong></div>' +
+              '<div style="margin-bottom: 4px;">📅 Fecha de venta: <strong>' + saleDate + '</strong></div>' +
+            '</div>' +
+            '<div class="product-actions" style="display: flex; gap: 6px; flex-wrap: wrap;">' +
+              '<button class="btn btn-warning btn-sm" onclick="openEditProductModal(\'' + p.id + '\')" title="Modificar Producto"><i class="fa-solid fa-pen-to-square"></i> Editar</button>' +
+              '<button class="btn btn-primary btn-sm" onclick="openReassignModal(\'' + p.id + '\')" title="Reasignar a otro vendedor"><i class="fa-solid fa-user-plus"></i> Reasignar</button>' +
+            '</div>' +
+          '</div>';
+        gridReturned.appendChild(card);
+      });
+    }
+  }
+
+  // 3. RENDERIZAR PRODUCTOS VENDIDOS
   if (gridSold) {
     gridSold.innerHTML = '';
     if (soldProducts.length === 0) {
@@ -4095,9 +4274,17 @@ async function executeDeleteSaleConfirmed() {
     await loadAllData(true);
   } catch (err) {
     if (err.message === 'CONFIG_URL_MISSING') {
+      const sale = (APP_STATE.sales || []).find(s => s.id === saleId);
+      if (sale && sale.productId) {
+        const prod = (APP_STATE.products || []).find(p => p.id === sale.productId);
+        if (prod) {
+          prod.active = true;
+          prod.isSold = false;
+        }
+      }
       APP_STATE.sales = APP_STATE.sales.filter(s => s.id !== saleId);
       saveLocalData();
-      showToast('Venta eliminada (Locale).', 'warning');
+      showToast('Venta eliminada localmente y producto reactivado en catálogo.', 'info');
       renderAll();
     } else {
       showToast('Error al cancelar venta: ' + err.message, 'error');
@@ -4112,9 +4299,17 @@ async function executeDeleteSaleDirect(saleId) {
     await loadAllData(true);
   } catch (err) {
     if (err.message === 'CONFIG_URL_MISSING') {
+      const sale = (APP_STATE.sales || []).find(s => s.id === saleId);
+      if (sale && sale.productId) {
+        const prod = (APP_STATE.products || []).find(p => p.id === sale.productId);
+        if (prod) {
+          prod.active = true;
+          prod.isSold = false;
+        }
+      }
       APP_STATE.sales = APP_STATE.sales.filter(s => s.id !== saleId);
       saveLocalData();
-      showToast('Venta cancelada (Locale).', 'warning');
+      showToast('Venta cancelada localmente y producto reactivado en catálogo.', 'warning');
       renderAll();
     } else {
       showToast('Errore cancellazione: ' + err.message, 'error');
@@ -4349,6 +4544,19 @@ function getMonthNameFromKey(monthKey) {
 function renderAccounting() {
   const isSeller = APP_STATE.role === 'SELLER';
   const isAdmin = APP_STATE.role === 'ADMIN';
+
+  // Enrutamiento por rol: vendedor ve su propia contabilidad, admin ve la vista de admin
+  const adminContainer = document.getElementById('adminAccountingContainer');
+  const sellerContainer = document.getElementById('sellerAccountingContainer');
+  if (isSeller) {
+    if (adminContainer) adminContainer.style.display = 'none';
+    if (sellerContainer) sellerContainer.style.display = 'block';
+    renderSellerAccounting();
+    return;
+  } else {
+    if (adminContainer) adminContainer.style.display = 'block';
+    if (sellerContainer) sellerContainer.style.display = 'none';
+  }
 
   // Población dinámica del filtro de vendedores (si es admin)
   const filterSellerEl = document.getElementById('accountingSellerFilter');
@@ -5274,6 +5482,10 @@ function openEditProductModal(prodId) {
   }
   updateEditProductCommissionHint();
 
+  // Estado activo/inactivo del producto
+  const activeCheck = document.getElementById('editProdActive');
+  if (activeCheck) activeCheck.checked = (p.active !== false);
+
   openModal('modalEditProduct');
 }
 
@@ -5305,6 +5517,7 @@ async function handleEditProductSubmit(e) {
 
   const commVal = document.getElementById('editProdCommissionPctOverride')?.value;
   const commissionPct = (commVal !== '' && commVal !== undefined && commVal !== null) ? parseFloat(commVal) : null;
+  const active = document.getElementById('editProdActive')?.checked !== false;
 
   if (minPrice > maxPrice) {
     showToast('El precio mínimo no puede ser mayor que el precio máximo.', 'warning');
@@ -5320,7 +5533,8 @@ async function handleEditProductSubmit(e) {
     minPrice,
     maxPrice,
     assignedTo,
-    commissionPct
+    commissionPct,
+    active
   };
 
   try {
@@ -5437,6 +5651,143 @@ async function submitEditSeller(e) {
 }
 
 
+// ==============================================================================
+// CONTABILIDAD DEL VENDEDOR
+// ==============================================================================
+function renderSellerAccounting() {
+  const sellerId = APP_STATE.activeSellerId;
+  if (!sellerId) return;
+  const seller = (APP_STATE.sellers || []).find(function(s) { return s.id === sellerId; });
+  const defaultCommPct = seller ? (parseFloat(seller.commissionPct) || 50) : 50;
+  const mySales = (APP_STATE.sales || []).filter(function(s) { return String(s.sellerId) === String(sellerId); });
+
+  function isSaleShippedLocal(s) {
+    return s.shippingStatus === 'Spedita' || s.shippingStatus === 'Spedito' || s.shipped === true;
+  }
+
+  const shippedSales = mySales.filter(function(s) {
+    return isSaleShippedLocal(s) && !s.returned && s.status !== 'Devuelta' && s.status !== 'Cancelada';
+  });
+  const pendingSales = mySales.filter(function(s) {
+    return !isSaleShippedLocal(s) && !s.returned && s.status !== 'Devuelta' && s.status !== 'Cancelada';
+  });
+  const returnedSales = mySales.filter(function(s) { return s.returned || s.status === 'Devuelta'; });
+
+  // KPI counts
+  var elTotal = document.getElementById('sellerKpiTotalSalesCount');
+  if (elTotal) elTotal.textContent = mySales.filter(function(s) { return s.status !== 'Cancelada'; }).length;
+  var elShipped = document.getElementById('sellerKpiShippedSalesCount');
+  if (elShipped) elShipped.textContent = shippedSales.length;
+  var elPending = document.getElementById('sellerKpiPendingShipSalesCount');
+  if (elPending) elPending.textContent = pendingSales.length;
+  var elReturned = document.getElementById('sellerKpiReturnedCount');
+  if (elReturned) elReturned.textContent = returnedSales.length;
+
+  // Deuda = suma del costo de compra (purchasePrice) de las ventas enviadas no liquidadas
+  var unSettledShipped = shippedSales.filter(function(s) { return !s.settled; });
+  var debtToAdmin = unSettledShipped.reduce(function(a, s) {
+    return a + (parseFloat(s.adminPurchasePrice) || parseFloat(s.purchasePrice) || 0);
+  }, 0);
+  var myTotalCommission = unSettledShipped.reduce(function(a, s) {
+    return a + (parseFloat(s.sellerProfit) || 0);
+  }, 0);
+
+  // Hero card: deuda pendiente
+  var heroCard = document.getElementById('sellerDebtHeroCard');
+  if (heroCard) {
+    heroCard.innerHTML = '<div class="card-body text-center py-4">' +
+      '<div style="font-size:0.95rem;color:#6b7280;margin-bottom:4px;">💳 Deuda pendiente con el administrador</div>' +
+      '<div style="font-size:3rem;font-weight:900;color:#b91c1c;">' + formatMoney(debtToAdmin) + '</div>' +
+      '<div style="font-size:0.85rem;color:#374151;margin-top:6px;">Corresponde al coste de los productos ya enviados que aún no has liquidado</div>' +
+      '<hr style="margin:12px 0;">' +
+      '<div style="font-size:1rem;color:#059669;font-weight:600;">✅ Tu comisión acumulada (enviados, pendiente de cobro): ' + formatMoney(myTotalCommission) + '</div>' +
+      '</div>';
+  }
+
+  // Potencial de ganancias del catálogo actual
+  var myProducts = (APP_STATE.products || []).filter(function(p) {
+    return p.active !== false && !isProductSold(p) &&
+      (p.assignedTo === 'TUTTI' || String(p.assignedTo) === String(sellerId));
+  });
+  var potentialMin = 0, potentialMax = 0;
+  myProducts.forEach(function(p) {
+    var commPct = (p.commissionPct != null && p.commissionPct !== '') ? parseFloat(p.commissionPct) : defaultCommPct;
+    potentialMin += Math.max(0, (parseFloat(p.minPrice) || 0) - (parseFloat(p.purchasePrice) || 0)) * commPct / 100;
+    potentialMax += Math.max(0, (parseFloat(p.maxPrice) || 0) - (parseFloat(p.purchasePrice) || 0)) * commPct / 100;
+  });
+  var potBox = document.getElementById('sellerCatalogPotentialBox');
+  if (potBox) {
+    potBox.innerHTML = '<div class="card border-0 shadow-sm"><div class="card-body">' +
+      '<h6 class="fw-bold mb-3" style="color:#1e40af;">💰 Potencial de ganancias en tu catálogo actual</h6>' +
+      '<p class="mb-1">Tienes <strong>' + myProducts.length + ' producto(s) disponibles</strong> para vender.</p>' +
+      (myProducts.length > 0
+        ? '<p class="mb-0">Comisión potencial estimada: <strong style="color:#059669;">' + formatMoney(potentialMin) + ' – ' + formatMoney(potentialMax) + '</strong></p>'
+        : '<p class="mb-0 text-muted">No tienes productos activos asignados en este momento.</p>') +
+      '</div></div>';
+  }
+
+  // Desglose mensual (ventas enviadas agrupadas por mes)
+  var monthlyMap = {};
+  shippedSales.forEach(function(s) {
+    var d = s.date ? new Date(s.date) : null;
+    var mk = d ? (d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')) : 'sin-fecha';
+    var label = d ? d.toLocaleString('es-ES', { month: 'long', year: 'numeric' }) : 'Sin fecha';
+    if (!monthlyMap[mk]) monthlyMap[mk] = { label: label, count: 0, commission: 0, volume: 0 };
+    monthlyMap[mk].count++;
+    monthlyMap[mk].commission += parseFloat(s.sellerProfit) || 0;
+    monthlyMap[mk].volume += parseFloat(s.salePrice) || 0;
+  });
+  var monthlyKeys = Object.keys(monthlyMap).sort().reverse();
+  var monthlyList = document.getElementById('sellerMonthlyAccountingList');
+  if (monthlyList) {
+    if (monthlyKeys.length === 0) {
+      monthlyList.innerHTML = '<p class="text-muted text-center py-3">Aún no tienes ventas enviadas registradas.</p>';
+    } else {
+      monthlyList.innerHTML = monthlyKeys.map(function(mk) {
+        var m = monthlyMap[mk];
+        return '<div class="card mb-2 border-0 shadow-sm"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center">' +
+          '<div><div class="fw-bold text-capitalize">' + m.label + '</div>' +
+          '<div class="text-muted" style="font-size:0.85rem;">' + m.count + ' venta(s) enviada(s) · Volumen: ' + formatMoney(m.volume) + '</div></div>' +
+          '<div class="text-end"><div class="fw-bold text-success" style="font-size:1.1rem;">+' + formatMoney(m.commission) + '</div>' +
+          '<div class="text-muted" style="font-size:0.78rem;">comisión</div></div>' +
+          '</div></div>';
+      }).join('');
+    }
+  }
+
+  // Tabla de ventas enviadas pendientes de liquidar
+  var pendingContainer = document.getElementById('sellerPendingSettlementTableContainer');
+  if (pendingContainer) {
+    if (unSettledShipped.length === 0) {
+      pendingContainer.innerHTML = '<p class="text-muted text-center py-3">¡Todo liquidado! No tienes pagos pendientes con el administrador.</p>';
+    } else {
+      var rows = unSettledShipped.map(function(s) {
+        var d = s.date ? new Date(s.date).toLocaleDateString('es-ES') : '—';
+        var debt = parseFloat(s.adminPurchasePrice) || parseFloat(s.purchasePrice) || 0;
+        var profit = parseFloat(s.sellerProfit) || 0;
+        var price = parseFloat(s.salePrice) || 0;
+        return '<tr>' +
+          '<td>' + escapeHtml(s.productName || '—') + '</td>' +
+          '<td>' + d + '</td>' +
+          '<td>' + formatMoney(price) + '</td>' +
+          '<td class="text-success fw-bold">+' + formatMoney(profit) + '</td>' +
+          '<td class="text-danger fw-bold">' + formatMoney(debt) + '</td>' +
+          '</tr>';
+      }).join('');
+      pendingContainer.innerHTML = '<div class="table-responsive"><table class="table table-sm table-hover">' +
+        '<thead class="table-light"><tr>' +
+        '<th>Producto</th><th>Fecha venta</th><th>Precio venta</th><th>Tu comisión</th><th>Debes a admin</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody>' +
+        '<tfoot class="table-light"><tr>' +
+        '<td colspan="3" class="fw-bold text-end">TOTAL:</td>' +
+        '<td class="fw-bold text-success">+' + formatMoney(myTotalCommission) + '</td>' +
+        '<td class="fw-bold text-danger">' + formatMoney(debtToAdmin) + '</td>' +
+        '</tr></tfoot>' +
+        '</table></div>';
+    }
+  }
+}
+
 // Nuevos registros globales
 window.submitEditProduct = submitEditProduct;
 window.handleEditProductSubmit = handleEditProductSubmit;
@@ -5469,6 +5820,7 @@ window.openReassignModal = openReassignModal;
 window.submitReassignProduct = submitReassignProduct;
 window.showQrModal = showQrModal;
 window.openNewSaleForProduct = openNewSaleForProduct;
+window.renderSellerAccounting = renderSellerAccounting;
 window.SoundFX = SoundFX;
 
 </script>
